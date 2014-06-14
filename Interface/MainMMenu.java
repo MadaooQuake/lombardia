@@ -29,7 +29,7 @@ public class MainMMenu extends javax.swing.JPanel {
     JPanel[] buttonPanels;
     TitledBorder title;
     Border blackline;
-    JButton[] butonAction = new JButton[12];
+    JButton[] butonAction = new JButton[13];
     JLabel money;
 
     /**
@@ -208,6 +208,15 @@ public class MainMMenu extends javax.swing.JPanel {
         c.gridx = 1;
         c.gridy = 1;
         buttonPanels[1].add(butonAction[6], c);
+        
+        butonAction[12] = new JButton();
+        butonAction[12].setText("Skup");
+        butonAction[12].setPreferredSize(new Dimension(150, 40));
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.insets = new Insets(10, 10, 0, 0);
+        c.gridx = 2;
+        c.gridy = 0;
+        buttonPanels[1].add(butonAction[12], c);
 
         butonAction[7] = new JButton();
         butonAction[7].setText("Pożyczka");
@@ -216,11 +225,11 @@ public class MainMMenu extends javax.swing.JPanel {
         butonAction[7].setMinimumSize(new Dimension(200, 100));
         butonAction[7].setPreferredSize(new Dimension(200, 120));
 
-        c.gridx = 2;
+        c.gridx = 3;
         c.gridy = 0;
         c.gridheight = 2;
         c.gridwidth = 2;
-        c.insets = new Insets(10, 325, 10, 10);
+        c.insets = new Insets(10, 155, 10, 10);
         c.fill = GridBagConstraints.HORIZONTAL;
         buttonPanels[1].add(butonAction[7], c);
 
