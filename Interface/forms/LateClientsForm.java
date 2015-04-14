@@ -1,0 +1,226 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package lombardia2014.Interface.forms;
+
+import lombardia2014.dataBaseInterface.QueryDB;
+import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseListener;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.text.SimpleDateFormat;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.border.TitledBorder;
+import javax.swing.table.DefaultTableModel;
+import lombardia2014.CalcDays;
+import lombardia2014.generators.LombardiaLogger;
+
+/**
+ *
+ * @author Mateusz
+ */
+public class LateClientsForm extends Forms {
+
+    //Strings
+    String frameTitle = "Spóźnieni";
+    String tablePanelTitle = "Dane Klienta";
+    //Frames, Panels and Table
+    JFrame lateClientsFrame = new JFrame();
+    JScrollPane scrollPane = null;
+    JTable listClients = null;
+    DefaultTableModel model;
+    JPanel buttonPanel;
+    JPanel tablePanel;
+    //Buttons
+    JButton cancel = null;
+
+    //Database
+    QueryDB setQuerry = null;
+    private ResultSet queryResult = null;
+    Connection conDB = null;
+    Statement stmt = null;
+
+    //Converting current date
+    SimpleDateFormat ft = new SimpleDateFormat("dd.MM.YYYY HH:mm");
+    Date now = new Date();
+    String stopDate = ft.format(now);
+    CalcDays count = null;
+    int daysCount;
+
+    @Override
+    public void generatePanels(GridBagConstraints c) {
+        model = new DefaultTableModel() {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;//This causes all cells to be not editable
+            }
+        };
+        listClients = new JTable(model);
+        model.addColumn("Imię");
+        model.addColumn("Nazwisko");
+        model.addColumn("Nr umowy");
+        model.addColumn("Pierwotna data zwrotu");
+        model.addTableModelListener(listClients);
+        getLateClients();
+
+        listClients.setAutoCreateRowSorter(true);
+        scrollPane = new JScrollPane(listClients);
+        listClients.setFillsViewportHeight(true);
+
+        c.gridwidth = 1;
+        c.gridy = 2;
+        c.gridx = 0;
+        c.insets = new Insets(10, 10, 10, 10);
+        c.ipadx = 650;
+        c.ipady = 600;
+        listClients.setPreferredSize(new Dimension(650, 600));
+
+        scrollPane.setPreferredSize(new Dimension(650, 600));
+        scrollPane.setVisible(true);
+
+        tablePanel.add(scrollPane);
+
+    }
+
+    private void generatePanels2() {
+        GridBagConstraints c2 = new GridBagConstraints();
+        cancel = new JButton();
+        cancel.setText("Anuluj");
+        cancel.addActionListener(new CloseForm());
+        c2.fill = GridBagConstraints.HORIZONTAL;
+        c2.insets = new Insets(5, 5, 5, 5);
+        c2.gridwidth = 1;
+        c2.gridx = 0;
+        c2.gridy = 5;
+
+        buttonPanel.add(cancel);
+        mainPanel.add(tablePanel, c);
+        mainPanel.add(buttonPanel, c2);
+    }
+
+    @Override
+    public void generateGui() {
+        formFrame.setSize(800, 800);
+        formFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        formFrame.setResizable(false);
+        formFrame.setTitle(frameTitle);
+
+        mainPanel = new JPanel(new GridBagLayout());
+        mainPanel.setPreferredSize(new Dimension(800, 800));
+        titleBorder = BorderFactory.createTitledBorder(blackline, frameTitle);
+        titleBorder.setTitleJustification(TitledBorder.RIGHT);
+        titleBorder.setBorder(blackline);
+        mainPanel.setBorder(titleBorder);
+
+        buttonPanel = new JPanel();
+        buttonPanel.setPreferredSize(new Dimension(100, 700));
+
+        tablePanel = new JPanel();
+        tablePanel.setPreferredSize(new Dimension(600, 600));
+        titleBorder = BorderFactory.createTitledBorder(blackline, tablePanelTitle);
+        titleBorder.setTitleJustification(TitledBorder.RIGHT);
+        titleBorder.setBorder(blackline);
+        tablePanel.setBorder(titleBorder);
+
+        generatePanels(c);
+        generatePanels2();
+
+        formFrame.add(mainPanel);
+        formFrame.setVisible(true);
+
+    }
+
+    public class CloseForm implements ActionListener {
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            formFrame.dispose();
+        }
+
+    }
+
+    public void getLateClients() {
+        try {
+            setQuerry = new QueryDB();
+            conDB = setQuerry.getConnDB();
+
+            stmt = conDB.createStatement();
+
+            queryResult = setQuerry.dbSetQuery("SELECT Customers.NAME AS NAME, "
+                    + "Customers.SURNAME AS SURNAME, "
+                    + "Agreements.ID_AGREEMENTS AS AGREEMENT_ID,"
+                    + "Agreements.STOP_DATE AS END_DATE FROM Customers, Agreements"
+                    + " WHERE Agreements.ID_CUSTOMER = Customers.ID");
+
+            while (queryResult.next()) {
+                String startDate = queryResult.getString("END_DATE");
+                count = new CalcDays(stopDate, startDate);
+                daysCount = count.calculateDays();
+
+                if (daysCount > 0) {
+                    Object[] data = {queryResult.getString("NAME"),
+                        queryResult.getString("SURNAME"),
+                        queryResult.getString("AGREEMENT_ID"),
+                        queryResult.getString("END_DATE")};
+                    model.addRow(data);
+                }
+            }
+
+        } catch (SQLException ex) {
+            LombardiaLogger startLogging = new LombardiaLogger();
+            String text = startLogging.preparePattern("Error", ex.getMessage()
+                    + "\n" + Arrays.toString(ex.getStackTrace()));
+            startLogging.logToFile(text);
+        }
+    }
+
+    // actions for selected elements in table
+    private class GetSelectRow implements MouseListener {
+
+        @Override
+        public void mouseClicked(java.awt.event.MouseEvent e) {
+            JTable target = (JTable) e.getSource();
+
+        }
+
+        @Override
+        public void mousePressed(java.awt.event.MouseEvent e) {
+            //nothing to do, but i must create this method :(
+        }
+
+        @Override
+        public void mouseReleased(java.awt.event.MouseEvent e) {
+            //nothing to do, but i must create this method :(
+        }
+
+        @Override
+        public void mouseEntered(java.awt.event.MouseEvent e) {
+            //nothing to do, but i must create this method :(
+        }
+
+        @Override
+        public void mouseExited(java.awt.event.MouseEvent e) {
+            //nothing to do, but i must create this method :(
+        }
+
+    }
+
+}

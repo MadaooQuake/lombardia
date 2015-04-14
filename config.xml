@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+
+<kongiguracja>
+    <!-- konfiguracja aplikacji -->
+    <nazwaBazy>lombardia</nazwaBazy>
+    
+    <!-- okreslenie kwoty popłaty minimalnej np: 4zł lub 4.00-->
+    <oplataMinimalna>4</oplataMinimalna>
+    
+    <!-- Odsetki lombardowe aktualnie wynoszą 4%-->
+    <oplataManipulacyjna>4</oplataManipulacyjna>
+    
+    <!-- oprocentowanie za przechowywanie akceptowalne są , i .-->
+    <zyskNaDzien>0.9</zyskNaDzien>
+    
+    <!-- przy sprzedarzy produktu -->
+    <vat>23</vat>
+    
+    <stopa>0.055</stopa>
+    
+    <rso>0.18</rso>
+
+    <kwotzaPrzedterminowa>3.6</kwotzaPrzedterminowa>
+
+    
+</kongiguracja>
