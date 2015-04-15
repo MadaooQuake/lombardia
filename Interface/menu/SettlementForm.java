@@ -50,6 +50,13 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.JOptionPane;
 
+//to calculate rates
+import lombardia2014.ValueCalc;
+
+//support headers
+import java.util.HashMap;
+import java.util.Map;
+
 public class SettlementForm  extends MenuElementsList {
     String formname = "Rozliczenia ";
     String range = "roczne";
@@ -59,19 +66,91 @@ public class SettlementForm  extends MenuElementsList {
     int selectRow = -1;
     int window_width = 660;
     int window_heigth = 500;
+    ValueCalc rate = null;
+    Map<Integer, HashMap>  objHeaders = new HashMap<>();
 
     public SettlementForm(String dateRange_) {
         if(dateRange_.equals("Month")) {
             range = "miesięczne";
         }
     }
+
+    private void prepareHeaders() {
+        objHeaders.put(1, (HashMap) buildHeader('','L.p.',''));
+        objHeaders.put(2, (HashMap) buildHeader('Customers.Name','Imię',''));
+        objHeaders.put(3, (HashMap) buildHeader('Customers.Surname','Nazwisko',''));
+        objHeaders.put(4, (HashMap) buildHeader('Customers.Address','Adres',''));
+        objHeaders.put(5, (HashMap) buildHeader('Agreements.Start_Date','Data pożyczki',''));
+        objHeaders.put(6, (HashMap) buildHeader('Agreements.Value','Kwota pożyczki',''));
+        objHeaders.put(7, (HashMap) buildHeader('','Odsetki',''));
+        objHeaders.put(8, (HashMap) buildHeader('Items.Model','Opis zastawu',''));
+        objHeaders.put(9, (HashMap) buildHeader('Items.Value','Wartość zastawu',''));
+        objHeaders.put(10, (HashMap) buildHeader('Agreements.Stop_date','Termin zwrotu',''));
+        objHeaders.put(11,(HashMap) buildHeader('Items.Sold_date','Data sprzedaży zastawu',''));
+        objHeaders.put(12,(HashMap) buildHeader('','Kwota sprzedaży zastawu',''));
+        objHeaders.put(13,(HashMap) buildHeader('','Kwota prowizji',''));
+
+    }
+
+    private Map<String, String> buildHeader(String dbName, String outputName, String size) {
+        Map<String, String> tmpHead = new HashMap<>();
+        tmpHead.put('size', size);
+        tmpHead.put('outputName', outputName);
+        tmpHead.put('dbName', dbName);
+
+        return tmpHead;
+    }
+
     
     private String[] getHeaders() {
-        String[] result = new String[] {"ID", "Model", "Marka", "Typ", "Umowa_ID", "Waga", "IMEI", "Wartość", "Uwagi", "Kategoria"} ;
         
+        int headSize = objHeaders.size();
+        String[] result = new String[];
+        
+        for (int i = 0; i < headSize; i++) {
+            result.add( headSize.get(i + 1).get('outputName') );
+        }
+
         return result;
     }
+
+    private String[] getDbHeaders() {
+        int headSize = objHeaders.size();
+        String[] result = new String[];
+        String elem;
+        
+        for (int i = 0; i < headSize; i++) {
+            elem = headSize.get(i + 1).get('dbName');
+            if (!elem.equals('')) {
+                result.add( elem );
+            }
+        }
+
+        return result;        
+    }
     
+    private String PrepareQuery() {
+        String result = 'SELECT ';
+
+        dbHeaders = getDbHeaders();
+        for (int i = 0; i < dbHeaders.size(); i++) {
+            result += dbHeaders[i];
+            if (i < dbHeaders.size() - 1) { //skip for last element
+                result += ','
+            }
+        }
+        result = result + " FROM "
+               + "Customers,"
+               + "Items,"
+               + "Agreements"
+               + " WHERE "
+                    + "Items.ID_AGREEMENT = Agreements.ID "
+                    + "AND Agreements.ID_CUSTOMER = Customers.ID "
+                    + ";"
+
+        return result;
+    }
+
     @Override
     public void generateGui() {
         
@@ -175,13 +254,15 @@ public class SettlementForm  extends MenuElementsList {
     
     private PdfPTable createPDFTable(String[][] inputData, com.itextpdf.text.Font myFont) 
             throws DocumentException {
-        PdfPTable table = new PdfPTable(10);
+
+        String[] headers = getHeaders();
+        PdfPTable table = new PdfPTable(headers.length);
         table.setWidthPercentage(90);
         // set relative columns width
         //table.setWidths(new float[]{0.6f, 1.4f, 0.8f,0.8f,1.8f,2.6f});
         
         //generate headers
-        String[] headers = getHeaders();
+        
         for (int i = 0; i < headers.length; i++) {
                 PdfPCell cell = new PdfPCell(new Phrase(headers[i],myFont));
                 table.addCell( cell );            
@@ -227,9 +308,71 @@ public class SettlementForm  extends MenuElementsList {
         
         return convertedData;
     }
-       
-        // get users list from database
+
+
     private DefaultTableModel getSettlement() {
+        DefaultTableModel result = new DefaultTableModel() {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;//This causes all cells to be not editable
+            }
+        };
+
+        precentCalc = new ValueCalc(); //precentCalc.lombardRate(val)
+        
+        String[] headers = getHeaders();
+        for (int i=0; i<headers.length; i++) {
+            result.addColumn(headers[i]);
+        }
+        
+        try {
+            QueryDB setQuerry = new QueryDB();
+            Connection conDB = setQuerry.getConnDB();
+            Statement stmt = conDB.createStatement();
+            
+            ResultSet queryResult = setQuerry.dbSetQuery( PrepareQuery() );
+            
+            int lp = 0;
+
+            while (queryResult.next()) {
+                lp++;
+                float value = queryResult.getFloat( objHeaders.get(6).get('dbName')),
+                float r = rate.lombardRate(value);
+                Object[] data = {
+                    lp,
+                    queryResult.getString( objHeaders.get(2).get('dbName')),
+                    queryResult.getString( objHeaders.get(3).get('dbName')),
+                    queryResult.getString( objHeaders.get(4).get('dbName')),
+                    queryResult.getString( objHeaders.get(5).get('dbName')),
+                    value.toString(),
+                    r.toString(),
+                    queryResult.getString( objHeaders.get(8).get('dbName')),
+                    queryResult.getString( objHeaders.get(9).get('dbName')),
+                    queryResult.getString( objHeaders.get(10).get('dbName')),
+                    queryResult.getString( objHeaders.get(11).get('dbName')),
+                    "Not implemented",
+                    "Not implemented"
+
+                };
+                
+                result.addRow(data);
+            }
+
+        } catch (SQLException ex) {
+            LombardiaLogger startLogging = new LombardiaLogger();
+            String text = startLogging.preparePattern("Error", ex.getMessage()
+                    + "\n" + Arrays.toString(ex.getStackTrace()));
+            startLogging.logToFile(text);
+        }
+        
+        return result;
+    }
+
+
+
+       
+    // get settlement list from database depreciated
+    private DefaultTableModel getSettlement_old() {
         DefaultTableModel result = new DefaultTableModel() {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -241,16 +384,6 @@ public class SettlementForm  extends MenuElementsList {
         for (int i=0; i<headers.length; i++) {
             result.addColumn(headers[i]);
         }
-//        result.addColumn("ID");
-//        result.addColumn("Model");
-//        result.addColumn("Marka");
-//        result.addColumn("Typ");
-//        result.addColumn("Umowa_ID");
-//        result.addColumn("Waga");
-//        result.addColumn("IMEI");
-//        result.addColumn("Wartość");
-//        result.addColumn("Uwagi");
-//        result.addColumn("Kategoria");
         
         try {
             QueryDB setQuerry = new QueryDB();
