@@ -67,7 +67,7 @@ public class SettlementForm  extends MenuElementsList {
     int window_width = 660;
     int window_heigth = 500;
     ValueCalc rate = null;
-    Map<Integer, HashMap>  objHeaders = new HashMap<>();
+    Map<Integer, HashMap<String, String>>  objHeaders = new HashMap<>();
 
     public SettlementForm(String dateRange_) {
         if(dateRange_.equals("Month")) {
@@ -76,27 +76,27 @@ public class SettlementForm  extends MenuElementsList {
     }
 
     private void prepareHeaders() {
-        objHeaders.put(1, (HashMap) buildHeader('','L.p.',''));
-        objHeaders.put(2, (HashMap) buildHeader('Customers.Name','Imię',''));
-        objHeaders.put(3, (HashMap) buildHeader('Customers.Surname','Nazwisko',''));
-        objHeaders.put(4, (HashMap) buildHeader('Customers.Address','Adres',''));
-        objHeaders.put(5, (HashMap) buildHeader('Agreements.Start_Date','Data pożyczki',''));
-        objHeaders.put(6, (HashMap) buildHeader('Agreements.Value','Kwota pożyczki',''));
-        objHeaders.put(7, (HashMap) buildHeader('','Odsetki',''));
-        objHeaders.put(8, (HashMap) buildHeader('Items.Model','Opis zastawu',''));
-        objHeaders.put(9, (HashMap) buildHeader('Items.Value','Wartość zastawu',''));
-        objHeaders.put(10, (HashMap) buildHeader('Agreements.Stop_date','Termin zwrotu',''));
-        objHeaders.put(11,(HashMap) buildHeader('Items.Sold_date','Data sprzedaży zastawu',''));
-        objHeaders.put(12,(HashMap) buildHeader('','Kwota sprzedaży zastawu',''));
-        objHeaders.put(13,(HashMap) buildHeader('','Kwota prowizji',''));
+        objHeaders.put(1, buildHeader("","L.p.",""));
+        objHeaders.put(2, buildHeader("Customers.Name","Imię",""));
+        objHeaders.put(3, buildHeader("Customers.Surname","Nazwisko",""));
+        objHeaders.put(4, buildHeader("Customers.Address","Adres",""));
+        objHeaders.put(5, buildHeader("Agreements.Start_Date","Data pożyczki",""));
+        objHeaders.put(6, buildHeader("Agreements.Value","Kwota pożyczki",""));
+        objHeaders.put(7, buildHeader("","Odsetki",""));
+        objHeaders.put(8, buildHeader("Items.Model","Opis zastawu",""));
+        objHeaders.put(9, buildHeader("Items.Value","Wartość zastawu",""));
+        objHeaders.put(10,buildHeader("Agreements.Stop_date","Termin zwrotu",""));
+        objHeaders.put(11,buildHeader("Items.Sold_date","Data sprzedaży zastawu",""));
+        objHeaders.put(12,buildHeader("","Kwota sprzedaży zastawu",""));
+        objHeaders.put(13,buildHeader("","Kwota prowizji",""));
 
     }
 
-    private Map<String, String> buildHeader(String dbName, String outputName, String size) {
-        Map<String, String> tmpHead = new HashMap<>();
-        tmpHead.put('size', size);
-        tmpHead.put('outputName', outputName);
-        tmpHead.put('dbName', dbName);
+    private HashMap<String, String> buildHeader(String dbName, String outputName, String size) {
+        HashMap<String, String> tmpHead = new HashMap<>();
+        tmpHead.put("size", size);
+        tmpHead.put("outputName", outputName);
+        tmpHead.put("dbName", dbName);
 
         return tmpHead;
     }
@@ -105,10 +105,10 @@ public class SettlementForm  extends MenuElementsList {
     private String[] getHeaders() {
         
         int headSize = objHeaders.size();
-        String[] result = new String[];
+        String[] result = new String[headSize];
         
         for (int i = 0; i < headSize; i++) {
-            result.add( headSize.get(i + 1).get('outputName') );
+            result[i] = objHeaders.get(i + 1).get("outputName");
         }
 
         return result;
@@ -116,13 +116,25 @@ public class SettlementForm  extends MenuElementsList {
 
     private String[] getDbHeaders() {
         int headSize = objHeaders.size();
-        String[] result = new String[];
+        int emptySize = 0;
+        String[] tmpArray = new String[headSize];
         String elem;
         
         for (int i = 0; i < headSize; i++) {
-            elem = headSize.get(i + 1).get('dbName');
-            if (!elem.equals('')) {
-                result.add( elem );
+            elem = objHeaders.get(i + 1).get("dbName");
+            if (elem.equals("")) {
+                emptySize ++;
+            }
+            tmpArray[i] = elem;
+        }
+        
+        String[] result = new String[headSize - emptySize];
+        int magix = 0;
+        for (int i = 0; i < headSize; i++) {
+            if (!tmpArray[i].equals("")) {
+                result[i - magix] = tmpArray[i];
+            } else {
+                magix ++;
             }
         }
 
@@ -130,13 +142,15 @@ public class SettlementForm  extends MenuElementsList {
     }
     
     private String PrepareQuery() {
-        String result = 'SELECT ';
+        String result = "SELECT ";
 
-        dbHeaders = getDbHeaders();
-        for (int i = 0; i < dbHeaders.size(); i++) {
+        String[] dbHeaders = getDbHeaders();
+            
+        
+        for (int i = 0; i < dbHeaders.length; i++) {
             result += dbHeaders[i];
-            if (i < dbHeaders.size() - 1) { //skip for last element
-                result += ','
+            if (i < dbHeaders.length - 1) { //skip for last element
+                result += ",";
             }
         }
         result = result + " FROM "
@@ -146,13 +160,13 @@ public class SettlementForm  extends MenuElementsList {
                + " WHERE "
                     + "Items.ID_AGREEMENT = Agreements.ID "
                     + "AND Agreements.ID_CUSTOMER = Customers.ID "
-                    + ";"
+                    + ";";
 
         return result;
     }
 
     @Override
-    public void generateGui() {
+    public void generateGui() {  
         
         formFrame.setSize(window_width, window_heigth);
         formFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -162,7 +176,8 @@ public class SettlementForm  extends MenuElementsList {
         titleBorder = BorderFactory.createTitledBorder(blackline, formname + range);
         titleBorder.setTitleJustification(TitledBorder.RIGHT);
         mainPanel.setBorder(titleBorder);
-
+        
+        prepareHeaders();
         generatePanels(new GridBagConstraints());
 
         formFrame.add(mainPanel);
@@ -318,7 +333,6 @@ public class SettlementForm  extends MenuElementsList {
             }
         };
 
-        precentCalc = new ValueCalc(); //precentCalc.lombardRate(val)
         
         String[] headers = getHeaders();
         for (int i=0; i<headers.length; i++) {
@@ -336,24 +350,23 @@ public class SettlementForm  extends MenuElementsList {
 
             while (queryResult.next()) {
                 lp++;
-                float value = queryResult.getFloat( objHeaders.get(6).get('dbName')),
+                float value = queryResult.getFloat( objHeaders.get(6).get("dbName"));
                 float r = rate.lombardRate(value);
                 Object[] data = {
                     lp,
-                    queryResult.getString( objHeaders.get(2).get('dbName')),
-                    queryResult.getString( objHeaders.get(3).get('dbName')),
-                    queryResult.getString( objHeaders.get(4).get('dbName')),
-                    queryResult.getString( objHeaders.get(5).get('dbName')),
-                    value.toString(),
-                    r.toString(),
-                    queryResult.getString( objHeaders.get(8).get('dbName')),
-                    queryResult.getString( objHeaders.get(9).get('dbName')),
-                    queryResult.getString( objHeaders.get(10).get('dbName')),
-                    queryResult.getString( objHeaders.get(11).get('dbName')),
+                    queryResult.getString( objHeaders.get(2).get("dbName") ),
+                    queryResult.getString( objHeaders.get(3).get("dbName") ),
+                    queryResult.getString( objHeaders.get(4).get("dbName") ),
+                    queryResult.getString( objHeaders.get(5).get("dbName") ),
+                    Float.toString(value),
+                    Float.toString(r),
+                    queryResult.getString( objHeaders.get(8).get("dbName") ),
+                    queryResult.getString( objHeaders.get(9).get("dbName") ),
+                    queryResult.getString( objHeaders.get(10).get("dbName") ),
+                    queryResult.getString( objHeaders.get(11).get("dbName") ),
                     "Not implemented",
                     "Not implemented"
-
-                };
+                    };
                 
                 result.addRow(data);
             }
