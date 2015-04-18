@@ -250,6 +250,7 @@ public class MainInterface {
                 KeyEvent.VK_7, ActionEvent.ALT_MASK));
         menuItem.getAccessibleContext().setAccessibleDescription(
                 "Tworzy dokument z rozliczeniami rocznymi");
+        menuItem.addActionListener(new YearlySettlements());
         menu.add(menuItem);
 
         menu.addSeparator();
@@ -502,6 +503,15 @@ public class MainInterface {
         @Override
         public void actionPerformed(ActionEvent e) {
             SettlementForm newSettlement = new SettlementForm("Month");
+            newSettlement.generateGui();
+        }
+
+    }
+    public class YearlySettlements implements ActionListener {
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            SettlementForm newSettlement = new SettlementForm("");
             newSettlement.generateGui();
         }
 
