@@ -154,16 +154,15 @@ public class CreateDB {
                     + "USER TEXT NOT NULL)";
             stmt.executeUpdate(sql);
 
-            /* 
-             Matsu why this table don't have any ralation to User table ?
-             */
             sql = "CREATE TABLE PhoneReports"
                     + "(ID INTEGER PRIMARY KEY AUTOINCREMENT,"
                     + "TITLE TEXT NOT NULL,"
                     + "CONTENT TEXT NOT NULL,"
                     + "DATE TEXT NOT NULL,"
                     + "NUMBER INTEGER NOT NULL,"
-                    + "USER TEXT NOT NULL)";
+                    + "ID_CUSTOMER INTEGER(4) NOT NULL,"
+                    + "FOREIGN KEY (ID_CUSTOMER) REFERENCES Customers(ID)"
+                    + ")";
             stmt.executeUpdate(sql);
 
             // insert data

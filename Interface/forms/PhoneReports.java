@@ -6,9 +6,7 @@
 package lombardia2014.Interface.forms;
 
 import lombardia2014.dataBaseInterface.QueryDB;
-import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -23,8 +21,6 @@ import java.sql.Statement;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Arrays;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -102,33 +98,24 @@ public class PhoneReports extends Forms {
         listPhoneReports.setAutoCreateRowSorter(true);
         scrollPane = new JScrollPane(listPhoneReports);
         listPhoneReports.setFillsViewportHeight(true);
-
-        c.gridwidth = 1;
-        c.gridy = 2;
-        c.gridx = 2;
-        c.insets = new Insets(10, 10, 10, 10);
-        c.ipadx = 650;
-        c.ipady = 600;
         listPhoneReports.setPreferredSize(new Dimension(650, 600));
+        listPhoneReports.addMouseListener(new GetSelectRow());
 
         scrollPane.setPreferredSize(new Dimension(650, 600));
         scrollPane.setVisible(true);
 
         tablePanel.add(scrollPane);
-
+        c.insets = new Insets(5, 5, 5, 5);
+        c.gridwidth = 1;
+        c.gridx = 0;
+        c.gridy = 0;
+        c.ipadx = 650;
+        c.ipady = 600;
+        mainPanel.add(tablePanel, c);
     }
 
     private void generatePanels2() {
         GridBagConstraints c2 = new GridBagConstraints();
-        cancel = new JButton();
-        cancel.setText("Anuluj");
-        cancel.addActionListener(new CloseForm());
-        c2.fill = GridBagConstraints.HORIZONTAL;
-        c2.insets = new Insets(5, 5, 5, 5);
-        c2.gridwidth = 1;
-        c2.gridx = 1;
-        c2.gridy = 6;
-
         add = new JButton();
         add.setText("Dodaj");
         add.addActionListener(new addPhoneReport());
@@ -136,7 +123,8 @@ public class PhoneReports extends Forms {
         c2.insets = new Insets(5, 5, 5, 5);
         c2.gridwidth = 1;
         c2.gridx = 0;
-        c2.gridy = 5;
+        c2.gridy = 0;
+        buttonPanel.add(add, c2);
 
         delete = new JButton();
         delete.setText("Usuń");
@@ -144,19 +132,30 @@ public class PhoneReports extends Forms {
         c2.fill = GridBagConstraints.HORIZONTAL;
         c2.insets = new Insets(5, 5, 5, 5);
         c2.gridwidth = 1;
-        c2.gridx = 2;
-        c2.gridy = 5;
+        c2.gridx = 1;
+        c2.gridy = 0;
+        buttonPanel.add(delete, c2);
 
-        buttonPanel.add(cancel);
-        buttonPanel.add(add);
-        buttonPanel.add(delete);
-        mainPanel.add(tablePanel, c);
-        mainPanel.add(buttonPanel, c2);
+        cancel = new JButton();
+        cancel.setText("Anuluj");
+        cancel.addActionListener(new CloseForm());
+        c2.fill = GridBagConstraints.HORIZONTAL;
+        c2.insets = new Insets(5, 5, 5, 5);
+        c2.gridwidth = 1;
+        c2.gridx = 2;
+        c2.gridy = 0;
+        buttonPanel.add(cancel, c2);
+
+        c.gridwidth = 1;
+        c.gridx = 0;
+        c.gridy = 1;
+        c.ipadx = 10;
+        c.ipady = 10;
+        mainPanel.add(buttonPanel, c);
     }
 
     @Override
     public void generateGui() {
-
         formFrame.setSize(800, 800);
         formFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         formFrame.setResizable(false);
@@ -182,9 +181,7 @@ public class PhoneReports extends Forms {
         generatePanels(c);
         generatePanels2();
         formFrame.add(mainPanel);
-
         formFrame.setVisible(true);
-
     }
 
     public class CloseForm implements ActionListener {
@@ -200,7 +197,6 @@ public class PhoneReports extends Forms {
         try {
             setQuerry = new QueryDB();
             conDB = setQuerry.getConnDB();
-
             stmt = conDB.createStatement();
 
             queryResult = setQuerry.dbSetQuery("SELECT * FROM PhoneReports;");
@@ -229,39 +225,8 @@ public class PhoneReports extends Forms {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            Title = JOptionPane.showInputDialog(formFrame,
-                    "Wpisz tytuł zgłoszenia ",
-                    JOptionPane.OK_CANCEL_OPTION);
-
-            Content = JOptionPane.showInputDialog(formFrame,
-                    "Wpisz treść zgłoszenia ",
-                    JOptionPane.OK_CANCEL_OPTION);
-
-            Number = JOptionPane.showInputDialog(formFrame,
-                    "Wpisz numer telefonu,",
-                    JOptionPane.OK_CANCEL_OPTION);
-
-            if (Title.isEmpty() || Content.isEmpty() || Number.isEmpty()) {
-                JOptionPane.showMessageDialog(formFrame, "Pole nie może być puste",
-                        "Błąd wprowadzania", JOptionPane.ERROR_MESSAGE);
-            } else {
-                try {
-                    setQuerry = new QueryDB();
-                    conDB = setQuerry.getConnDB();
-
-                    stmt = conDB.createStatement();
-
-                    queryResult = setQuerry.dbSetQuery("INSERT INTO PhoneReports ("
-                            + " Title,Content,Date,Number, User) VALUES ('" + Title
-                            + "','" + Content + "','" + date + "','" + Number + "','"
-                            + userName + " " + userSurname + "');");
-                } catch (SQLException ex) {
-                    LombardiaLogger startLogging = new LombardiaLogger();
-                    String text = startLogging.preparePattern("Error", ex.getMessage()
-                            + "\n" + Arrays.toString(ex.getStackTrace()));
-                    startLogging.logToFile(text);
-                }
-            }
+            NewPhoneReport generateReport = new NewPhoneReport();
+            generateReport.generateGui(); 
         }
     }
 
@@ -269,23 +234,24 @@ public class PhoneReports extends Forms {
 
         @Override
         public void actionPerformed(ActionEvent ae) {
-
-            try {
-                setQuerry = new QueryDB();
-                conDB = setQuerry.getConnDB();
-
-                stmt = conDB.createStatement();
-
-                queryResult = setQuerry.dbSetQuery("DELETE FROM PhoneReports"
-                        + " WHERE ID = " + ID + ";");
-
-            } catch (SQLException ex) {
-                LombardiaLogger startLogging = new LombardiaLogger();
-                String text = startLogging.preparePattern("Error", ex.getMessage()
-                        + "\n" + Arrays.toString(ex.getStackTrace()));
-                startLogging.logToFile(text);
+            if (selectRow >= 0) {
+                try {
+                    setQuerry = new QueryDB();
+                    conDB = setQuerry.getConnDB();
+                    stmt = conDB.createStatement();
+                    queryResult = setQuerry.dbSetQuery("DELETE FROM PhoneReports"
+                            + " WHERE ID = " + ID + ";");
+                } catch (SQLException ex) {
+                    LombardiaLogger startLogging = new LombardiaLogger();
+                    String text = startLogging.preparePattern("Error", ex.getMessage()
+                            + "\n" + Arrays.toString(ex.getStackTrace()));
+                    startLogging.logToFile(text);
+                }
+            } else {
+                JOptionPane.showMessageDialog(null, "Musisz zaznaczyć zgłoszenie",
+                        "Zgłoszenie nie zostałow wybrane!",
+                        JOptionPane.ERROR_MESSAGE);
             }
-
         }
     }
 
