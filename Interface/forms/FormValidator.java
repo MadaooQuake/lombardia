@@ -257,7 +257,34 @@ public class FormValidator {
             return false;
         }
         return false;
-
     }
-
+    
+    /**
+     * checkin phone number in three steps
+     * 1. check if contains +48 (if not add as default +48) 
+     * 2. chek length phone number (nine signs + three)
+     * 3. return 
+     */
+    
+    /**
+     * check country code
+     */
+    public String checkCountryCode(String number) {
+        String addCountryCode = null;
+        if(number.startsWith("+")) {
+            addCountryCode = number;
+        } else {
+            addCountryCode = "+48" + number;
+        }
+        
+        return addCountryCode;
+    }
+    
+    /**
+     * check lenght 
+     */
+    public boolean checkLenghtnumber(String number) {
+        return (number.length() == 11);
+    }
+    
 }
