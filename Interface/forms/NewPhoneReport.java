@@ -26,6 +26,7 @@ import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
@@ -58,7 +59,7 @@ public class NewPhoneReport extends Forms {
 
     @Override
     public void generateGui() {
-        formFrame.setSize(350, 300);
+        formFrame.setSize(350, 400);
         formFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         formFrame.setResizable(false);
         formFrame.setTitle("Nowe zgłoszenie");
@@ -88,7 +89,7 @@ public class NewPhoneReport extends Forms {
 
     private JPanel generateFields() {
         JPanel fieldsPanel = new JPanel(new GridBagLayout());
-        namedField = new JLabel[4];
+        namedField = new JLabel[5];
         fields = new JTextField[4];
         cTab[0] = new GridBagConstraints();
         cTab[0].insets = new Insets(5, 5, 5, 5);
@@ -181,7 +182,7 @@ public class NewPhoneReport extends Forms {
         fieldsPanel.add(fields[1], cTab[0]);
 
         namedField[3] = new JLabel();
-        namedField[3].setText("Treść:");
+        namedField[3].setText("Tytuł:");
         namedField[3].setFont(new Font("Dialog", Font.BOLD, fontSize));
         cTab[0].fill = GridBagConstraints.HORIZONTAL;
         cTab[0].gridx = 0;
@@ -195,6 +196,21 @@ public class NewPhoneReport extends Forms {
         cTab[0].gridy = 3;
         fieldsPanel.add(fields[2], cTab[0]);
 
+        namedField[4] = new JLabel();
+        namedField[4].setText("Treść:");
+        namedField[4].setFont(new Font("Dialog", Font.BOLD, fontSize));
+        cTab[0].fill = GridBagConstraints.HORIZONTAL;
+        cTab[0].gridx = 0;
+        cTab[0].gridy = 4;
+        fieldsPanel.add(namedField[4], cTab[0]);
+
+        fields[3] = new JTextField();
+        fields[3].setPreferredSize(new Dimension(150, heightTextL));
+        fields[3].setFont(new Font("Dialog", Font.BOLD, fontSize));
+        cTab[0].gridx = 1;
+        cTab[0].gridy = 4;
+        fieldsPanel.add(fields[3], cTab[0]);
+
         return fieldsPanel;
     }
 
@@ -207,6 +223,7 @@ public class NewPhoneReport extends Forms {
         JButton save = new JButton();
         save.setText("Zapisz");
         save.setFont(new Font("Dialog", Font.BOLD, fontSize));
+        save.addActionListener(new SaveChanges());
         cTab[1].fill = GridBagConstraints.HORIZONTAL;
         cTab[1].gridx = 0;
         cTab[1].gridy = 0;
@@ -233,11 +250,43 @@ public class NewPhoneReport extends Forms {
                 setQuerry = new QueryDB();
                 conDB = setQuerry.getConnDB();
                 stmt = conDB.createStatement();
-                
-                // validation
                 FormValidator checkItem = new FormValidator();
-                result = (!fields[0].getText().isEmpty() );
-                // save
+                String phone = checkItem.checkCountryCode(fields[1].getText());
+                // validation
+                result = (!fields[0].getText().isEmpty()
+                        && !fields[3].getText().isEmpty()
+                        && !fields[2].getText().isEmpty()
+                        && checkItem.checkLenghtnumber(phone));
+                Date dateReport = (Date) datePicker.getModel().getValue();
+                System.out.println(result);
+                if (result) {
+                    queryResult = setQuerry.dbSetQuery("INSERT INTO PhoneReports ("
+                            + "Number, Title, Content, Date, User) VALUES ( '"
+                            + phone + "','"
+                            + fields[2].getText() + "','"
+                            + fields[3].getText() + "','"
+                            + ft.format(dateReport) + "',"
+                            + "(SELECT Customers.ID FROM Customers WHERE Customers.NAME LIKE '"
+                            + fields[0].getText().
+                            substring(0, fields[0].getText().lastIndexOf(" ")) + "' "
+                            + "AND Customers.SURNAME LIKE '"
+                            + fields[0].getText().
+                            substring(fields[0].getText().indexOf(" ") + 1,
+                                    fields[0].getText().length())
+                            + "'));");
+                    JOptionPane.showMessageDialog(null,
+                            "Raport został zapisany",
+                            "Raport został zapisany",
+                            JOptionPane.INFORMATION_MESSAGE);
+                    formFrame.dispose();
+                } else {
+                    JOptionPane.showMessageDialog(null,
+                            "Jedno lub wiele pól jest pusta",
+                            "Nieprawidłowa warotść!",
+                            JOptionPane.ERROR_MESSAGE);
+                }
+
+                //
 //                queryResult = setQuerry.dbSetQuery("INSERT INTO PhoneReports ("
 //                        + " Title,Content,Date,Number, User) VALUES ('" + Title
 //                        + "','" + Content + "','" + date + "','" + Number + "','"

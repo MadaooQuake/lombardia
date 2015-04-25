@@ -199,16 +199,20 @@ public class PhoneReports extends Forms {
             conDB = setQuerry.getConnDB();
             stmt = conDB.createStatement();
 
-            queryResult = setQuerry.dbSetQuery("SELECT * FROM PhoneReports;");
+            queryResult = setQuerry.dbSetQuery("SELECT PhoneReports.* , "
+                    + "Customers.NAME as Name, Customers.SURNAME as Surename"
+                    + " FROM PhoneReports, Customers "
+                    + "WHERE PhoneReports.USER = Customers.ID;");
 
             while (queryResult.next()) {
                 Object[] data = {
                     queryResult.getInt("ID"),
                     queryResult.getString("TITLE"),
                     queryResult.getString("CONTENT"),
-                    queryResult.getString("USER"),
+                    queryResult.getString("Name") + " "
+                    + queryResult.getString("Surename"),
                     queryResult.getString("DATE"),
-                    queryResult.getString("NUMBER")};
+                    "+" + queryResult.getString("NUMBER")};
                 model.addRow(data);
                 ID = queryResult.getInt("ID");
             }
@@ -226,7 +230,7 @@ public class PhoneReports extends Forms {
         @Override
         public void actionPerformed(ActionEvent e) {
             NewPhoneReport generateReport = new NewPhoneReport();
-            generateReport.generateGui(); 
+            generateReport.generateGui();
         }
     }
 

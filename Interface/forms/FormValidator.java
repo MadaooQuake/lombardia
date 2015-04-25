@@ -284,7 +284,7 @@ public class FormValidator {
      * check lenght 
      */
     public boolean checkLenghtnumber(String number) {
-        return (number.length() == 11);
+        return (number.length() == 12);
     }
     
 }
