@@ -48,6 +48,7 @@ public class NewPhoneReport extends Forms {
     AutoSuggestor selectCustomer = null;
     GridBagConstraints[] cTab = new GridBagConstraints[2];
     int fontSize = 12, heightTextL = 20;
+    int iClose = 0;
     QueryDB setQuerry = null;
     ResultSet queryResult = null;
     Connection conDB = null;
@@ -241,6 +242,10 @@ public class NewPhoneReport extends Forms {
         return actionButtons;
     }
 
+    public boolean isClose() {
+        return iClose == 1;
+    }
+
     private class SaveChanges implements ActionListener {
 
         @Override
@@ -258,7 +263,6 @@ public class NewPhoneReport extends Forms {
                         && !fields[2].getText().isEmpty()
                         && checkItem.checkLenghtnumber(phone));
                 Date dateReport = (Date) datePicker.getModel().getValue();
-                System.out.println(result);
                 if (result) {
                     queryResult = setQuerry.dbSetQuery("INSERT INTO PhoneReports ("
                             + "Number, Title, Content, Date, User) VALUES ( '"
@@ -279,6 +283,7 @@ public class NewPhoneReport extends Forms {
                             "Raport został zapisany",
                             JOptionPane.INFORMATION_MESSAGE);
                     formFrame.dispose();
+                    iClose = 1;
                 } else {
                     JOptionPane.showMessageDialog(null,
                             "Jedno lub wiele pól jest pusta",

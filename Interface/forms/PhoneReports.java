@@ -28,10 +28,10 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.SwingWorker;
 import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
 import lombardia2014.generators.LombardiaLogger;
-import static lombardia2014.Interface.MainInterface.userName;
 import static lombardia2014.Interface.MainInterface.userSurename;
 
 /**
@@ -70,6 +70,7 @@ public class PhoneReports extends Forms {
     private ResultSet queryResult = null;
     Connection conDB = null;
     Statement stmt = null;
+    SwingWorker worker = null;
 
     //Date and Time usage
     Date now = new Date();
@@ -95,11 +96,11 @@ public class PhoneReports extends Forms {
         model.addTableModelListener(listPhoneReports);
         getReportContent();
 
+        listPhoneReports.addMouseListener(new GetSelectRow());
         listPhoneReports.setAutoCreateRowSorter(true);
         scrollPane = new JScrollPane(listPhoneReports);
         listPhoneReports.setFillsViewportHeight(true);
         listPhoneReports.setPreferredSize(new Dimension(650, 600));
-        listPhoneReports.addMouseListener(new GetSelectRow());
 
         scrollPane.setPreferredSize(new Dimension(650, 600));
         scrollPane.setVisible(true);
@@ -214,9 +215,8 @@ public class PhoneReports extends Forms {
                     queryResult.getString("DATE"),
                     "+" + queryResult.getString("NUMBER")};
                 model.addRow(data);
-                ID = queryResult.getInt("ID");
             }
-
+            setQuerry.closeDB();
         } catch (SQLException ex) {
             LombardiaLogger startLogging = new LombardiaLogger();
             String text = startLogging.preparePattern("Error", ex.getMessage()
@@ -225,26 +225,64 @@ public class PhoneReports extends Forms {
         }
     }
 
+    private void updateReportTable() {
+        model.removeTableModelListener(listPhoneReports);
+        model.setRowCount(0);
+        getReportContent();
+        model.addTableModelListener(listPhoneReports);
+        formFrame.repaint();
+    }
+
     public class addPhoneReport implements ActionListener {
+
+        NewPhoneReport generateReport = null;
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            NewPhoneReport generateReport = new NewPhoneReport();
+            generateReport = new NewPhoneReport();
             generateReport.generateGui();
+            worker = new SwingWorker<Void, Void>() {
+
+                @Override
+                protected Void doInBackground() throws Exception {
+                    while (true) {
+                        if (generateReport.isClose() == true) {
+                            updateReportTable();
+                            break;
+                        }
+                        Thread.sleep(100);
+                    }
+                    return null;
+                }
+
+            };
+            worker.execute();
         }
+
     }
 
     public class deletePhoneReport implements ActionListener {
 
         @Override
         public void actionPerformed(ActionEvent ae) {
-            if (selectRow >= 0) {
+            if (selectRow >= 0 && selectRow < model.getRowCount()) {
                 try {
-                    setQuerry = new QueryDB();
-                    conDB = setQuerry.getConnDB();
-                    stmt = conDB.createStatement();
-                    queryResult = setQuerry.dbSetQuery("DELETE FROM PhoneReports"
-                            + " WHERE ID = " + ID + ";");
+
+                    int selectedOption = JOptionPane.showConfirmDialog(formFrame,
+                            "Czy na pewno cheszu usunąć tego użytkownika ?",
+                            "uwaga unuwanie!",
+                            JOptionPane.YES_NO_OPTION);
+                    if (selectedOption == JOptionPane.YES_OPTION) {
+                        setQuerry = new QueryDB();
+                        conDB = setQuerry.getConnDB();
+                        stmt = conDB.createStatement();
+                        queryResult = setQuerry.dbSetQuery("DELETE FROM PhoneReports"
+                                + " WHERE ID = " + ID + ";");
+                        setQuerry.closeDB();
+                        model.removeTableModelListener(listPhoneReports);
+                        model.removeRow(selectRow);
+                        model.addTableModelListener(listPhoneReports);
+                    }
                 } catch (SQLException ex) {
                     LombardiaLogger startLogging = new LombardiaLogger();
                     String text = startLogging.preparePattern("Error", ex.getMessage()
@@ -259,7 +297,7 @@ public class PhoneReports extends Forms {
         }
     }
 
-    // actions for selected elements in table
+// actions for selected elements in table
     private class GetSelectRow implements MouseListener {
 
         @Override
@@ -268,11 +306,13 @@ public class PhoneReports extends Forms {
             Point p = e.getPoint();
 
             selectRow = table.getSelectedRow();
-            int row = table.rowAtPoint(p);
+            if (selectRow >= 0) {
+                int row = table.rowAtPoint(p);
 
-            ID = (int) listPhoneReports.getModel().getValueAt(
-                    listPhoneReports.convertRowIndexToView(selectRow), 0);
-            JTable target = (JTable) e.getSource();
+                ID = (int) listPhoneReports.getModel().getValueAt(
+                        listPhoneReports.convertRowIndexToView(selectRow), 0);
+                JTable target = (JTable) e.getSource();
+            }
         }
 
         @Override
