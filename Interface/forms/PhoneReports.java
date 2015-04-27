@@ -203,7 +203,7 @@ public class PhoneReports extends Forms {
             queryResult = setQuerry.dbSetQuery("SELECT PhoneReports.* , "
                     + "Customers.NAME as Name, Customers.SURNAME as Surename"
                     + " FROM PhoneReports, Customers "
-                    + "WHERE PhoneReports.USER = Customers.ID;");
+                    + "WHERE PhoneReports.ID_CUSTOMER = Customers.ID;");
 
             while (queryResult.next()) {
                 Object[] data = {

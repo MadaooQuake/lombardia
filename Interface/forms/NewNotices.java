@@ -39,9 +39,9 @@ import net.sourceforge.jdatepicker.impl.UtilDateModel;
 
 /**
  *
- * @author Katagi
+ * @author Domek
  */
-public class NewPhoneReport extends Forms {
+public class NewNotices extends Forms {
 
     JLabel[] namedField = null;
     JTextField[] fields = null;
@@ -63,14 +63,13 @@ public class NewPhoneReport extends Forms {
         formFrame.setSize(350, 400);
         formFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         formFrame.setResizable(false);
-        formFrame.setTitle("Nowe zgłoszenie");
+        formFrame.setTitle("Nowa uwaga");
         mainPanel = new JPanel(new GridBagLayout());
-        titleBorder = BorderFactory.createTitledBorder(blackline, "Nowe zgłoszenie");
+        titleBorder = BorderFactory.createTitledBorder(blackline, "Nowa uwaga");
         titleBorder.setTitleJustification(TitledBorder.RIGHT);
         mainPanel.setBorder(titleBorder);
 
-        generatePanels(c);
-
+        //generatePanels(c);
         formFrame.add(mainPanel);
         formFrame.setVisible(true);
     }
@@ -87,7 +86,8 @@ public class NewPhoneReport extends Forms {
         c.gridy = 1;
         mainPanel.add(generateActionButton(), c);
     }
-
+    
+    
     private JPanel generateFields() {
         JPanel fieldsPanel = new JPanel(new GridBagLayout());
         namedField = new JLabel[5];
@@ -264,7 +264,7 @@ public class NewPhoneReport extends Forms {
                         && checkItem.checkLenghtnumber(phone));
                 Date dateReport = (Date) datePicker.getModel().getValue();
                 if (result) {
-                    queryResult = setQuerry.dbSetQuery("INSERT INTO PhoneReports ("
+                    queryResult = setQuerry.dbSetQuery("INSERT INTO Notices ("
                             + "Number, Title, Content, Date, ID_CUSTOMER) VALUES ( '"
                             + phone + "','"
                             + fields[2].getText() + "','"
@@ -309,5 +309,6 @@ public class NewPhoneReport extends Forms {
         }
 
     }
+
 
 }

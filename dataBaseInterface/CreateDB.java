@@ -151,7 +151,9 @@ public class CreateDB {
                     + "TITLE TEXT NOT NULL,"
                     + "CONTENT TEXT NOT NULL,"
                     + "DATE TEXT NOT NULL,"
-                    + "USER TEXT NOT NULL)";
+                    + "ID_CUSTOMER INTEGER(4) NOT NULL,"
+                    + "FOREIGN KEY (ID_CUSTOMER) REFERENCES Customers(ID)"
+                    + ")";
             stmt.executeUpdate(sql);
 
             sql = "CREATE TABLE PhoneReports"

@@ -21,8 +21,6 @@ import java.sql.Statement;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Arrays;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -30,6 +28,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.SwingWorker;
 import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
 import lombardia2014.generators.LombardiaLogger;
@@ -68,6 +67,7 @@ public class Notices extends Forms {
     private ResultSet queryResult = null;
     Connection conDB = null;
     Statement stmt = null;
+    SwingWorker worker = null;
 
     //Date and Time usage
     Date now = new Date();
@@ -195,18 +195,23 @@ public class Notices extends Forms {
 
             stmt = conDB.createStatement();
 
-            queryResult = setQuerry.dbSetQuery("SELECT * FROM Notices;");
+            queryResult = setQuerry.dbSetQuery("SELECT Notices.* , "
+                    + "Customers.NAME as Name, Customers.SURNAME as Surename"
+                    + " FROM Notices, Customers "
+                    + "WHERE Notices.ID_CUSTOMER = Customers.ID;");
 
             while (queryResult.next()) {
                 Object[] data = {
                     queryResult.getInt("ID"),
                     queryResult.getString("TITLE"),
                     queryResult.getString("CONTENT"),
-                    queryResult.getString("USER"),
-                    queryResult.getString("DATE")};
+                    queryResult.getString("Name") + " "
+                    + queryResult.getString("Surename"),
+                    queryResult.getString("DATE"),
+                    "+" + queryResult.getString("NUMBER")};
                 model.addRow(data);
-                ID = queryResult.getInt("ID");
             }
+            setQuerry.closeDB();
 
         } catch (SQLException ex) {
             LombardiaLogger startLogging = new LombardiaLogger();
@@ -214,6 +219,14 @@ public class Notices extends Forms {
                     + "\n" + Arrays.toString(ex.getStackTrace()));
             startLogging.logToFile(text);
         }
+    }
+
+    private void updateNoticeTable() {
+        model.removeTableModelListener(listNotices);
+        model.setRowCount(0);
+        getNotices();
+        model.addTableModelListener(listNotices);
+        formFrame.repaint();
     }
 
     public class deleteNotice implements ActionListener {
@@ -242,36 +255,28 @@ public class Notices extends Forms {
 
     public class addNotice implements ActionListener {
 
+        NewNotices noticeForm = null;
+
         @Override
         public void actionPerformed(ActionEvent e) {
-            Title = (String) JOptionPane.showInputDialog(formFrame,
-                    "Wpisz tytuł uwagi ",
-                    JOptionPane.OK_CANCEL_OPTION);
+            noticeForm = new NewNotices();
+            noticeForm.generateGui();
+            worker = new SwingWorker<Void, Void>() {
 
-            Content = (String) JOptionPane.showInputDialog(formFrame,
-                    "Wpisz treść uwagi ",
-                    JOptionPane.OK_CANCEL_OPTION);
-
-            if (Title.isEmpty() || Content.isEmpty()) {
-                JOptionPane.showMessageDialog(formFrame, "Pole nie może być puste",
-                        "Błąd wprowadzania", JOptionPane.ERROR_MESSAGE);
-            } else {
-                try {
-                    setQuerry = new QueryDB();
-                    conDB = setQuerry.getConnDB();
-
-                    stmt = conDB.createStatement();
-
-                    queryResult = setQuerry.dbSetQuery("INSERT INTO Notices ("
-                            + " TITLE,CONTENT, DATE, USER) VALUES ('" + Title + "', '"
-                            + Content + "', '" + date + "', '" + User + "');");
-                } catch (SQLException ex) {
-                    LombardiaLogger startLogging = new LombardiaLogger();
-                    String text = startLogging.preparePattern("Error", ex.getMessage()
-                            + "\n" + Arrays.toString(ex.getStackTrace()));
-                    startLogging.logToFile(text);
+                @Override
+                protected Void doInBackground() throws Exception {
+                    while (true) {
+                        if (noticeForm.isClose() == true) {
+                            updateNoticeTable();
+                            break;
+                        }
+                        Thread.sleep(100);
+                    }
+                    return null;
                 }
-            }
+
+            };
+            worker.execute();
         }
     }
 
