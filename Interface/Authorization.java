@@ -13,6 +13,8 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -130,6 +132,7 @@ public class Authorization {
         c.gridwidth = 1;
         loginField = new JTextField();
         loginField.setSize(10, 20);
+        loginField.addKeyListener(new CheckAuthorization());
         return loginField;
     }
 
@@ -161,6 +164,7 @@ public class Authorization {
         c.gridwidth = 1;
         passField = new JPasswordField();
         passField.setSize(10, 20);
+        passField.addKeyListener(new CheckAuthorization());
         return passField;
     }
 
@@ -181,69 +185,90 @@ public class Authorization {
     }
 
     /**
+     * method with check is user exist
+     */
+    public void checkUser() {
+        try {
+
+            // check login
+            //onnect to db 
+            setQuerry = new QueryDB();
+            conDB = setQuerry.getConnDB();
+            stmt = conDB.createStatement();
+            int ID = 0;
+            queryResult = setQuerry.dbSetQuery("SELECT Users.ID, Users.NAME, Users.PASSWORD"
+                    + ", Auth.ID AS ID_a, Users.ID_auth FROM Users, Auth "
+                    + "WHERE LOGIN LIKE '" + loginField.getText()
+                    + "' AND Auth.ID = Users.ID_auth "
+                    + ";");
+            int ok = 0;
+            user = "";
+            while (queryResult.next()) {
+                user = queryResult.getString("NAME");
+                password = queryResult.getString("PASSWORD");
+                userPriv = queryResult.getInt("ID_a");
+                ID = queryResult.getInt("ID");
+            }
+
+            if (!user.isEmpty()) {
+                ok++;
+            } else {
+                JOptionPane.showMessageDialog(loginFrame,
+                        "Zostało podane nieprawidłowy login",
+                        "Autoryzacja nie udana!",
+                        JOptionPane.ERROR_MESSAGE);
+            }
+            char[] passDefine = passField.getPassword();
+
+            if (!String.valueOf(passDefine).equals(password)) {
+                JOptionPane.showMessageDialog(loginFrame,
+                        "Zostało podane nieprawidłowe hasło",
+                        "Autoryzacja nie udana!",
+                        JOptionPane.ERROR_MESSAGE);
+            } else {
+                ok++;
+            }
+
+            if (ok == 2) {
+                mainGUI = new MainInterface(userPriv, ID);
+                loginFrame.setVisible(false);
+                loginFrame.dispose();
+            }
+
+            setQuerry.closeDB();
+        } catch (SQLException ex) {
+            LombardiaLogger startLogging = new LombardiaLogger();
+            String text = startLogging.preparePattern("Error", ex.getMessage()
+                    + "\n" + Arrays.toString(ex.getStackTrace()));
+            startLogging.logToFile(text);
+            System.exit(0);
+        }
+    }
+
+    /**
      * class
      */
-    class CheckAuthorization implements ActionListener {
+    class CheckAuthorization implements ActionListener, KeyListener {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            try {
-                // check login
-                //onnect to db 
+            checkUser();
+        }
 
-                setQuerry = new QueryDB();
-                conDB = setQuerry.getConnDB();
-                stmt = conDB.createStatement();
-                int ID = 0;
-                queryResult = setQuerry.dbSetQuery("SELECT Users.ID, Users.NAME, Users.PASSWORD"
-                        + ", Auth.ID AS ID_a, Users.ID_auth FROM Users, Auth "
-                        + "WHERE LOGIN LIKE '" + loginField.getText()
-                        + "' AND Auth.ID = Users.ID_auth "
-                        + ";");
-                int ok = 0;
-                user = "";
-                while (queryResult.next()) {
-                    user = queryResult.getString("NAME");
-                    password = queryResult.getString("PASSWORD");
-                    userPriv = queryResult.getInt("ID_a");
-                    ID = queryResult.getInt("ID");
-                }
+        @Override
+        public void keyTyped(KeyEvent e) {
+        }
 
-                if (!user.isEmpty()) {
-                    ok++;
-                } else {
-                    JOptionPane.showMessageDialog(loginFrame,
-                            "Zostało podane nieprawidłowy login",
-                            "Autoryzacja nie udana!",
-                            JOptionPane.ERROR_MESSAGE);
-                }
-                char[] passDefine = passField.getPassword();
-
-                if (!String.valueOf(passDefine).equals(password)) {
-                    JOptionPane.showMessageDialog(loginFrame,
-                            "Zostało podane nieprawidłowe hasło",
-                            "Autoryzacja nie udana!",
-                            JOptionPane.ERROR_MESSAGE);
-                } else {
-                    ok++;
-                }
-
-                if (ok == 2) {
-                    mainGUI = new MainInterface(userPriv, ID);
-                    loginFrame.setVisible(false);
-                    loginFrame.dispose();
-                }
-
-                setQuerry.closeDB();
-            } catch (SQLException ex) {
-                LombardiaLogger startLogging = new LombardiaLogger();
-                String text = startLogging.preparePattern("Error", ex.getMessage()
-                        + "\n" + Arrays.toString(ex.getStackTrace()));
-                startLogging.logToFile(text);
-                System.exit(0);
+        @Override
+        public void keyPressed(KeyEvent e) {
+            if (e.getKeyChar() == KeyEvent.VK_ENTER) {
+                checkUser();
             }
         }
 
+        @Override
+        public void keyReleased(KeyEvent e) {
+        }
     }
 
 }

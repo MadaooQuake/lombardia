@@ -179,7 +179,7 @@ public class FormValidator {
             matcher = replace.matcher(value);
             if (matcher.matches() == false) {
                 JOptionPane.showMessageDialog(null,
-                        "Podana kwota jest za duża.",
+                        "Podana kwota jest niepoprawna.",
                         "Nieprawidłowa warotśc!",
                         JOptionPane.ERROR_MESSAGE);
             }

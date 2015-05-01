@@ -133,7 +133,7 @@ public class PaymentForms extends Forms {
             String value = price.getText();
             // check in regex :D
             //pattern
-            String pattern = "[(\\d*)[.]?\\d{1,2}]{1,10}";
+            String pattern = "[(\\d*)[.]?\\d{1,2}]{1,7}";
 
             Pattern replace = Pattern.compile(pattern);
             Matcher matcher = replace.matcher(value);

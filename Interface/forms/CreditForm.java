@@ -1372,6 +1372,7 @@ public class CreditForm extends Forms {
             Map<String, String> tmpItem = new HashMap<>();
 
             itemPanel.removeAll();
+            itemPanel.setPreferredSize(new Dimension(200, itemsList.size() * 20));
             for (int count = 0; count < itemsList.size(); count++) {
                 itemValue = new JLabel();
                 itemValue.setPreferredSize(new Dimension(150, heightTextL));
@@ -1392,9 +1393,7 @@ public class CreditForm extends Forms {
                 deleteItem.setPreferredSize(new Dimension(150, heightTextL));
                 deleteItem.addActionListener(new deleteItemFromList(count));
                 deleteItem.setText("Usuń");
-                /*if (update == true) {
-                 deleteItem.setEnabled(false);
-                 }*/
+
                 itemPanel.add(deleteItem);
             }
 
