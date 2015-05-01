@@ -39,6 +39,7 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import lombardia2014.Interface.menu.ListUsers;
 import lombardia2014.SelfCalc;
+import lombardia2014.generators.ItemChecker;
 import lombardia2014.generators.LombardiaLogger;
 
 /**
@@ -49,6 +50,7 @@ public class BuyItem extends Forms implements ItemFormGenerator {
 
     GridBagConstraints newItemGrid = new GridBagConstraints();
     FormValidator checkItem = new FormValidator();
+    ItemChecker creatItemtoDB = new ItemChecker();
     JButton cancel = null;
     JButton ok = null;
     JLabel[] namedField = null;
@@ -62,6 +64,7 @@ public class BuyItem extends Forms implements ItemFormGenerator {
     Statement stmt = null;
     JPanel newItemPanel = null;
     double adRemValue = 0.0;
+    FormValidator validator = new FormValidator();
 
     int iClose = 0;
     int fontSize = 16;
@@ -78,6 +81,7 @@ public class BuyItem extends Forms implements ItemFormGenerator {
         formFrame.setSize(400, 480);
         formFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         formFrame.setResizable(false);
+        formFrame.setUndecorated(true);
         formFrame.setTitle("Skup przedmiot");
         mainPanel = new JPanel(new GridBagLayout());
         titleBorder = BorderFactory.createTitledBorder(blackline, "Skup przedmiot");
@@ -117,7 +121,7 @@ public class BuyItem extends Forms implements ItemFormGenerator {
         // Create selector;
         selectCategory = new AutoSuggestor(
                 fields[0], formFrame, null, Color.WHITE.brighter(),
-                Color.BLUE, Color.RED, 0.75f, 5, 48) {
+                Color.BLUE, Color.RED, 0.75f, 2, 28) {
                     @Override
                     public boolean wordTyped(String typedWord) {
                         //select all from category table
@@ -689,14 +693,19 @@ public class BuyItem extends Forms implements ItemFormGenerator {
                         adRemValue = Double.parseDouble(fields[9].getText());
                         moneySafe = new SelfCalc();
                         checkElement = moneySafe.chackValue(formFrame,
-                                Float.parseFloat(fields[9].getText()));
+                                Float.parseFloat(fields[9].getText()))
+                                && validator.checkValue(fields[9].getText().length(),
+                                        fields[9].getText());
                         moneySafe.delFtomSelf(formFrame,
                                 Float.parseFloat(fields[9].getText()));
-                    }
-                    if (checkElement == true) {
-                        moneySafe.updateValue();
-                        saveToDB();
-                        formFrame.dispose();
+
+                        if (checkElement == true) {
+                            ok.setEnabled(false);
+                            cancel.setEnabled(false);
+                            moneySafe.updateValue();
+                            saveToDB();
+                            formFrame.dispose();
+                        }
                     }
 
                 }
@@ -1219,52 +1228,11 @@ public class BuyItem extends Forms implements ItemFormGenerator {
                     catID = queryResult.getInt("ID");
                 }
 
-                if (!tmpItem.get("Waga").isEmpty()) {
-                    weight = tmpItem.get("Waga");
-                }
-
-                if (!tmpItem.get("Wartość").isEmpty() && !tmpItem.get("IMEI").isEmpty()) {
-                    queryResult = setQuerry.dbSetQuery("INSERT INTO Items (MODEL,"
-                            + " BAND, TYPE, WEIGHT, IMEI, VALUE, ATENCION,"
-                            + " ID_CATEGORY) VALUES ('"
-                            + tmpItem.get("Model") + "','"
-                            + tmpItem.get("Marka") + "','" + tmpItem.get("Typ") + "','"
-                            + weight + "'," + tmpItem.get("IMEI") + ","
-                            + tmpItem.get("Wartość") + ",'" + tmpItem.get("Uwagi")
-                            + "'," + catID + ");");
-                } else if (!tmpItem.get("IMEI").isEmpty()) {
-                    queryResult = setQuerry.dbSetQuery("INSERT INTO Items (MODEL,"
-                            + " BAND, TYPE, VALUE, IMEI, ATENCION,"
-                            + " ID_CATEGORY) VALUES ('"
-                            + tmpItem.get("Model") + "','"
-                            + tmpItem.get("Marka") + "','" + tmpItem.get("Typ") + "',"
-                            + tmpItem.get("Wartość") + "," + tmpItem.get("IMEI") + ",'"
-                            + tmpItem.get("Uwagi") + "'," + catID + ");");
-                } else if (!tmpItem.get("Waga").isEmpty()) {
-                    queryResult = setQuerry.dbSetQuery("INSERT INTO Items (MODEL,"
-                            + " BAND, TYPE, VALUE, ATENCION, ID_CATEGORY)"
-                            + " VALUES ('"
-                            + tmpItem.get("Model") + "','"
-                            + tmpItem.get("Marka") + "','" + tmpItem.get("Typ") + "',"
-                            + tmpItem.get("Wartość") + ",'" + tmpItem.get("Uwagi") + "',"
-                            + catID + ");");
-                } else if (!tmpItem.get("Wartość").isEmpty()) {
-                    queryResult = setQuerry.dbSetQuery("INSERT INTO Items (MODEL,"
-                            + " BAND, TYPE, ATENCION, VALUE, ID_CATEGORY)"
-                            + " VALUES ('"
-                            + tmpItem.get("Model") + "','"
-                            + tmpItem.get("Marka") + "','" + tmpItem.get("Typ") + "','"
-                            + tmpItem.get("Uwagi") + "'," + tmpItem.get("Wartość") + ","
-                            + catID + ");");
-                } else {
-                    queryResult = setQuerry.dbSetQuery("INSERT INTO Items (MODEL,"
-                            + " BAND, TYPE, ATENCION, ID_CATEGORY)"
-                            + " VALUES ('"
-                            + tmpItem.get("Model") + "','"
-                            + tmpItem.get("Marka") + "','" + tmpItem.get("Typ") + "','"
-                            + tmpItem.get("Uwagi") + "',"
-                            + +catID + ");");
-                }
+                creatItemtoDB.setValues(tmpItem.get("Model"), tmpItem.get("Marka"),
+                        tmpItem.get("Typ"), tmpItem.get("Waga"),
+                        tmpItem.get("IMEI"), tmpItem.get("Wartość"),
+                        tmpItem.get("Uwagi"), catID, 0);
+                queryResult = setQuerry.dbSetQuery(creatItemtoDB.getInsertItem());
 
             } catch (SQLException ex) {
                 LombardiaLogger startLogging = new LombardiaLogger();
@@ -1273,7 +1241,6 @@ public class BuyItem extends Forms implements ItemFormGenerator {
                 startLogging.logToFile(text);
             }
         }
-
         iClose = 1;
         setQuerry.closeDB();
 

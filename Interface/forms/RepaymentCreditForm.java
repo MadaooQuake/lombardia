@@ -234,10 +234,12 @@ public class RepaymentCreditForm extends Forms {
 
                         agreementIdent = queryResult.getInt("ID");
 
-                        Object[] data = {queryResult.getString("NAME"),
+                        Object[] data = {
+                            queryResult.getString("NAME"),
                             queryResult.getString("SURNAME"),
                             queryResult.getString("AGREEMENT_ID"),
-                            queryResult.getString("END_DATE")};
+                            queryResult.getString("END_DATE")
+                        };
                         model.addRow(data);
                     }
 
@@ -426,8 +428,8 @@ public class RepaymentCreditForm extends Forms {
                 selectRow = table.getSelectedRow();
                 int row = table.rowAtPoint(p);
                 int decision = JOptionPane.showConfirmDialog(formFrame,
-                        "Ostrzeżenie",
-                        "Czy na pewno chcesz usunąć tą umowę? ",
+                        "Czy aby napewno ta pozyczka została ukonczona ?",
+                        "Ostrzeżenie ",
                         JOptionPane.YES_NO_OPTION);
                 if (decision == JOptionPane.YES_OPTION) {
                     try {

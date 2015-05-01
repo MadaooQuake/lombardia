@@ -86,18 +86,24 @@ public class FormValidator {
      * @return
      */
     public boolean checkPesel(int getLenghtPesel, String pesel) {
-        if (getLenghtPesel == 11) {
-            pattern = "(\\d*)";
-            replace = Pattern.compile(pattern);
-            matcher = replace.matcher(pesel);
-            if (matcher.matches() == false) {
+        if (!pesel.isEmpty()) {
+            if (getLenghtPesel == 11) {
+                pattern = "(\\d*)";
+                replace = Pattern.compile(pattern);
+                matcher = replace.matcher(pesel);
+                if (matcher.matches() == false) {
+                    JOptionPane.showMessageDialog(null,
+                            "Pole pesel jest puste lub jest błąd w numerze pesel",
+                            "Nieprawidłowa warotśc!",
+                            JOptionPane.ERROR_MESSAGE);
+                }
+                return matcher.matches();
+            } else {
                 JOptionPane.showMessageDialog(null,
-                        "Pole pesel jest puste lub jest błąd w numerze pesel",
+                        "Wartość pesel jest za krótka!",
                         "Nieprawidłowa warotśc!",
                         JOptionPane.ERROR_MESSAGE);
-
             }
-            return matcher.matches();
         }
         return pesel.isEmpty();
     }
@@ -258,33 +264,31 @@ public class FormValidator {
         }
         return false;
     }
-    
+
     /**
-     * checkin phone number in three steps
-     * 1. check if contains +48 (if not add as default +48) 
-     * 2. chek length phone number (nine signs + three)
-     * 3. return 
+     * checkin phone number in three steps 1. check if contains +48 (if not add
+     * as default +48) 2. chek length phone number (nine signs + three) 3.
+     * return
      */
-    
     /**
      * check country code
      */
     public String checkCountryCode(String number) {
         String addCountryCode = null;
-        if(number.startsWith("+")) {
+        if (number.startsWith("+")) {
             addCountryCode = number;
         } else {
             addCountryCode = "+48" + number;
         }
-        
+
         return addCountryCode;
     }
-    
+
     /**
-     * check lenght 
+     * check lenght
      */
     public boolean checkLenghtnumber(String number) {
         return (number.length() == 12);
     }
-    
+
 }

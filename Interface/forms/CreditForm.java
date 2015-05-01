@@ -1469,6 +1469,8 @@ public class CreditForm extends Forms {
                         && checkItem.checkCreditFinishDate(curretDate, selectedDate);
 
                 if (checkElement == true) {
+                    ok.setEnabled(false);
+                    cancel.setEnabled(false);
                     adRemValue = Double.parseDouble(fields[4].getText());
                     moneySafe = new SelfCalc();
                     if (checkItem.checkPesel(
@@ -2261,7 +2263,7 @@ public class CreditForm extends Forms {
                             fields[4].getText().length(), fields[4].getText(), 1)
                     && selectedDate != null;
             if (checkElement == true) {
-                float val = Float.parseFloat(fields[4].getText());
+                float val = Float.parseFloat(fields[4].getText().replaceAll(",", "."));
                 fields[19].setText(Float.toString(precentCalc.handlingPayment(val)));
                 if (paymentPorperies.get("Data rozpoczecia") == null) {
                     fields[21].setText(

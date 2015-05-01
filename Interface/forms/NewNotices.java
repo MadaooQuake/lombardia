@@ -69,7 +69,8 @@ public class NewNotices extends Forms {
         titleBorder.setTitleJustification(TitledBorder.RIGHT);
         mainPanel.setBorder(titleBorder);
 
-        //generatePanels(c);
+        generatePanels(c);
+        
         formFrame.add(mainPanel);
         formFrame.setVisible(true);
     }
