@@ -60,7 +60,7 @@ import java.util.Map;
 //to get current date
 import java.util.Calendar;
 
-public class SettlementForm  extends MenuElementsList {
+public class SettlementForm extends MenuElementsList {
     Calendar now = Calendar.getInstance();
     String formname = "Rozliczenia ";
     String range = "roczne";
@@ -68,6 +68,7 @@ public class SettlementForm  extends MenuElementsList {
     JTable listSettlement = null;
     JScrollPane scrollPane = null;
     int selectRow = -1;
+    int rotate = 0; //rotate PDF page
     int window_width = 860;
     int window_heigth = 500;
     int rows_per_page = 20;
@@ -78,11 +79,12 @@ public class SettlementForm  extends MenuElementsList {
     Map<Integer, HashMap<String, String>>  objHeaders = new HashMap<>();
 
     public SettlementForm(String dateRange_) {
+        int month = now.get(Calendar.MONTH);
+        int year = now.get(Calendar.YEAR);
+        rotate = 1;
         if(dateRange_.equals("Month")) {
             range = "miesięczne";            
             date_mask = "substr(Agreements.Stop_date,4,7)";
-            int month = now.get(Calendar.MONTH);
-            int year = now.get(Calendar.YEAR);
             if (month < 1) {
                 month = 12;
                 year --;
@@ -92,7 +94,7 @@ public class SettlementForm  extends MenuElementsList {
         output_file_name = formname+"_"+range+".pdf";
     }
 
-    private void prepareHeaders() {
+    protected void prepareHeaders() {
         // to split to two separated config hash-maps (separatelly for DB and Report
         // Yes, i known convert Str to Float is stupied in this place ;P
         objHeaders.put(1, buildHeader("","","L.p.","0.9f"));
@@ -107,7 +109,7 @@ public class SettlementForm  extends MenuElementsList {
         objHeaders.put(10,buildHeader("","","Odsetki","1.8f"));
     }
 
-    private HashMap<String, String> buildHeader(
+    protected HashMap<String, String> buildHeader(
             String dbName, 
             String shortcut, 
             String outputName, 
@@ -121,7 +123,7 @@ public class SettlementForm  extends MenuElementsList {
         return tmpHead;
     }
 
-    private float[] getHeadersWidth() {
+    protected float[] getHeadersWidth() {
         int headSize = objHeaders.size();
         float[] result = new float[headSize];
         
@@ -140,7 +142,7 @@ public class SettlementForm  extends MenuElementsList {
         return result;
     }
     
-    private String[] getHeaders() {
+    protected String[] getHeaders() {
         
         int headSize = objHeaders.size();
         String[] result = new String[headSize];
@@ -152,15 +154,15 @@ public class SettlementForm  extends MenuElementsList {
         return result;
     }
     
-    private String[] getShortDBHeaders() {
+    protected String[] getShortDBHeaders() {
         return getDbHeaders(2);
     }
 
-    private String[] getDbHeaders() {
+    protected String[] getDbHeaders() {
         return getDbHeaders(0);
     }
     
-    private String[] getDbHeaders(int variant) {
+    protected String[] getDbHeaders(int variant) {
         // variant 0 - dbName as shortcat
         // variant 1 - only dbName
         // cariant 2 - only shortcat (dbName if shortcat not exists)
@@ -206,7 +208,7 @@ public class SettlementForm  extends MenuElementsList {
         return result;        
     }
     
-    private String PrepareQuery() {
+    protected String PrepareQuery() {
         String result = "SELECT ";
 
         String[] dbHeaders = getDbHeaders();
@@ -250,7 +252,7 @@ public class SettlementForm  extends MenuElementsList {
         formFrame.setVisible(true);
     }
     
-    private void generateButtons(GridBagConstraints ct) {    
+    protected void generateButtons(GridBagConstraints ct) {    
         JPanel buttonPanel = new JPanel(new GridBagLayout());
 
         TitledBorder title = BorderFactory.createTitledBorder(blackline, "Polecenia");
@@ -289,7 +291,7 @@ public class SettlementForm  extends MenuElementsList {
         generateButtons(new GridBagConstraints());
     }
     
-    private void generateTable(GridBagConstraints ct) {
+    protected void generateTable(GridBagConstraints ct) {
 
         model = getSettlement();
         
@@ -318,11 +320,15 @@ public class SettlementForm  extends MenuElementsList {
         mainPanel.add(scrollPane, ct);
     }
     
-    private void CreatePDF(DefaultTableModel data) throws 
+    protected void CreatePDF(DefaultTableModel data) throws 
             DocumentException, IOException {
         String[][][] convertedData = ConvertData(data, rows_per_page);
-        
-        Document document = new Document(PageSize.LETTER.rotate());
+        Document document = null;
+        if (rotate == 1) {
+            document = new Document(PageSize.LETTER.rotate());
+        } else {
+            document = new Document(PageSize.LETTER);
+        }
         PdfWriter.getInstance(document, new FileOutputStream(output_file_name));
         document.open();
         for(int row = 0;row < convertedData.length;row++) {
@@ -342,7 +348,7 @@ public class SettlementForm  extends MenuElementsList {
         document.close();
     }
     
-    private PdfPTable createPDFTable(String[][] inputData, com.itextpdf.text.Font myFont) 
+    protected PdfPTable createPDFTable(String[][] inputData, com.itextpdf.text.Font myFont) 
             throws DocumentException {
 
         String[] headers = getHeaders();
@@ -372,7 +378,7 @@ public class SettlementForm  extends MenuElementsList {
         return table;
     }
     
-    private String[][][] ConvertData(DefaultTableModel model, int obj_per_page) {
+    protected String[][][] ConvertData(DefaultTableModel model, int obj_per_page) {
         int row_count = model.getRowCount();
         int column_count = model.getColumnCount();
         int page_count = (row_count / obj_per_page) + 1;
@@ -404,7 +410,7 @@ public class SettlementForm  extends MenuElementsList {
     }
 
 
-    private DefaultTableModel getSettlement() {
+    protected DefaultTableModel getSettlement() {
         DefaultTableModel result = new DefaultTableModel() {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -426,18 +432,33 @@ public class SettlementForm  extends MenuElementsList {
             ResultSet queryResult = setQuerry.dbSetQuery( PrepareQuery() );
             int lp = 0;
             
-            String[] SQLHeaders = getShortDBHeaders();
 
             while (queryResult.next()) {
                 lp++;
                 
-                float value = queryResult.getFloat( SQLHeaders[4] );
-                String stopdate = queryResult.getString( SQLHeaders[7] );
-                String startdate = queryResult.getString( SQLHeaders[3] );
-                rate.dailyEarn(stopdate, startdate, value);
-                float r = rate.lombardRate(value);
-                                
-                Object[] data = {
+                result.addRow(buildData(queryResult, lp));
+            }
+
+        } catch (SQLException ex) {
+            LombardiaLogger startLogging = new LombardiaLogger();
+            String text = startLogging.preparePattern("Error", ex.getMessage()
+                    + "\n" + Arrays.toString(ex.getStackTrace()));
+            startLogging.logToFile(text);
+        }
+        
+        return result;
+    }
+    
+    protected Object[] buildData(ResultSet queryResult, int lp) throws SQLException {
+        String[] SQLHeaders = getShortDBHeaders();
+        
+        float value = queryResult.getFloat( SQLHeaders[4] );
+        String stopdate = queryResult.getString( SQLHeaders[7] );
+        String startdate = queryResult.getString( SQLHeaders[3] );
+        rate.dailyEarn(stopdate, startdate, value);
+        float r = rate.lombardRate(value);   
+        
+        Object[] result = {
                     lp,
                     queryResult.getString( SQLHeaders[0] ),
                     queryResult.getString( SQLHeaders[1] ),
@@ -449,22 +470,11 @@ public class SettlementForm  extends MenuElementsList {
                     stopdate,
                     Float.toString(r),
                     };
-                
-                result.addRow(data);
-            }
-
-        } catch (SQLException ex) {
-            LombardiaLogger startLogging = new LombardiaLogger();
-            String text = startLogging.preparePattern("Error", ex.getMessage()
-                    + "\n" + Arrays.toString(ex.getStackTrace()));
-            startLogging.logToFile(text);
-        }
-        
         return result;
-    }  
+    }
     
     // Buttons actions
-    private class PrintList implements ActionListener {
+    protected class PrintList implements ActionListener {
 
         @Override
         public void actionPerformed(ActionEvent e) {

@@ -34,6 +34,7 @@ import lombardia2014.Interface.menu.StatisticsForm;
 import lombardia2014.Interface.menu.ListUsers;
 import lombardia2014.Interface.menu.OperationList;
 import lombardia2014.Interface.menu.SettlementForm;
+import lombardia2014.Interface.menu.StocktakingForm;
 import lombardia2014.UserOperations;
 import lombardia2014.dataBaseInterface.DeleteDB;
 import lombardia2014.dataBaseInterface.JoinDB;
@@ -253,11 +254,20 @@ public class MainInterface {
         menuItem.addActionListener(new YearlySettlements());
         menu.add(menuItem);
 
+        //elements menu
+        menuItem = new JMenuItem("Inwentaryzacja");
+        menuItem.setAccelerator(KeyStroke.getKeyStroke(
+                KeyEvent.VK_7, ActionEvent.ALT_MASK));
+        menuItem.getAccessibleContext().setAccessibleDescription(
+                "Tworzy liste przedmiotów na zadany dzień");
+        menuItem.addActionListener(new Stocktaking());
+        menu.add(menuItem);
+        
         menu.addSeparator();
 
         menuItem = new JMenuItem("Statystyki miesięczne");
         menuItem.setAccelerator(KeyStroke.getKeyStroke(
-                KeyEvent.VK_8, ActionEvent.ALT_MASK));
+                KeyEvent.VK_9, ActionEvent.ALT_MASK));
         menuItem.getAccessibleContext().setAccessibleDescription(
                 "Tworzy wykres statystyk w ciagu miesiaca");
         menuItem.addActionListener(new MonthlyStatistics());
@@ -265,7 +275,7 @@ public class MainInterface {
 
         menuItem = new JMenuItem("Statystyki roczne");
         menuItem.setAccelerator(KeyStroke.getKeyStroke(
-                KeyEvent.VK_9, ActionEvent.ALT_MASK));
+                KeyEvent.VK_0, ActionEvent.ALT_MASK));
         menuItem.getAccessibleContext().setAccessibleDescription(
                 "Tworzy wykres statystyk w ciagu miesiaca");
         menuItem.addActionListener(new YearlyStatistics());
@@ -495,6 +505,17 @@ public class MainInterface {
             OperationList showOperationlist = new OperationList();
         }
 
+    }
+    
+    // stocktaking
+    public class Stocktaking implements ActionListener {
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            StocktakingForm newStockTaking = new StocktakingForm("");
+            newStockTaking.generateGui();
+        }
+        
     }
 
     // settlements
