@@ -24,10 +24,12 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.SwingWorker;
 import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
 import static lombardia2014.Interface.MainMMenu.money;
 import lombardia2014.SelfCalc;
+import lombardia2014.UserOperations;
 import lombardia2014.generators.LombardiaLogger;
 
 /**
@@ -75,6 +77,8 @@ public class ProlongationForm extends Forms {
     Map<Integer, HashMap> itemsList = new HashMap<>();
     Map<String, String> userInfo = new HashMap<>();
     Map<Integer, String> categories = new HashMap<>();
+    SwingWorker<Void, Void> worker = null;
+    UserOperations sniffOperations = new UserOperations();
 
     public ProlongationForm() {
         //first i do select to db 
@@ -96,8 +100,8 @@ public class ProlongationForm extends Forms {
         titleBorder.setBorder(blackline);
         mainPanel.setBorder(titleBorder);
 
-        buttonPanel = new JPanel();
-        buttonPanel.setPreferredSize(new Dimension(100, 700));
+        buttonPanel = new JPanel(new GridBagLayout());
+        buttonPanel.setPreferredSize(new Dimension(100, 600));
 
         tablePanel = new JPanel();
         tablePanel.setPreferredSize(new Dimension(600, 600));
@@ -136,16 +140,9 @@ public class ProlongationForm extends Forms {
         listAgreements.setAutoCreateRowSorter(true);
         scrollPane = new JScrollPane(listAgreements);
         listAgreements.setFillsViewportHeight(true);
+        listAgreements.setPreferredSize(new Dimension(600, 600));
 
-        c.gridwidth = 1;
-        c.gridy = 2;
-        c.gridx = 0;
-        c.insets = new Insets(10, 10, 10, 10);
-        c.ipadx = 650;
-        c.ipady = 600;
-        listAgreements.setPreferredSize(new Dimension(650, 600));
-
-        scrollPane.setPreferredSize(new Dimension(650, 600));
+        scrollPane.setPreferredSize(new Dimension(600, 600));
         scrollPane.setVisible(true);
 
         tablePanel.add(scrollPane);
@@ -154,15 +151,6 @@ public class ProlongationForm extends Forms {
 
     private void generatePanels2() {
         GridBagConstraints c2 = new GridBagConstraints();
-        cancel = new JButton();
-        cancel.setText("Anuluj");
-        cancel.addActionListener(new CloseForm());
-        c2.fill = GridBagConstraints.HORIZONTAL;
-        c2.insets = new Insets(5, 5, 5, 5);
-        c2.gridwidth = 1;
-        c2.gridx = 2;
-        c2.gridy = 5;
-
         prolong = new JButton();
         prolong.setText("Przedłuż");
         prolong.addActionListener(new ProlongAgreement());
@@ -170,11 +158,29 @@ public class ProlongationForm extends Forms {
         c2.gridwidth = 1;
         c2.gridx = 0;
         c2.gridy = 5;
+        buttonPanel.add(prolong, c2);
 
-        buttonPanel.add(cancel);
-        buttonPanel.add(prolong);
+        cancel = new JButton();
+        cancel.setText("Anuluj");
+        cancel.addActionListener(new CloseForm());
+        c2.fill = GridBagConstraints.HORIZONTAL;
+        c2.gridwidth = 1;
+        c2.gridx = 1;
+        c2.gridy = 5;
+        buttonPanel.add(cancel, c2);
+
+        c.insets = new Insets(5, 5, 5, 5);
+        c.gridy = 0;
+        c.gridx = 0;
+        c.ipadx = 600;
+        c.ipady = 600;
+
         mainPanel.add(tablePanel, c);
-        mainPanel.add(buttonPanel, c2);
+        c.gridy = 1;
+        c.gridx = 0;
+        c.ipadx = 0;
+        c.ipady = 0;
+        mainPanel.add(buttonPanel, c);
     }
 
     public boolean isClose() {
@@ -390,7 +396,32 @@ public class ProlongationForm extends Forms {
                     money.setText(actualCalc.getValue() + " zł");
                     // next i create new payment with constructor :)
                     newCredit = new CreditForm(itemsList, paymentPorperies, userInfo, false);
-                    deleteAgreement(ID);
+                    //deleteAgreement(ID);
+                    worker = new SwingWorker<Void, Void>() {
+
+                        @Override
+                        protected Void doInBackground() {
+                            try {
+                                while (true) {
+                                    if (newCredit.isClose() == true) {
+                                        sniffOperations.saveOperations("Wystawiono umowe kredytu na:"
+                                                + newCredit.getAddRemoValue());
+                                        deleteAgreement(ID);
+                                        break;
+                                    }
+                                    Thread.sleep(100);
+                                }
+                            } catch (Exception ex) {
+                                LombardiaLogger startLogging = new LombardiaLogger();
+                                String text = startLogging.preparePattern("Error", ex.getMessage()
+                                        + "\n" + Arrays.toString(ex.getStackTrace()));
+                                startLogging.logToFile(text);
+                            }
+                            return null;
+                        }
+
+                    };
+                    worker.execute();
                     iClose = 1;
                     formFrame.dispose();
                 }
