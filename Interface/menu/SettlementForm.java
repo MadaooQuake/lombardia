@@ -79,7 +79,7 @@ public class SettlementForm extends MenuElementsList {
     Map<Integer, HashMap<String, String>>  objHeaders = new HashMap<>();
 
     public SettlementForm(String dateRange_) {
-        int month = now.get(Calendar.MONTH);
+        int month = now.get(Calendar.MONTH) + 1;
         int year = now.get(Calendar.YEAR);
         rotate = 1;
         if(dateRange_.equals("Month")) {
@@ -103,7 +103,7 @@ public class SettlementForm extends MenuElementsList {
         objHeaders.put(4, buildHeader("Customers.Address","Address","Adres","5.0f"));
         objHeaders.put(5, buildHeader("Agreements.Start_Date","Start_Date","Data pożyczki","2.6f"));
         objHeaders.put(6, buildHeader("Agreements.Value","Lean_Value","Kwota pożyczki","2.6f"));
-        objHeaders.put(7, buildHeader("Items.Model || ' (' || Items.Band || ')'","Description","Opis zastawu","5.0f"));
+        objHeaders.put(7, buildHeader("GROUP_CONCAT(Items.Model || IFNULL(' (' || Items.Band || ') ', ', '))","Description","Opis zastawu","5.0f"));
         objHeaders.put(8, buildHeader("Items.Value","Item_Value","Wartość zastawu","2.6f"));
         objHeaders.put(9, buildHeader("Agreements.Stop_date","Stop_date","Termin zwrotu","2.6f"));
         objHeaders.put(10,buildHeader("","","Odsetki","1.8f"));
@@ -228,7 +228,7 @@ public class SettlementForm extends MenuElementsList {
                     + "Items.ID_AGREEMENT = Agreements.ID "
                     + "AND Agreements.ID_CUSTOMER = Customers.ID "
                     + "AND " + date_mask + " = '" + date_mask_value + "' "
-                    + ";";
+                    + " GROUP BY Agreements.ID;";
 
         return result;
     }
@@ -418,24 +418,18 @@ public class SettlementForm extends MenuElementsList {
             }
         };
 
-        
         String[] headers = getHeaders();
         for (int i=0; i<headers.length; i++) {
             result.addColumn(headers[i]);
         }
         
         try {
-            QueryDB setQuerry = new QueryDB();
-            Connection conDB = setQuerry.getConnDB();
-            //Statement stmt = conDB.createStatement();
-            
+            QueryDB setQuerry = new QueryDB(); 
             ResultSet queryResult = setQuerry.dbSetQuery( PrepareQuery() );
             int lp = 0;
             
-
             while (queryResult.next()) {
                 lp++;
-                
                 result.addRow(buildData(queryResult, lp));
             }
 
