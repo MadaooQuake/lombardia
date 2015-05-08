@@ -13,6 +13,7 @@ import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
 import javax.swing.BorderFactory;
 import javax.swing.JPanel;
+import javax.swing.JLabel;
 import javax.swing.JButton;
 import javax.swing.border.TitledBorder;        
 import java.util.Date;
@@ -27,8 +28,6 @@ import java.sql.ResultSet;
 import net.sourceforge.jdatepicker.impl.JDatePanelImpl;
 import net.sourceforge.jdatepicker.impl.JDatePickerImpl;
 
-import lombardia2014.generators.LombardiaLogger;
-
 //to support for Events
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -36,8 +35,6 @@ import java.awt.event.ActionListener;
 //to get current date
 import java.util.Calendar;
 
-//refresh table
-import javax.swing.JTable;
 
 //set initial date
 import net.sourceforge.jdatepicker.impl.UtilDateModel;
@@ -103,6 +100,7 @@ public class StocktakingForm extends SettlementForm {
         return result;
     }
     
+    @Override
     protected Object[] buildData(ResultSet queryResult, int lp) throws SQLException {
         String[] SQLHeaders = getShortDBHeaders();
         
@@ -129,35 +127,45 @@ public class StocktakingForm extends SettlementForm {
         
         JButton printList = new JButton();
         printList.setText("Drukuj listę");
-        //addU.addActionListener(new AddButtonAction());
-        printList.setPreferredSize(new Dimension(150, 40));
+        printList.setPreferredSize(new Dimension(150, 26));
         printList.setFont(new Font("Dialog", Font.BOLD, 12));
-
         printList.addActionListener(new PrintList());
               
         
-        GridBagConstraints actionPanel = new GridBagConstraints();
-        actionPanel.insets = new Insets(0, 0, 0, 10);
-        actionPanel.gridx = 0;
-        actionPanel.gridy = 0;
+        GridBagConstraints[] actionPanel = new GridBagConstraints[] {
+            new GridBagConstraints(),
+            new GridBagConstraints(),
+            new GridBagConstraints(),
+        };
+        actionPanel[0].insets = new Insets(0, 0, 0, 10);
+        actionPanel[0].gridx = 2;
+        actionPanel[0].gridy = 0;
         
-        buttonPanel.add(printList, actionPanel);
-        UtilDateModel model = new UtilDateModel();
-        model.setDate(year, month - 1, d);
-        model.setSelected(true);
-        JDatePanelImpl datePanel = new JDatePanelImpl(model);
+        buttonPanel.add(printList, actionPanel[0]);
+        
+        JLabel label = new JLabel("Wybierz dzień:");
+        label.setFont(new Font("Dialog",Font.BOLD,12));
+        actionPanel[2].insets = new Insets(0, 0, 0, 10);
+        actionPanel[2].gridx = 0;
+        actionPanel[2].gridy = 0;
+                
+        buttonPanel.add(label, actionPanel[2]);
+        
+        UtilDateModel initDate = new UtilDateModel();
+        initDate.setDate(year, month - 1, d);
+        initDate.setSelected(true);
+        JDatePanelImpl datePanel = new JDatePanelImpl(initDate);
 
         datePicker = new JDatePickerImpl(datePanel);
-        datePicker.setPreferredSize(new Dimension(150, 40));
+        datePicker.setPreferredSize(new Dimension(150, 27));
         datePicker.setFont(new Font("Dialog", Font.BOLD, 12));
         datePicker.addActionListener(new changeDate());
         
-        GridBagConstraints actionPanel1 = new GridBagConstraints();
-        actionPanel1.insets = new Insets(0, 0, 0, 10);
-        actionPanel1.gridx = 1;
-        actionPanel1.gridy = 0;
+        actionPanel[1].insets = new Insets(0, 0, 0, 10);
+        actionPanel[1].gridx = 1;
+        actionPanel[1].gridy = 0;
                 
-        buttonPanel.add(datePicker, actionPanel1);
+        buttonPanel.add(datePicker, actionPanel[1]);
         
         ct.fill = GridBagConstraints.HORIZONTAL;
         ct.insets = new Insets(10, 10, 10, 10);
@@ -184,24 +192,7 @@ public class StocktakingForm extends SettlementForm {
             date_mask_value = range;
             output_file_name = formname+"_"+range+".pdf";
             
-            model = getSettlement();
-            model.fireTableDataChanged();
-            
-            titleBorder = BorderFactory.createTitledBorder(blackline, formname + range);
-            titleBorder.setTitleJustification(TitledBorder.RIGHT);
-            mainPanel.setBorder(titleBorder);
-            
-            listSettlement.setModel(model);
-                    
-            //set width of form columns
-            listSettlement.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-            float[] widths = getHeadersWidth();
-            for (int i=0; i < widths.length; i++) {
-                int int_val = Math.round(widths[i] * 40);
-                listSettlement.getColumnModel().getColumn(i).setPreferredWidth(int_val);
-            }
-
-            listSettlement.setAutoCreateRowSorter(true);
+            refresh();
         }
     }    
     

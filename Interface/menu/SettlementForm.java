@@ -92,8 +92,37 @@ public class SettlementForm extends MenuElementsList {
             date_mask_value = String.format("%02d.%04d", month, year);
         }
         output_file_name = formname+"_"+range+".pdf";
+        listSettlement = new JTable(new DefaultTableModel());
     }
 
+    protected void refresh() {
+        
+            //get new Data (refresh data)
+            model = getSettlement();
+            model.fireTableDataChanged();
+            
+            //set title of window
+            formFrame.setTitle(formname + range);
+            
+            //set label on frame
+            titleBorder = BorderFactory.createTitledBorder(blackline, formname + range);
+            titleBorder.setTitleJustification(TitledBorder.RIGHT);
+            mainPanel.setBorder(titleBorder);
+            
+            //fill table
+            listSettlement.setModel(model);
+                    
+            //set width of form columns
+            listSettlement.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+            float[] widths = getHeadersWidth();
+            for (int i=0; i < widths.length; i++) {
+                int int_val = Math.round(widths[i] * 40);
+                listSettlement.getColumnModel().getColumn(i).setPreferredWidth(int_val);
+            }
+
+            listSettlement.setAutoCreateRowSorter(true);
+    }
+    
     protected void prepareHeaders() {
         // to split to two separated config hash-maps (separatelly for DB and Report
         // Yes, i known convert Str to Float is stupied in this place ;P
@@ -234,18 +263,14 @@ public class SettlementForm extends MenuElementsList {
     }
 
     @Override
-    public void generateGui() {  
+    public void generateGui() {
+        prepareHeaders();
         
         formFrame.setSize(window_width, window_heigth);
         formFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         formFrame.setResizable(false);
-        formFrame.setTitle(formname + range);
         mainPanel = new JPanel(new GridBagLayout());
-        titleBorder = BorderFactory.createTitledBorder(blackline, formname + range);
-        titleBorder.setTitleJustification(TitledBorder.RIGHT);
-        mainPanel.setBorder(titleBorder);
-        
-        prepareHeaders();
+
         generatePanels(new GridBagConstraints());
 
         formFrame.add(mainPanel);
@@ -264,8 +289,8 @@ public class SettlementForm extends MenuElementsList {
         JButton printList = new JButton();
         printList.setText("Drukuj listę");
         //addU.addActionListener(new AddButtonAction());
-        printList.setPreferredSize(new Dimension(150, 40));
-        printList.setFont(new Font("Dialog", Font.BOLD, 20));
+        printList.setPreferredSize(new Dimension(150, 25));
+        printList.setFont(new Font("Dialog", Font.BOLD, 12));
 
         printList.addActionListener(new PrintList());
         GridBagConstraints actionPanel = new GridBagConstraints();
@@ -292,20 +317,8 @@ public class SettlementForm extends MenuElementsList {
     }
     
     protected void generateTable(GridBagConstraints ct) {
-
-        model = getSettlement();
         
-        listSettlement = new JTable(model);
-        
-        //set width of form columns
-        listSettlement.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-        float[] widths = getHeadersWidth();
-        for (int i=0; i < widths.length; i++) {
-            int int_val = Math.round(widths[i] * 40);
-            listSettlement.getColumnModel().getColumn(i).setPreferredWidth(int_val);
-        }
-
-        listSettlement.setAutoCreateRowSorter(true);
+        refresh();
         scrollPane = new JScrollPane(listSettlement);
         listSettlement.setFillsViewportHeight(true);
 
@@ -321,7 +334,7 @@ public class SettlementForm extends MenuElementsList {
     }
     
     protected void CreatePDF(DefaultTableModel data) throws 
-            DocumentException, IOException {
+        DocumentException, IOException {
         String[][][] convertedData = ConvertData(data, rows_per_page);
         Document document = null;
         if (rotate == 1) {
@@ -399,13 +412,6 @@ public class SettlementForm extends MenuElementsList {
 	    }
 	}
         
-        // Fill tail of table with empty cells
-//        for (;new_row < 5; new_row++) {
-//            for (int col = 0; col < column_count;col++) {
-//                convertedData[page-1][new_row][col] = "";
-//            }
-//        }
-        
         return convertedData;
     }
 
@@ -473,7 +479,7 @@ public class SettlementForm extends MenuElementsList {
         @Override
         public void actionPerformed(ActionEvent e) {
             try {
-                CreatePDF(getSettlement());
+                CreatePDF(model);
                 JOptionPane.showMessageDialog(null, "Raport PDF został wygenerowany.",
                         "Generowanie PDF", JOptionPane.INFORMATION_MESSAGE);
             } catch (IOException | DocumentException ex) {
