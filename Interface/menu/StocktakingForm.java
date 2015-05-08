@@ -26,7 +26,7 @@ import java.sql.SQLException;
 import java.sql.ResultSet;
 import net.sourceforge.jdatepicker.impl.JDatePanelImpl;
 import net.sourceforge.jdatepicker.impl.JDatePickerImpl;
-import net.sourceforge.jdatepicker.impl.UtilDateModel;
+
 import lombardia2014.generators.LombardiaLogger;
 
 //to support for Events
@@ -36,6 +36,12 @@ import java.awt.event.ActionListener;
 //to get current date
 import java.util.Calendar;
 
+//refresh table
+import javax.swing.JTable;
+
+//set initial date
+import net.sourceforge.jdatepicker.impl.UtilDateModel;
+        
 public class StocktakingForm extends SettlementForm {
     int month = now.get(Calendar.MONTH) + 1;
     int year = now.get(Calendar.YEAR);
@@ -138,7 +144,9 @@ public class StocktakingForm extends SettlementForm {
         buttonPanel.add(printList, actionPanel);
         UtilDateModel model = new UtilDateModel();
         model.setDate(year, month - 1, d);
+        model.setSelected(true);
         JDatePanelImpl datePanel = new JDatePanelImpl(model);
+
         datePicker = new JDatePickerImpl(datePanel);
         datePicker.setPreferredSize(new Dimension(150, 40));
         datePicker.setFont(new Font("Dialog", Font.BOLD, 12));
@@ -176,7 +184,24 @@ public class StocktakingForm extends SettlementForm {
             date_mask_value = range;
             output_file_name = formname+"_"+range+".pdf";
             
-            //I need to refresh page but i don't known how at this moment
+            model = getSettlement();
+            model.fireTableDataChanged();
+            
+            titleBorder = BorderFactory.createTitledBorder(blackline, formname + range);
+            titleBorder.setTitleJustification(TitledBorder.RIGHT);
+            mainPanel.setBorder(titleBorder);
+            
+            listSettlement.setModel(model);
+                    
+            //set width of form columns
+            listSettlement.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+            float[] widths = getHeadersWidth();
+            for (int i=0; i < widths.length; i++) {
+                int int_val = Math.round(widths[i] * 40);
+                listSettlement.getColumnModel().getColumn(i).setPreferredWidth(int_val);
+            }
+
+            listSettlement.setAutoCreateRowSorter(true);
         }
     }    
     
