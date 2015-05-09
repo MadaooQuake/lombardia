@@ -45,6 +45,24 @@ public class ItemChecker {
         insertItem += ", ID_CATEGORY, ID_AGREEMENT) VALUES (" + values
                 + "," + ID_CATEGORY + "," + ID_AGREEMENT + ");";
     }
+    
+        public void setValues(String MODEL, String BAND, String TYPE, String WEIGHT,
+            String IMEI, String VALUE, String ATENCION, int ID_CATEGORY,
+            int ID_AGREEMENT, String BUY_DATE) {
+
+        // now time to action :)
+        insertItem = "INSERT INTO Items (MODEL";
+        // now i check what i have
+        values = "'" + MODEL + "'";
+        checkBrand(BAND);
+        checkType(TYPE);
+        checkWeight(WEIGHT);
+        checkImei(IMEI);
+        checkVaue(VALUE);
+        checkAtencion(ATENCION);
+        insertItem += ", ID_CATEGORY, ID_AGREEMENT, BUY_DATE) VALUES (" + values
+                + "," + ID_CATEGORY + "," + ID_AGREEMENT + ",'" + BUY_DATE +"');";
+    }
 
     private void checkBrand(String Brand_) {
         String brand = Brand_;

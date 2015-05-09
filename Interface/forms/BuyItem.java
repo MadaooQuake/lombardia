@@ -19,8 +19,10 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -651,7 +653,6 @@ public class BuyItem extends Forms implements ItemFormGenerator {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-
             // add item to container
             // save to DB, but before save i add notyfication
             int selectedOption = JOptionPane.showConfirmDialog(formFrame,
@@ -1213,7 +1214,8 @@ public class BuyItem extends Forms implements ItemFormGenerator {
     private void saveToDB() {
         Map<String, String> tmpItem = new HashMap<>();
         // analyze cat id :D
-
+        Date curretDate = new Date();
+        SimpleDateFormat ft = new SimpleDateFormat("dd.MM.YYYY");
         int catID = 0;
         for (int i = 0; i < itemsList.size(); i++) {
             try {
@@ -1231,7 +1233,7 @@ public class BuyItem extends Forms implements ItemFormGenerator {
                 creatItemtoDB.setValues(tmpItem.get("Model"), tmpItem.get("Marka"),
                         tmpItem.get("Typ"), tmpItem.get("Waga"),
                         tmpItem.get("IMEI"), tmpItem.get("Wartość"),
-                        tmpItem.get("Uwagi"), catID, 0);
+                        tmpItem.get("Uwagi"), catID, 0, ft.format(curretDate));
                 queryResult = setQuerry.dbSetQuery(creatItemtoDB.getInsertItem());
 
             } catch (SQLException ex) {

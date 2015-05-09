@@ -98,6 +98,7 @@ public class CreateDB {
                     + "WEIGHT REAL,"
                     + "IMEI INTEGER(15),"
                     + "VALUE REAL,"
+                    + "BUY_DATE TEXT,"
                     + "SOLD_DATE TEXT,"
                     + "ATENCION TEXT,"
                     + "ID_CATEGORY INTEGER(4) NOT NULL,"
