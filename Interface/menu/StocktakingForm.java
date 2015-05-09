@@ -65,7 +65,7 @@ public class StocktakingForm extends SettlementForm {
         objHeaders.put(3, buildHeader("Items.ID","ID","Identyfikator","3.0f"));
         objHeaders.put(4, buildHeader("Items.Value","Value","Cena netto","3.0f"));
         objHeaders.put(5, buildHeader("","","Wartość netto","3.0f"));
-        objHeaders.put(6, buildHeader("Agreements.Stop_date as Bay_Date","Bay_Date","Data zakupu","2.6f"));
+        objHeaders.put(6, buildHeader("Agreements.Stop_date","Buy_Date","Data zakupu","2.6f"));
     }
     
     @Override
@@ -73,7 +73,6 @@ public class StocktakingForm extends SettlementForm {
         String result = "SELECT ";
 
         String[] dbHeaders = getDbHeaders();
-        String[] ItemsHeaders = getShortDBHeaders();
             
         for (int i = 0; i < dbHeaders.length; i++) {
             result += dbHeaders[i];
@@ -96,18 +95,13 @@ public class StocktakingForm extends SettlementForm {
                     + "(substr(Items.Sold_date,7,4) = '" + String.format("%04d", year) +"' and substr(Items.Sold_date,4,2) > '" + String.format("%02d", month) + "') or"
                     + "(substr(Items.Sold_date,4,7) = '" + String.format("%02d", month) +"."+ String.format("%04d", year) +"' and substr(Items.Sold_date,1,2) > '" + String.format("%02d", d) + "') )"
                     + " union all " 
-                    + "SELECT ";
-        for (int i = 0; i < ItemsHeaders.length; i++) {
-            result += ItemsHeaders[i];
-            if (i < ItemsHeaders.length - 1) { //skip for last element
-                result += ",";
-            }
-        }       
-        
-        result = result + " FROM Items WHERE Bay_Date is not null AND "
-                    + "( substr(Bay_Date,7,4) < '" + String.format("%04d", year) + "' or "
-                    + "(substr(Bay_Date,7,4) = '" + String.format("%04d", year) +"' and substr(Bay_Date,4,2) < '" + String.format("%02d", month) + "') or"
-                    + "(substr(Bay_Date,4,7) = '" + String.format("%02d", month) +"."+String.format("%04d", year)+"' and substr(Bay_Date,1,2) < '" + String.format("%02d", d) + "') )"
+                    + "SELECT Items.Model || ' (' || Items.Band || ')' as Description, "
+                    + "Items.ID as ID, "
+                    + "Items.Value as Value,"
+                    + "Items.Buy_Date as Buy_Date FROM Items WHERE Buy_Date is not null AND "
+                    + "( substr(Buy_Date,7,4) < '" + String.format("%04d", year) + "' or "
+                    + "(substr(Buy_Date,7,4) = '" + String.format("%04d", year) +"' and substr(Buy_Date,4,2) < '" + String.format("%02d", month) + "') or"
+                    + "(substr(Buy_Date,4,7) = '" + String.format("%02d", month) +"."+String.format("%04d", year)+"' and substr(Buy_Date,1,2) < '" + String.format("%02d", d) + "') )"
                 
                     + "AND ( Items.Sold_date is null or "                
                 
