@@ -60,6 +60,10 @@ import java.util.Map;
 //to get current date
 import java.util.Calendar;
 
+//to open output dir
+import java.io.File;
+import java.awt.Desktop;
+
 public class SettlementForm extends MenuElementsList {
     Calendar now = Calendar.getInstance();
     String formname = "Rozliczenia ";
@@ -490,6 +494,21 @@ public class SettlementForm extends MenuElementsList {
                 JOptionPane.showMessageDialog(null, "Błąd podczas generowania raportu.", 
                         "Generowanie PDF", JOptionPane.ERROR_MESSAGE);
             }
+            
+            try {
+                String dir = System.getProperty("user.dir");
+                
+                File dirAgre = new File(dir);
+
+                if (Desktop.isDesktopSupported()) {
+                    Desktop.getDesktop().open(dirAgre);
+                }
+            } catch (Exception ex) {
+                LombardiaLogger startLogging = new LombardiaLogger();
+                String text = startLogging.preparePattern("Error", ex.getMessage()
+                    + "\n" + Arrays.toString(ex.getStackTrace()));
+                startLogging.logToFile(text);
+           }
         }
     }
 }

@@ -65,7 +65,7 @@ public class StocktakingForm extends SettlementForm {
         objHeaders.put(3, buildHeader("Items.ID","ID","Identyfikator","3.0f"));
         objHeaders.put(4, buildHeader("Items.Value","Value","Cena netto","3.0f"));
         objHeaders.put(5, buildHeader("","","Wartość netto","3.0f"));
-        objHeaders.put(6, buildHeader("Agreements.Start_date","Start_date","Data zakupu","2.6f"));
+        objHeaders.put(6, buildHeader("Agreements.Stop_date","Stop_date","Data zakupu","2.6f"));
     }
     
     @Override
@@ -187,7 +187,7 @@ public class StocktakingForm extends SettlementForm {
             Calendar newDate = Calendar.getInstance();
             newDate.setTime(selectedDate);
             year = newDate.get(Calendar.YEAR);
-            month = newDate.get(Calendar.MONTH);
+            month = newDate.get(Calendar.MONTH) + 1;
             d = newDate.get(Calendar.DAY_OF_MONTH);
             date_mask_value = range;
             output_file_name = formname+"_"+range+".pdf";
