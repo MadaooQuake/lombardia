@@ -61,9 +61,11 @@ public class ItemForm extends Forms {
     String weight = "0";
     ObjectList objects = null;
     double adRemValue = 0.0;
+    boolean isAgrement = false;
 
-    public ItemForm(int id_) {
+    public ItemForm(int id_, boolean isAgrement_) {
         id = id_;
+        isAgrement = isAgrement_;
     }
 
     @Override
@@ -363,46 +365,54 @@ public class ItemForm extends Forms {
         @Override
         public void actionPerformed(ActionEvent e) {
             try {
-                setQuerry = new QueryDB();
-                conDB = setQuerry.getConnDB();
-                stmt = conDB.createStatement();
+                
+                if (isAgrement == false) {
+                    setQuerry = new QueryDB();
+                    conDB = setQuerry.getConnDB();
+                    stmt = conDB.createStatement();
 
-                queryResult = setQuerry.dbSetQuery("SELECT VALUE FROM Items"
-                        + " WHERE ID = " + id);
+                    queryResult = setQuerry.dbSetQuery("SELECT VALUE FROM Items"
+                            + " WHERE ID = " + id);
 
-                itemBaseValue = queryResult.getInt("VALUE");
+                    itemBaseValue = queryResult.getInt("VALUE");
 
-                String dialogWindow = (String) JOptionPane.showInputDialog(formFrame,
-                        "Podaj cenę za jaką sprzedano przedmiot",
-                        "0");
+                    String dialogWindow = (String) JOptionPane.showInputDialog(formFrame,
+                            "Podaj cenę za jaką sprzedano przedmiot",
+                            "0");
 
-                FormValidator validate = new FormValidator();
-                if (validate.checkPrice(dialogWindow.length(), dialogWindow) == false) {
-                    JOptionPane.showMessageDialog(formFrame,
-                            "Wprowadź liczbę",
-                            "Niepoprawna wartość",
-                            JOptionPane.ERROR_MESSAGE);
-                } else if (Float.valueOf(dialogWindow) < 1) {
-                    JOptionPane.showMessageDialog(formFrame,
-                            "Musisz wpisać wartość większą od 0",
-                            "Niepoprawna wartość",
-                            JOptionPane.ERROR_MESSAGE);
+                    FormValidator validate = new FormValidator();
+                    if (validate.checkPrice(dialogWindow.length(), dialogWindow) == false) {
+                        JOptionPane.showMessageDialog(formFrame,
+                                "Wprowadź liczbę",
+                                "Niepoprawna wartość",
+                                JOptionPane.ERROR_MESSAGE);
+                    } else if (Float.valueOf(dialogWindow) < 1) {
+                        JOptionPane.showMessageDialog(formFrame,
+                                "Musisz wpisać wartość większą od 0",
+                                "Niepoprawna wartość",
+                                JOptionPane.ERROR_MESSAGE);
+                    } else {
+                        queryResult = setQuerry.dbSetQuery("DELETE FROM Items "
+                                + " WHERE ID = " + id + "");
+                        setQuerry.closeDB();
+
+                        Float sellingPrice = Float.valueOf(dialogWindow);
+                        adRemValue = sellingPrice;
+                        SelfCalc moneys = new SelfCalc();
+                        moneys.addToSelf(sellingPrice);
+
+                        SelfCalc actualCalc = new SelfCalc();
+                        actualCalc.chackValue(formFrame);
+                        money.setText(actualCalc.getValue() + " zł");
+
+                        fillItemForm();
+
+                    }
                 } else {
-                    queryResult = setQuerry.dbSetQuery("DELETE FROM Items "
-                            + " WHERE ID = " + id + "");
-                    setQuerry.closeDB();
-
-                    Float sellingPrice = Float.valueOf(dialogWindow);
-                    adRemValue = sellingPrice;
-                    SelfCalc moneys = new SelfCalc();
-                    moneys.addToSelf(sellingPrice);
-
-                    SelfCalc actualCalc = new SelfCalc();
-                    actualCalc.chackValue(formFrame);
-                    money.setText(actualCalc.getValue() + " zł");
-
-                    fillItemForm();
-
+                     JOptionPane.showMessageDialog(formFrame,                       
+                                "Produkt jest podpięty pod umowe kredytu - nie można go sprzedać",
+                                "Nieprawidłowy produkt",
+                                JOptionPane.ERROR_MESSAGE);
                 }
 
             } catch (SQLException ex) {

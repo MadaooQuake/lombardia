@@ -36,7 +36,6 @@ import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
 import lombardia2014.ConfigRead;
 import lombardia2014.Interface.forms.ItemForm;
-import lombardia2014.Interface.menu.ListUsers;
 import lombardia2014.UserOperations;
 import lombardia2014.generators.LombardiaLogger;
 
@@ -169,6 +168,7 @@ public final class ObjectList extends javax.swing.JPanel {
         model.addColumn("Wartość (Brutto)");
         model.addColumn("IMEI");
         model.addColumn("Uwagi");
+        model.addColumn("Umowa");
 
         itemsTable();
 
@@ -201,11 +201,19 @@ public final class ObjectList extends javax.swing.JPanel {
             // 3 tables: Items, Category, and Agreement form
             // Agremment - in action when i load another form :/
             queryResult = setQuerry.dbSetQuery("SELECT Items.ID, NAME, MODEL, BAND, TYPE, "
-                    + "WEIGHT, VALUE, IMEI, ATENCION"
-                    + " FROM Items, Category WHERE "
-                    + " Items.ID_CATEGORY = Category.ID ;");
+                    + "WEIGHT, Items.VALUE, IMEI, ATENCION, Agreements.ID_AGREEMENTS AS ID_AGREEMENTS"
+                    + " FROM Items"
+                    + " INNER JOIN Category"
+                    + " ON Items.ID_CATEGORY = Category.ID"
+                    + " LEFT OUTER JOIN Agreements"
+                    + " ON Agreements.ID = Items.ID_AGREEMENT;");
 
             while (queryResult.next()) {
+                String idAgreement = "";
+                if (queryResult.getString("ID_AGREEMENTS") != null) {
+                    idAgreement = queryResult.getString("ID_AGREEMENTS");
+                }
+
                 Object[] dataTMP = {
                     queryResult.getString("ID"),
                     queryResult.getString("NAME"),
@@ -216,7 +224,8 @@ public final class ObjectList extends javax.swing.JPanel {
                     value = queryResult.getFloat("VALUE"),
                     calcBrutto(),
                     queryResult.getString("IMEI"),
-                    queryResult.getString("ATENCION")
+                    queryResult.getString("ATENCION"),
+                    idAgreement
                 };
                 model.addRow(dataTMP);
             }
@@ -267,11 +276,14 @@ public final class ObjectList extends javax.swing.JPanel {
             if (e.getClickCount() == 2) {
                 selectRow = table.getSelectedRow();
                 int row = table.rowAtPoint(p);
+                boolean agreement =  objectList.getModel().getValueAt(
+                        objectList.convertRowIndexToView(selectRow), 10
+                        ) != null;
 
                 id = Integer.parseInt((String) objectList.getModel().getValueAt(
                         objectList.convertRowIndexToView(selectRow), 0));
-
-                sellForm = new ItemForm(id);
+              
+                sellForm = new ItemForm(id, agreement);
                 sellForm.generateGui();
 
                 worker = new SwingWorker<Void, Void>() {
@@ -343,15 +355,25 @@ public final class ObjectList extends javax.swing.JPanel {
 
                 stmt = conDB.createStatement();
 
-                queryResult = setQuerry.dbSetQuery("SELECT Items.ID, NAME, "
-                        + " MODEL, BAND, TYPE, WEIGHT, VALUE, IMEI, ATENCION"
-                        + " FROM Items, Category"
-                        + " WHERE Items.ID_CATEGORY = Category.ID AND "
-                        + "MODEL LIKE '%" + searchText.getText()
+                queryResult = setQuerry.dbSetQuery("SELECT Items.ID, Category.NAME, "
+                        + " MODEL, BAND, TYPE, WEIGHT, Items.VALUE, IMEI, ATENCION,"
+                        + " Agreements.ID_AGREEMENTS AS ID_AGREEMENTS "
+                        + " FROM Items"
+                        + " INNER JOIN Category"
+                        + " ON Items.ID_CATEGORY = Category.ID"
+                        + " LEFT OUTER JOIN Agreements"
+                        + " ON Agreements.ID = Items.ID_AGREEMENT"
+                        + " WHERE"
+                        + " MODEL LIKE '%" + searchText.getText()
                         + "%' OR BAND LIKE '%" + searchText.getText()
-                        + "%';");
+                        + "%'"
+                        + ";");
 
                 while (queryResult.next()) {
+                    String idAgreement = "";
+                    if (queryResult.getString("ID_AGREEMENTS") != null) {
+                        idAgreement = queryResult.getString("ID_AGREEMENTS");
+                    }
                     Object[] data = {
                         queryResult.getString("ID"),
                         queryResult.getString("NAME"),
@@ -362,7 +384,8 @@ public final class ObjectList extends javax.swing.JPanel {
                         value = queryResult.getFloat("VALUE"),
                         calcBrutto(),
                         queryResult.getString("IMEI"),
-                        queryResult.getString("ATENCION")
+                        queryResult.getString("ATENCION"),
+                         idAgreement
                     };
                     model.addRow(data);
                     repaint();
