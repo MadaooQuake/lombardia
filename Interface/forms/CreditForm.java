@@ -172,7 +172,7 @@ public class CreditForm extends Forms {
         titleBorder.setTitleJustification(TitledBorder.LEFT);
         titleBorder.setBorder(blackline);
         actionPanels[0].setBorder(titleBorder);
-        c.insets = new Insets(10, 2, 2, 2);
+        c.insets = new Insets(5, 2, 2, 2);
         // method to create fields and 
         customerForm();
 
@@ -228,7 +228,7 @@ public class CreditForm extends Forms {
 
         //panel without the borer :D
         actionPanels[3] = new JPanel(new GridBagLayout());
-        c.insets = new Insets(5, 0, 0, 10);
+        c.insets = new Insets(5, 0, 0, 5);
         actionForm();
         c.gridwidth = 2;
         c.gridx = 0;
@@ -284,7 +284,7 @@ public class CreditForm extends Forms {
 
         selectCustomer = new AutoSuggestor(
                 fields[2], formFrame, null, Color.WHITE.brighter(),
-                Color.BLUE, Color.RED, 0.75f, 76, 39) {
+                Color.BLUE, Color.RED, 0.75f, 90, 59) {
                     @Override
                     public boolean wordTyped(String typedWord) {
                         try {
@@ -363,7 +363,7 @@ public class CreditForm extends Forms {
         addresCustomer = new JTextField();
         addresCustomer.setPreferredSize(new Dimension(140, 60));
         addresCustomer.setFont(new Font("Dialog", Font.BOLD, fontSize));
-        cTab[0].insets = new Insets(10, 10, 10, 0);
+        cTab[0].insets = new Insets(5, 5, 5, 0);
         cTab[0].gridx = 1;
         cTab[0].gridy = 4;
         actionPanels[0].add(addresCustomer, cTab[0]);
@@ -410,7 +410,7 @@ public class CreditForm extends Forms {
 
     private void itemForm() {
         cTab[1] = new GridBagConstraints();
-        cTab[1].insets = new Insets(10, 10, 10, 10);
+        cTab[1].insets = new Insets(5, 5, 5, 5);
         // first add buttons
         // create mini form to add new product in database
         newItem = new JButton();
@@ -663,6 +663,20 @@ public class CreditForm extends Forms {
         c.gridx = 1;
         c.gridy = 9;
         actionPanels[2].add(fields[22], c);
+        
+        namedField[19] = new JLabel();
+        namedField[19].setText("Łączna Wartość:");
+        namedField[19].setFont(new Font("Dialog", Font.BOLD, fontSize));
+        c.gridx = 0;
+        c.gridy = 10;
+        actionPanels[2].add(namedField[19], c);
+
+        fields[16] = new JTextField();
+        fields[16].setPreferredSize(new Dimension(150, heightTextL));
+        fields[16].setFont(new Font("Dialog", Font.BOLD, fontSize));
+        c.gridx = 1;
+        c.gridy = 10;
+        actionPanels[2].add(fields[16], c);
     }
 
     private void depositForm() {
@@ -683,20 +697,6 @@ public class CreditForm extends Forms {
         cTab[2].gridx = 1;
         cTab[2].gridy = 0;
         actionPanels[4].add(fields[15], cTab[2]);
-
-        namedField[19] = new JLabel();
-        namedField[19].setText("Łączna Wartość:");
-        namedField[19].setFont(new Font("Dialog", Font.BOLD, fontSize));
-        cTab[2].gridx = 0;
-        cTab[2].gridy = 1;
-        actionPanels[4].add(namedField[19], cTab[2]);
-
-        fields[16] = new JTextField();
-        fields[16].setPreferredSize(new Dimension(150, heightTextL));
-        fields[16].setFont(new Font("Dialog", Font.BOLD, fontSize));
-        cTab[2].gridx = 1;
-        cTab[2].gridy = 1;
-        actionPanels[4].add(fields[16], cTab[2]);
 
         // internal panel :D
         itemPanelLayout = new GridLayout(0, 2);
@@ -1478,10 +1478,10 @@ public class CreditForm extends Forms {
                             fields[3].getText()) == false) {
                         fields[3].setText("");
                     }
-                    if (moneySafe.chackValue(formFrame, Float.parseFloat(fields[16].getText()))) {
+                    if (moneySafe.chackValue(formFrame, Float.parseFloat(fields[4].getText()))) {
                         if (update == false) {
                             moneySafe.delFtomSelf(formFrame,
-                                    Float.parseFloat(fields[16].getText()));
+                                    Float.parseFloat(fields[4].getText()));
                         }
 
                         // prepare user 
