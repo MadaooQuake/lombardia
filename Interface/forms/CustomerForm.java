@@ -75,7 +75,7 @@ public class CustomerForm extends Forms {
 
     @Override
     public void generatePanels(GridBagConstraints c) {
-        namedField = new JLabel[5];
+        namedField = new JLabel[6];
         fields = new JTextField[5];
 
         c.insets = new Insets(5, 5, 5, 5);
@@ -150,13 +150,31 @@ public class CustomerForm extends Forms {
         c.gridx = 1;
         c.gridy = 3;
         mainPanel.add(fields[2], c);
+        
+        namedField[5] = new JLabel();
+        namedField[5].setText("Rabat:");
+        namedField[5].setFont(new Font("Dialog", Font.BOLD, fontSize));
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.gridx = 0;
+        c.gridy = 4;
+        mainPanel.add(namedField[5], c);
+
+        fields[3] = new JTextField();
+        fields[3].setPreferredSize(new Dimension(150, heightTextL));
+        fields[3].setFont(new Font("Dialog", Font.BOLD, fontSize));
+        fields[3].setEditable(false);
+        fields[3].setText(null);
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.gridx = 1;
+        c.gridy = 4;
+        mainPanel.add(fields[3], c);
 
         namedField[4] = new JLabel();
         namedField[4].setText("Zaufany:");
         namedField[4].setFont(new Font("Dialog", Font.BOLD, fontSize));
         c.fill = GridBagConstraints.HORIZONTAL;
         c.gridx = 0;
-        c.gridy = 4;
+        c.gridy = 5;
         mainPanel.add(namedField[4], c);
 
         goodClient = new JCheckBox();
@@ -164,7 +182,7 @@ public class CustomerForm extends Forms {
         goodClient.setEnabled(false);
         c.fill = GridBagConstraints.HORIZONTAL;
         c.gridx = 1;
-        c.gridy = 4;
+        c.gridy = 5;
         mainPanel.add(goodClient, c);
 
         // now buttons
@@ -177,7 +195,7 @@ public class CustomerForm extends Forms {
         update.addActionListener(new EditSaveAction());
         c.fill = GridBagConstraints.HORIZONTAL;
         c.gridx = 0;
-        c.gridy = 5;
+        c.gridy = 6;
         mainPanel.add(update, c);
 
         okCancel = new JButton();
@@ -187,7 +205,7 @@ public class CustomerForm extends Forms {
         okCancel.addActionListener(new CancelAction());
         c.fill = GridBagConstraints.HORIZONTAL;
         c.gridx = 1;
-        c.gridy = 5;
+        c.gridy = 6;
         mainPanel.add(okCancel, c);
 
         fillFields();
@@ -204,7 +222,7 @@ public class CustomerForm extends Forms {
             stmt = conDB.createStatement();
 
             queryResult = setQuerry.dbSetQuery("SELECT NAME, SURNAME, ADDRESS, "
-                    + "PESEL, TRUST FROM Customers WHERE ID = " + customerID + ";");
+                    + "PESEL, TRUST, DISCOUNT FROM Customers WHERE ID = " + customerID + ";");
 
             while (queryResult.next()) {
                 fields[0].setText(queryResult.getString("NAME"));
@@ -212,6 +230,7 @@ public class CustomerForm extends Forms {
                 addresCustomer.setText(queryResult.getString("ADDRESS"));
                 fields[2].setText(queryResult.getString("PESEL"));
                 boolean trust = queryResult.getInt("TRUST") == 1;
+                fields[3].setText(queryResult.getString("DISCOUNT"));
                 goodClient.setSelected(trust);
             }
             setQuerry.closeDB();
@@ -284,6 +303,10 @@ public class CustomerForm extends Forms {
 
         private boolean updateCustomer() {
             try {
+                float discount = 0;
+                if(fields[3].getText() != null && !fields[3].getText().isEmpty()) {
+                    discount = Float.parseFloat(fields[3].getText().replaceAll(",", "."));
+                }
                 setQuerry = new QueryDB();
                 conDB = setQuerry.getConnDB();
 
@@ -295,6 +318,7 @@ public class CustomerForm extends Forms {
                             + " SURNAME = '" + fields[1].getText() + "', "
                             + "ADDRESS = '" + addresCustomer.getText() + "'"
                             + ", TRUST =" + (goodClient.isSelected() ? 1 : 0)
+                            + ", DISCOUNT =" + discount
                             + " WHERE ID = " + customerID + ";");
                 } else {
                     queryResult = setQuerry.dbSetQuery("UPDATE Customers SET"
@@ -303,6 +327,7 @@ public class CustomerForm extends Forms {
                             + "ADDRESS = '" + addresCustomer.getText() + "', "
                             + "PESEL =" + fields[2].getText()
                             + " , TRUST =" + (goodClient.isSelected() ? 1 : 0)
+                            + ", DISCOUNT =" + discount
                             + " WHERE ID = " + customerID + ";");
                 }
                 setQuerry.closeDB();

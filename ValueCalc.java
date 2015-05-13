@@ -83,7 +83,7 @@ public class ValueCalc {
      */
     public float handlingPayment(float value) {
         handlingPay = readParam.getManFee();
-
+        ans = value;
         float val = (value * (handlingPay / 100));
         val *= 100;
         val = Math.round(val);
@@ -177,8 +177,12 @@ public class ValueCalc {
      */
     public float discountCalc(float value, JFrame form_) {
         // calculate power
+        // value in percent 
+        
         discount = value;
-
+        // calculate discount 
+        discount = (discount * dailyProfit)/100;
+        
         if (storagePay < discount) {
             discount = 0;
             // notyfication

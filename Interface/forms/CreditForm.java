@@ -576,7 +576,7 @@ public class CreditForm extends Forms {
         actionPanels[2].add(fields[14], c);
 
         namedField[21] = new JLabel();
-        namedField[21].setText("Rabat:");
+        namedField[21].setText("Rabat(%):");
         namedField[21].setFont(new Font("Dialog", Font.BOLD, fontSize));
         c.fill = GridBagConstraints.HORIZONTAL;
         c.gridx = 0;
@@ -663,7 +663,7 @@ public class CreditForm extends Forms {
         c.gridx = 1;
         c.gridy = 9;
         actionPanels[2].add(fields[22], c);
-        
+
         namedField[19] = new JLabel();
         namedField[19].setText("Łączna Wartość:");
         namedField[19].setFont(new Font("Dialog", Font.BOLD, fontSize));
@@ -1380,9 +1380,9 @@ public class CreditForm extends Forms {
                 if (tmpItem.get("Wartość") == null) {
                     tmpItem.put("Wartość", "");
                 }
-                
+
                 if (tmpItem.get("Marka") == null) {
-                     tmpItem.put("Marka", "");
+                    tmpItem.put("Marka", "");
                 }
 
                 itemValue.setText(tmpItem.get("Model") + " " + tmpItem.get("Marka")
@@ -1593,18 +1593,20 @@ public class CreditForm extends Forms {
                     int goodCustomer = (goodClient.isSelected()) ? 1 : 0;
                     if (!fields[3].getText().isEmpty()) {
                         queryResult = setQuerry.dbSetQuery("INSERT INTO Customers (NAME, "
-                                + "SURNAME, ADDRESS, PESEL, TRUST) VALUES"
+                                + "SURNAME, ADDRESS, PESEL, TRUST, DISCOUNT) VALUES"
                                 + "('" + fields[0].getText() + "','"
                                 + fields[1].getText() + "','"
                                 + addresCustomer.getText() + "','"
                                 + fields[3].getText() + "',"
+                                + fields[18].getText() + ","
                                 + goodCustomer + ");");
                     } else {
                         queryResult = setQuerry.dbSetQuery("INSERT INTO Customers (NAME, "
-                                + "SURNAME, ADDRESS, TRUST) VALUES"
+                                + "SURNAME, ADDRESS, TRUST, DISCOUNT) VALUES"
                                 + "('" + fields[0].getText() + "','"
                                 + fields[1].getText() + "','"
                                 + addresCustomer.getText() + "',"
+                                + fields[18].getText() + ","
                                 + goodCustomer + ");");
                     }
                 }
@@ -1626,33 +1628,21 @@ public class CreditForm extends Forms {
                     fields[15].setText("0");
                 }
 
-                if (!fields[18].getText().isEmpty()) {
-                    queryResult = setQuerry.dbSetQuery("INSERT INTO Agreements (ID_AGREEMENTS,"
-                            + " START_DATE, STOP_DATE, VALUE, COMMISSION, ITEM_VALUE, ITEM_WEIGHT,"
-                            + " VALUE_REST, SAVEPRICE, DISCOUNT, ID_CUSTOMER)"
-                            + " VALUES ('"
-                            + createIndex() + "','" + ft.format(curretDate) + "','"
-                            + ft.format(selectedDate) + "','" + fields[4].getText() + "',"
-                            + fields[19].getText() + "," + fields[16].getText() + ","
-                            + fields[15].getText() + ","
-                            + fields[22].getText() + "," + fields[14].getText() + ","
-                            + discount + "," + customer + ");");
-                } else {
-                    queryResult = setQuerry.dbSetQuery("INSERT INTO Agreements (ID_AGREEMENTS,"
-                            + " START_DATE, STOP_DATE, VALUE, COMMISSION, ITEM_VALUE, ITEM_WEIGHT,"
-                            + " VALUE_REST, SAVEPRICE, ID_CUSTOMER)"
-                            + " VALUES ('"
-                            + createIndex() + "','" + ft.format(curretDate) + "','"
-                            + ft.format(selectedDate) + "','" + fields[4].getText() + "',"
-                            + fields[19].getText() + "," + fields[16].getText() + ","
-                            + fields[15].getText() + ","
-                            + fields[22].getText() + "," + fields[14].getText() + ","
-                            + customer + ");");
-                }
+                // i must add 
+                queryResult = setQuerry.dbSetQuery("INSERT INTO Agreements (ID_AGREEMENTS,"
+                        + " START_DATE, STOP_DATE, VALUE, COMMISSION, ITEM_VALUE, ITEM_WEIGHT,"
+                        + " VALUE_REST, SAVEPRICE, ID_CUSTOMER)"
+                        + " VALUES ('"
+                        + createIndex() + "','" + ft.format(curretDate) + "','"
+                        + ft.format(selectedDate) + "','" + fields[4].getText() + "',"
+                        + fields[19].getText() + "," + fields[16].getText() + ","
+                        + fields[15].getText() + ","
+                        + fields[22].getText() + "," + fields[14].getText() + ","
+                        + "," + customer + ");");
+
                 // why i must do this :(
                 // i must know id last agreement
                 // finnaly i save items in loop :(
-
                 Map<String, String> tmpItem = new HashMap<>();
                 // analyze cat id :D
                 int catID = 0;
@@ -1715,11 +1705,10 @@ public class CreditForm extends Forms {
                         + fields[16].getText() + ", ITEM_WEIGHT = "
                         + fields[15].getText() + ", VALUE_REST = "
                         + fields[4].getText() + ", SAVEPRICE = "
-                        + fields[14].getText() + ", DISCOUNT = "
-                        + discount + ", ID_CUSTOMER = "
+                        + ", ID_CUSTOMER = "
                         + customer + " WHERE ID_AGREEMENTS = '"
                         + paymentPorperies.get("NR Umowy") + "';");
-                
+
                 //items 
                 setQuerry.closeDB();
             } catch (SQLException ex) {
@@ -2281,9 +2270,9 @@ public class CreditForm extends Forms {
                     discount = Float.parseFloat(fields[18].getText());
                 }
                 fields[14].setText(Float.toString(precentCalc.storagePayment(val)));
-                discount = precentCalc.discountCalc(discount, formFrame);
                 fields[13].setText(Float.toString(precentCalc.RROCalc()));
                 fields[20].setText(Float.toString(precentCalc.lombardRate(val)));
+                discount = precentCalc.discountCalc(discount, formFrame);
                 fields[22].setText(Float.toString(precentCalc.allPayment(val)));
                 rrso = precentCalc.RRSOCalc(val);
             } else {
@@ -2329,7 +2318,7 @@ public class CreditForm extends Forms {
                 //quer to db
                 if (nameSurnam.length > 1) {
                     queryResult = setQuerry.dbSetQuery("SELECT NAME, SURNAME, ADDRESS,"
-                            + "PESEL, TRUST FROM Customers WHERE NAME LIKE '"
+                            + "PESEL, TRUST, DISCOUNT FROM Customers WHERE NAME LIKE '"
                             + nameSurnam[0] + "' AND SURNAME LIKE '"
                             + nameSurnam[1] + "';");
 
@@ -2340,6 +2329,7 @@ public class CreditForm extends Forms {
                         fields[3].setText(queryResult.getString("PESEL"));
                         boolean trust = queryResult.getInt("TRUST") != 0;
                         goodClient.setSelected(trust);
+                        fields[18].setText(queryResult.getString("DISCOUNT"));
                     }
                     setQuerry.closeDB();
                     //fillPayID();

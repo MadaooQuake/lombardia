@@ -60,7 +60,8 @@ public class CreateDB {
                     + "SURNAME TEXT    NOT NULL,"
                     + "ADDRESS TEXT,"
                     + "PESEL   TEXT,"
-                    + "TRUST   INTEGER(1)    NOT NULL"
+                    + "TRUST   INTEGER(1)    NOT NULL,"
+                    + "DISCOUNT REAL"
                     + ")";
             stmt.executeUpdate(sql);
 
@@ -83,7 +84,6 @@ public class CreateDB {
                     + "ITEM_WEIGHT REAL NOT NULL,"
                     + "VALUE_REST REAL NOT NULL,"
                     + "SAVEPRICE REAL NOT NULL,"
-                    + "DISCOUNT REAL,"
                     + "ID_CUSTOMER INTEGER(4) NOT NULL,"
                     + "FOREIGN KEY(ID_CUSTOMER) REFERENCES Customers(ID)"
                     + ")";
