@@ -1459,11 +1459,11 @@ public class CreditForm extends Forms {
                         && checkItem.checkPesel(
                                 fields[3].getText().length(), fields[3].getText())
                         && checkItem.checkWeight(
-                                fields[15].getText().length(), fields[15].getText())
+                                fields[15].getText().length(), fields[15].getText().replaceAll(",", "."))
                         && checkItem.checkValue(
-                                fields[16].getText().length(), fields[16].getText())
+                                fields[16].getText().length(), fields[16].getText().replaceAll(",", "."))
                         && checkItem.checkPrice(
-                                fields[4].getText().length(), fields[4].getText())
+                                fields[4].getText().length(), fields[4].getText().replaceAll(",", "."))
                         && !itemsList.isEmpty() && selectedDate != null
                         && itemPanel.getComponentCount() > 0
                         && checkItem.checkCreditFinishDate(curretDate, selectedDate);
@@ -1471,17 +1471,18 @@ public class CreditForm extends Forms {
                 if (checkElement == true) {
                     ok.setEnabled(false);
                     cancel.setEnabled(false);
-                    adRemValue = Double.parseDouble(fields[4].getText());
+                    adRemValue = Double.parseDouble(fields[4].getText().replaceAll(",", "."));
                     moneySafe = new SelfCalc();
                     if (checkItem.checkPesel(
                             fields[3].getText().length(),
                             fields[3].getText()) == false) {
                         fields[3].setText("");
                     }
-                    if (moneySafe.chackValue(formFrame, Float.parseFloat(fields[4].getText()))) {
+                    if (moneySafe.chackValue(formFrame, 
+                            Float.parseFloat(fields[4].getText().replaceAll(",", ".")))) {
                         if (update == false) {
                             moneySafe.delFtomSelf(formFrame,
-                                    Float.parseFloat(fields[4].getText()));
+                                    Float.parseFloat(fields[4].getText().replaceAll(",", ".")));
                         }
 
                         // prepare user 
@@ -1565,7 +1566,7 @@ public class CreditForm extends Forms {
             tmpAgreement.put("RRO", fields[13].getText());
             tmpAgreement.put("RRSO", Float.toString(rrso));
             tmpAgreement.put("Łączna waga", fields[15].getText());
-            tmpAgreement.put("Łączna wartosc", fields[16].getText());
+            tmpAgreement.put("Łączna wartosc", fields[16].getText().replaceAll(",", "."));
             tmpAgreement.put("Dzienny Profit", Double.toString(
                     precentCalc.dailyEarn(Float.parseFloat(fields[4].getText()))));
             return (HashMap) tmpAgreement;
@@ -1634,10 +1635,13 @@ public class CreditForm extends Forms {
                         + " VALUE_REST, SAVEPRICE, ID_CUSTOMER)"
                         + " VALUES ('"
                         + createIndex() + "','" + ft.format(curretDate) + "','"
-                        + ft.format(selectedDate) + "','" + fields[4].getText() + "',"
-                        + fields[19].getText() + "," + fields[16].getText() + ","
-                        + fields[15].getText() + ","
-                        + fields[22].getText() + "," + fields[14].getText() + ","
+                        + ft.format(selectedDate) + "','" 
+                        + fields[4].getText().replaceAll(",", ".") + "',"
+                        + fields[19].getText() + "," 
+                        + fields[16].getText().replaceAll(",", ".") + ","
+                        + fields[15].getText().replaceAll(",", ".") + ","
+                        + fields[22].getText().replaceAll(",", ".") + "," 
+                        + fields[14].getText().replaceAll(",", ".") + ","
                         + "," + customer + ");");
 
                 // why i must do this :(
@@ -1700,11 +1704,11 @@ public class CreditForm extends Forms {
                 String sDate = paymentPorperies.get("Data rozpoczecia");
                 queryResult = setQuerry.dbSetQuery("UPDATE Agreements SET STOP_DATE ='"
                         + ft.format(selectedDate) + "', VALUE = '"
-                        + fields[4].getText() + "', COMMISSION = "
-                        + fields[19].getText() + ", ITEM_VALUE = "
-                        + fields[16].getText() + ", ITEM_WEIGHT = "
-                        + fields[15].getText() + ", VALUE_REST = "
-                        + fields[4].getText() + ", SAVEPRICE = "
+                        + fields[4].getText().replaceAll(",", ".") + "', COMMISSION = "
+                        + fields[19].getText().replaceAll(",", ".") + ", ITEM_VALUE = "
+                        + fields[16].getText().replaceAll(",", ".") + ", ITEM_WEIGHT = "
+                        + fields[15].getText().replaceAll(",", ".") + ", VALUE_REST = "
+                        + fields[4].getText().replaceAll(",", ".") + ", SAVEPRICE = "
                         + ", ID_CUSTOMER = "
                         + customer + " WHERE ID_AGREEMENTS = '"
                         + paymentPorperies.get("NR Umowy") + "';");
