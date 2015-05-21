@@ -12,13 +12,19 @@ package lombardia2014.Interface.menu;
 import java.awt.GridBagLayout;
 import java.awt.GridBagConstraints;
 import javax.swing.BorderFactory;
-import javax.swing.JPanel;
 import javax.swing.JLabel;
 import javax.swing.JButton;
 import javax.swing.border.TitledBorder;        
 import java.util.Date;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import javax.swing.JTable;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.JScrollPane;
+import javax.swing.JPanel;
+import javax.swing.JOptionPane;
+import java.util.Arrays;
+import javax.swing.JFrame;
 
 import java.awt.Insets;
 import java.awt.Dimension;
@@ -35,44 +41,106 @@ import java.awt.event.ActionListener;
 //to get current date
 import java.util.Calendar;
 
+import lombardia2014.generators.HeadersHelper;
+import lombardia2014.generators.PDFCreator;
+import lombardia2014.dataBaseInterface.QueryDB;
+import lombardia2014.ValueCalc;
+import lombardia2014.generators.LombardiaLogger;
 
 //set initial date
 import net.sourceforge.jdatepicker.impl.UtilDateModel;
+
+//to open output dir
+import java.io.File;
+import java.awt.Desktop;
+
+//to Generate PDF iText
+import com.itextpdf.text.DocumentException;
+import java.io.IOException;
         
-public class StocktakingForm extends SettlementForm {
+public class StocktakingForm extends MenuElementsList {
+    Calendar now = Calendar.getInstance();
+    String formname = "Inwentaryzacja na dzień ";;
+    String range = "roczne";
+    DefaultTableModel model;
+    JTable listSettlement = null;
+    JScrollPane scrollPane = null;
+    int selectRow = -1;
+    int window_width = 860;
+    int window_heigth = 500;
+    int rows_per_page = 50;
+    String date_mask = "substr(Agreements.Stop_date,7,4)";
+    String date_mask_value = Integer.toString( now.get(Calendar.YEAR) );
+    String output_file_name = "_be_changed.pdf";
+    ValueCalc rate = new ValueCalc();
+    HeadersHelper Headers;
+    
     int month = now.get(Calendar.MONTH) + 1;
     int year = now.get(Calendar.YEAR);
     int d = now.get(Calendar.DAY_OF_MONTH);
     JDatePickerImpl datePicker = null;
     
     public StocktakingForm(String dateRange_) {
-        super(dateRange_);
-        rotate = 0;
-        rows_per_page = 50;
-        formname = "Inwentaryzacja na dzień ";
+        Headers = new HeadersHelper(6);
+        
+        output_file_name = formname+"_"+range+".pdf";
+        listSettlement = new JTable(new DefaultTableModel());        
+
         range = String.format("%02d.%02d.%04d", d, month, year);
         date_mask_value = range;
-
         output_file_name = formname+"_"+range+".pdf";
     }
     
     @Override
-    protected void prepareHeaders() {
-        // to split to two separated config hash-maps (separatelly for DB and Report
-        // Yes, i known convert Str to Float is stupied in this place ;P
-        objHeaders.put(1, buildHeader("","","L.p.","0.9f"));
-        objHeaders.put(2, buildHeader("Items.Model || ' (' || Items.Band || ')'","Description","Opis towaru","5.0f"));
-        objHeaders.put(3, buildHeader("Items.ID","ID","Identyfikator","3.0f"));
-        objHeaders.put(4, buildHeader("Items.Value","Value","Cena netto","3.0f"));
-        objHeaders.put(5, buildHeader("","","Wartość netto","3.0f"));
-        objHeaders.put(6, buildHeader("Agreements.Stop_date","Buy_Date","Data zakupu","2.6f"));
+    public void generateGui() {
+        prepareHeaders();
+        
+        formFrame.setSize(window_width, window_heigth);
+        formFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        formFrame.setResizable(false);
+        mainPanel = new JPanel(new GridBagLayout());
+
+        generatePanels(new GridBagConstraints());
+
+        formFrame.add(mainPanel);
+        formFrame.setVisible(true);
     }
     
     @Override
-    protected String PrepareQuery() {
+    public void generatePanels(GridBagConstraints ct) {
+        generateTable(new GridBagConstraints());
+        generateButtons(new GridBagConstraints());
+    }
+        protected void generateTable(GridBagConstraints ct) {
+        
+        refresh();
+        scrollPane = new JScrollPane(listSettlement);
+        listSettlement.setFillsViewportHeight(true);
+
+        scrollPane.setPreferredSize(new Dimension(window_width - 100, window_heigth - 200));
+
+        ct.fill = GridBagConstraints.HORIZONTAL;
+        ct.insets = new Insets(10, 10, 10, 10);
+        ct.gridx = 0;
+        ct.gridy = 1;
+        ct.ipadx = 8;
+        ct.ipady = 8;
+        mainPanel.add(scrollPane, ct);
+    }
+    
+    private void prepareHeaders() {
+        Headers.BuildHeader("","","L.p.",0.9f);
+        Headers.BuildHeader("Items.Model || ' (' || Items.Band || ')'","Description","Opis towaru",5.0f);
+        Headers.BuildHeader("Items.ID","ID","Identyfikator",3.0f);
+        Headers.BuildHeader("Items.Value","Value","Cena netto",3.0f);
+        Headers.BuildHeader("","","Wartość netto",3.0f);
+        Headers.BuildHeader("Agreements.Stop_date","Buy_Date","Data zakupu",2.6f);
+    }
+    
+    private String PrepareQuery() {
         String result = "SELECT ";
 
-        String[] dbHeaders = getDbHeaders();
+        String[] dbHeaders = Headers.getDbHeaders();
             
         for (int i = 0; i < dbHeaders.length; i++) {
             result += dbHeaders[i];
@@ -113,9 +181,8 @@ public class StocktakingForm extends SettlementForm {
         return result;
     }
     
-    @Override
-    protected Object[] buildData(ResultSet queryResult, int lp) throws SQLException {
-        String[] SQLHeaders = getShortDBHeaders();
+    private Object[] buildData(ResultSet queryResult, int lp) throws SQLException {
+        String[] SQLHeaders = Headers.getShortDBHeaders();
         
         Object[] result = {
                     lp,
@@ -128,8 +195,7 @@ public class StocktakingForm extends SettlementForm {
         return result;
     }
     
-    @Override
-    protected void generateButtons(GridBagConstraints ct) {    
+    private void generateButtons(GridBagConstraints ct) {    
         JPanel buttonPanel = new JPanel(new GridBagLayout());
 
         TitledBorder title = BorderFactory.createTitledBorder(blackline, "Polecenia");
@@ -144,7 +210,6 @@ public class StocktakingForm extends SettlementForm {
         printList.setFont(new Font("Dialog", Font.BOLD, 12));
         printList.addActionListener(new PrintList());
               
-        
         GridBagConstraints[] actionPanel = new GridBagConstraints[] {
             new GridBagConstraints(),
             new GridBagConstraints(),
@@ -189,8 +254,107 @@ public class StocktakingForm extends SettlementForm {
         
         mainPanel.add(buttonPanel,ct);        
     }
+    
+    private DefaultTableModel getStocktaking() {
+        DefaultTableModel result = new DefaultTableModel() {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;//This causes all cells to be not editable
+            }
+        };
+
+        String[] headers = Headers.getHeaders();
+        for (int i=0; i<headers.length; i++) {
+            result.addColumn(headers[i]);
+        }
+        
+        try {
+            QueryDB setQuerry = new QueryDB(); 
+            ResultSet queryResult = setQuerry.dbSetQuery( PrepareQuery() );
+            int lp = 0;
+            
+            while (queryResult.next()) {
+                lp++;
+                result.addRow(buildData(queryResult, lp));
+            }
+
+        } catch (SQLException ex) {
+            LombardiaLogger startLogging = new LombardiaLogger();
+            String text = startLogging.preparePattern("Error", ex.getMessage()
+                    + "\n" + Arrays.toString(ex.getStackTrace()));
+            startLogging.logToFile(text);
+        }
+        
+        return result;
+    }
+
+    private void refresh() {
+        
+            //get new Data (refresh data)
+            model = getStocktaking();
+            model.fireTableDataChanged();
+            
+            //set title of window
+            formFrame.setTitle(formname + range);
+            
+            //set label on frame
+            titleBorder = BorderFactory.createTitledBorder(blackline, formname + range);
+            titleBorder.setTitleJustification(TitledBorder.RIGHT);
+            mainPanel.setBorder(titleBorder);
+            
+            //fill table
+            listSettlement.setModel(model);
+                    
+            //set width of form columns
+            listSettlement.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+            float[] widths = Headers.getHeadersWidth();
+            for (int i=0; i < widths.length; i++) {
+                int int_val = Math.round(widths[i] * 40);
+                listSettlement.getColumnModel().getColumn(i).setPreferredWidth(int_val);
+            }
+
+            listSettlement.setAutoCreateRowSorter(true);
+    }
+    
+    
     // Buttons actions
-    protected class changeDate implements ActionListener {
+    private class PrintList implements ActionListener {
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            try {
+                PDFCreator pdf = new PDFCreator(output_file_name, formname + range);
+                pdf.SetRowsPerPage(rows_per_page);
+                pdf.CreatePDF(model, Headers);
+                JOptionPane.showMessageDialog(null, "Raport PDF został wygenerowany.",
+                        "Generowanie PDF", JOptionPane.INFORMATION_MESSAGE);
+            } catch (IOException | DocumentException ex) {
+                LombardiaLogger startLogging = new LombardiaLogger();
+                String text = startLogging.preparePattern("Error", ex.getMessage()
+                    + "\n" + Arrays.toString(ex.getStackTrace()));
+                startLogging.logToFile(text);
+                JOptionPane.showMessageDialog(null, "Błąd podczas generowania raportu.", 
+                        "Generowanie PDF", JOptionPane.ERROR_MESSAGE);
+            }
+            
+            try {
+                String dir = System.getProperty("user.dir");
+                
+                File dirAgre = new File(dir);
+
+                if (Desktop.isDesktopSupported()) {
+                    Desktop.getDesktop().open(dirAgre);
+                }
+            } catch (Exception ex) {
+                LombardiaLogger startLogging = new LombardiaLogger();
+                String text = startLogging.preparePattern("Error", ex.getMessage()
+                    + "\n" + Arrays.toString(ex.getStackTrace()));
+                startLogging.logToFile(text);
+           }
+        }
+    }
+    
+    private class changeDate implements ActionListener {
 
         @Override
         public void actionPerformed(ActionEvent e) {

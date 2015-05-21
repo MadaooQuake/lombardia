@@ -23,27 +23,17 @@ import java.awt.Insets;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.util.Arrays;
-import java.sql.Connection;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.sql.ResultSet;
 
 import lombardia2014.dataBaseInterface.QueryDB;
 import lombardia2014.generators.LombardiaLogger;
+import lombardia2014.generators.PDFCreator;
+import lombardia2014.generators.HeadersHelper;
 
 //to Generate PDF iText
-import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
-import com.itextpdf.text.Paragraph;
-import com.itextpdf.text.pdf.PdfWriter;
-import java.io.FileOutputStream;
-import com.itextpdf.text.pdf.PdfPTable;
-import com.itextpdf.text.PageSize;
-import com.itextpdf.text.pdf.BaseFont;
-import com.itextpdf.text.pdf.PdfPCell;
-import com.itextpdf.text.Phrase;
 import java.io.IOException;
-import com.itextpdf.text.Chunk;
 
 //to support for Events
 import java.awt.event.ActionEvent;
@@ -52,10 +42,6 @@ import javax.swing.JOptionPane;
 
 //to calculate rates
 import lombardia2014.ValueCalc;
-
-//support headers
-import java.util.HashMap;
-import java.util.Map;
 
 //to get current date
 import java.util.Calendar;
@@ -72,7 +58,6 @@ public class SettlementForm extends MenuElementsList {
     JTable listSettlement = null;
     JScrollPane scrollPane = null;
     int selectRow = -1;
-    int rotate = 0; //rotate PDF page
     int window_width = 860;
     int window_heigth = 500;
     int rows_per_page = 20;
@@ -80,12 +65,13 @@ public class SettlementForm extends MenuElementsList {
     String date_mask_value = Integer.toString( now.get(Calendar.YEAR) );
     String output_file_name = "_be_changed.pdf";
     ValueCalc rate = new ValueCalc();
-    Map<Integer, HashMap<String, String>>  objHeaders = new HashMap<>();
+    HeadersHelper Headers;
 
     public SettlementForm(String dateRange_) {
         int month = now.get(Calendar.MONTH) + 1;
         int year = now.get(Calendar.YEAR);
-        rotate = 1;
+        Headers = new HeadersHelper(10);
+        
         if(dateRange_.equals("Month")) {
             range = "miesięczne";            
             date_mask = "substr(Agreements.Stop_date,4,7)";
@@ -99,7 +85,7 @@ public class SettlementForm extends MenuElementsList {
         listSettlement = new JTable(new DefaultTableModel());
     }
 
-    protected void refresh() {
+    private void refresh() {
         
             //get new Data (refresh data)
             model = getSettlement();
@@ -118,7 +104,7 @@ public class SettlementForm extends MenuElementsList {
                     
             //set width of form columns
             listSettlement.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-            float[] widths = getHeadersWidth();
+            float[] widths = Headers.getHeadersWidth();
             for (int i=0; i < widths.length; i++) {
                 int int_val = Math.round(widths[i] * 40);
                 listSettlement.getColumnModel().getColumn(i).setPreferredWidth(int_val);
@@ -127,124 +113,23 @@ public class SettlementForm extends MenuElementsList {
             listSettlement.setAutoCreateRowSorter(true);
     }
     
-    protected void prepareHeaders() {
-        // to split to two separated config hash-maps (separatelly for DB and Report
-        // Yes, i known convert Str to Float is stupied in this place ;P
-        objHeaders.put(1, buildHeader("","","L.p.","0.9f"));
-        objHeaders.put(2, buildHeader("Customers.Name","Name","Imię","3.0f"));
-        objHeaders.put(3, buildHeader("Customers.Surname","Surname","Nazwisko","5.0f"));
-        objHeaders.put(4, buildHeader("Customers.Address","Address","Adres","5.0f"));
-        objHeaders.put(5, buildHeader("Agreements.Start_Date","Start_Date","Data pożyczki","2.6f"));
-        objHeaders.put(6, buildHeader("Agreements.Value","Lean_Value","Kwota pożyczki","2.6f"));
-        objHeaders.put(7, buildHeader("GROUP_CONCAT(Items.Model || IFNULL(' (' || Items.Band || ') ', ', '))","Description","Opis zastawu","5.0f"));
-        objHeaders.put(8, buildHeader("Items.Value","Item_Value","Wartość zastawu","2.6f"));
-        objHeaders.put(9, buildHeader("Agreements.Stop_date","Stop_date","Termin zwrotu","2.6f"));
-        objHeaders.put(10,buildHeader("","","Odsetki","1.8f"));
+    private void prepareHeaders() {
+        Headers.BuildHeader("","","L.p.",0.9f);
+        Headers.BuildHeader("Customers.Name","Name","Imię",3.0f);
+        Headers.BuildHeader("Customers.Surname","Surname","Nazwisko",5.0f);
+        Headers.BuildHeader("Customers.Address","Address","Adres",5.0f);
+        Headers.BuildHeader("Agreements.Start_Date","Start_Date","Data pożyczki",2.6f);
+        Headers.BuildHeader("Agreements.Value","Lean_Value","Kwota pożyczki",2.6f);
+        Headers.BuildHeader("GROUP_CONCAT(Items.Model || IFNULL(' (' || Items.Band || ') ', ', '))","Description","Opis zastawu",5.0f);
+        Headers.BuildHeader("Items.Value","Item_Value","Wartość zastawu",2.6f);
+        Headers.BuildHeader("Agreements.Stop_date","Stop_date","Termin zwrotu",2.6f);
+        Headers.BuildHeader("","","Odsetki",1.8f);
     }
 
-    protected HashMap<String, String> buildHeader(
-            String dbName, 
-            String shortcut, 
-            String outputName, 
-            String size) {
-        HashMap<String, String> tmpHead = new HashMap<>();
-        tmpHead.put("size", size);
-        tmpHead.put("outputName", outputName);
-        tmpHead.put("shortcut", shortcut);
-        tmpHead.put("dbName", dbName);
-
-        return tmpHead;
-    }
-
-    protected float[] getHeadersWidth() {
-        int headSize = objHeaders.size();
-        float[] result = new float[headSize];
-        
-        for (int i = 0; i < headSize; i++) {
-            try {
-                result[i] = Float.parseFloat( objHeaders.get(i + 1).get("size") );
-            } catch (NumberFormatException ex) {
-                LombardiaLogger startLogging = new LombardiaLogger();
-                String text = startLogging.preparePattern("Error", ex.getMessage()
-                    + "\n" + Arrays.toString(ex.getStackTrace()));
-                startLogging.logToFile(text);
-                result[i] = 0f; //hide column ?
-            }
-        }
-
-        return result;
-    }
-    
-    protected String[] getHeaders() {
-        
-        int headSize = objHeaders.size();
-        String[] result = new String[headSize];
-        
-        for (int i = 0; i < headSize; i++) {
-            result[i] = objHeaders.get(i + 1).get("outputName");
-        }
-
-        return result;
-    }
-    
-    protected String[] getShortDBHeaders() {
-        return getDbHeaders(2);
-    }
-
-    protected String[] getDbHeaders() {
-        return getDbHeaders(0);
-    }
-    
-    protected String[] getDbHeaders(int variant) {
-        // variant 0 - dbName as shortcat
-        // variant 1 - only dbName
-        // cariant 2 - only shortcat (dbName if shortcat not exists)
-        int headSize = objHeaders.size();
-        int emptySize = 0;
-        String[] tmpArray = new String[headSize];
-        String elem, shortcat, full;
-        
-        for (int i = 0; i < headSize; i++) {
-            elem = objHeaders.get(i + 1).get("dbName");
-            shortcat = objHeaders.get(i + 1).get("shortcut");
-            if (elem.equals("")) {
-                emptySize ++;
-            }
-            if (! shortcat.equals("")) {
-                full = elem + " as " + shortcat;
-            } else {
-                shortcat = elem;
-                full = elem;
-            }
-            switch (variant) {
-                case 0:
-                    tmpArray[i] = full;
-                    break;
-                case 1:
-                    tmpArray[i] = elem;
-                    break;
-                case 2:
-                    tmpArray[i] = shortcat; 
-            }
-        }
-        
-        String[] result = new String[headSize - emptySize];
-        int magix = 0;
-        for (int i = 0; i < headSize; i++) {
-            if (!tmpArray[i].equals("")) {
-                result[i - magix] = tmpArray[i];
-            } else {
-                magix ++;
-            }
-        }
-
-        return result;        
-    }
-    
-    protected String PrepareQuery() {
+    private String PrepareQuery() {
         String result = "SELECT ";
 
-        String[] dbHeaders = getDbHeaders();
+        String[] dbHeaders = Headers.getDbHeaders();
             
         
         for (int i = 0; i < dbHeaders.length; i++) {
@@ -281,7 +166,7 @@ public class SettlementForm extends MenuElementsList {
         formFrame.setVisible(true);
     }
     
-    protected void generateButtons(GridBagConstraints ct) {    
+    private void generateButtons(GridBagConstraints ct) {    
         JPanel buttonPanel = new JPanel(new GridBagLayout());
 
         TitledBorder title = BorderFactory.createTitledBorder(blackline, "Polecenia");
@@ -320,7 +205,7 @@ public class SettlementForm extends MenuElementsList {
         generateButtons(new GridBagConstraints());
     }
     
-    protected void generateTable(GridBagConstraints ct) {
+    private void generateTable(GridBagConstraints ct) {
         
         refresh();
         scrollPane = new JScrollPane(listSettlement);
@@ -336,91 +221,8 @@ public class SettlementForm extends MenuElementsList {
         ct.ipady = 8;
         mainPanel.add(scrollPane, ct);
     }
-    
-    protected void CreatePDF(DefaultTableModel data) throws 
-        DocumentException, IOException {
-        String[][][] convertedData = ConvertData(data, rows_per_page);
-        Document document = null;
-        if (rotate == 1) {
-            document = new Document(PageSize.LETTER.rotate());
-        } else {
-            document = new Document(PageSize.LETTER);
-        }
-        PdfWriter.getInstance(document, new FileOutputStream(output_file_name));
-        document.open();
-        for(int row = 0;row < convertedData.length;row++) {
-            BaseFont bf = BaseFont.createFont("Lombardia2014/fonts/arialuni.ttf", BaseFont.IDENTITY_H,
-                    BaseFont.EMBEDDED);
-            com.itextpdf.text.Font myFont = new com.itextpdf.text.Font(bf, 12);
-            com.itextpdf.text.Font smallFont = new com.itextpdf.text.Font(bf, 6);
-            
-            Paragraph p = new Paragraph(formname + range + " strona " + (row + 1), myFont);
-            
-            document.add(p);
-            document.add(Chunk.NEWLINE);
-            PdfPTable table = createPDFTable(convertedData[row], smallFont);
-            document.add(table);
-            document.newPage();
-        }
-        document.close();
-    }
-    
-    protected PdfPTable createPDFTable(String[][] inputData, com.itextpdf.text.Font myFont) 
-            throws DocumentException {
 
-        String[] headers = getHeaders();
-        PdfPTable table = new PdfPTable(headers.length);
-        table.setWidthPercentage(90);
-        // set relative columns width
-        
-        table.setWidths( getHeadersWidth() );
-        
-        //generate headers
-        
-        for (int i = 0; i < headers.length; i++) {
-                PdfPCell cell = new PdfPCell(new Phrase(headers[i],myFont));
-                table.addCell( cell );            
-        }
-        //generate content
-        for (int row = 0;row < inputData.length;row++) {
-            //hack to not present empty rows on the last page
-            if ( inputData[row][0] == null ) {
-                break;
-            }
-            for (int col = 0; col < inputData[row].length;col++) {
-                PdfPCell cell = new PdfPCell(new Phrase(inputData[row][col],myFont));
-                table.addCell( cell );
-            }
-        }
-        return table;
-    }
-    
-    protected String[][][] ConvertData(DefaultTableModel model, int obj_per_page) {
-        int row_count = model.getRowCount();
-        int column_count = model.getColumnCount();
-        int page_count = (row_count / obj_per_page) + 1;
-               
-        String[][][] convertedData = new String[page_count][obj_per_page][column_count];
-        int new_row = 0;
-        int page = 1;
-        for(int row = 0;row <row_count;row++) {
-            new_row = (row % obj_per_page);
-            page = (row / obj_per_page) + 1;
-            
-	    for(int col = 0;col < column_count;col++) {
-                if (model.getValueAt(row, col) != null) {
-                    convertedData[page-1][new_row][col] = model.getValueAt(row, col).toString();
-                } else {
-                    convertedData[page-1][new_row][col] = "";
-                }
-	    }
-	}
-        
-        return convertedData;
-    }
-
-
-    protected DefaultTableModel getSettlement() {
+    private DefaultTableModel getSettlement() {
         DefaultTableModel result = new DefaultTableModel() {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -428,7 +230,7 @@ public class SettlementForm extends MenuElementsList {
             }
         };
 
-        String[] headers = getHeaders();
+        String[] headers = Headers.getHeaders();
         for (int i=0; i<headers.length; i++) {
             result.addColumn(headers[i]);
         }
@@ -453,8 +255,8 @@ public class SettlementForm extends MenuElementsList {
         return result;
     }
     
-    protected Object[] buildData(ResultSet queryResult, int lp) throws SQLException {
-        String[] SQLHeaders = getShortDBHeaders();
+    private Object[] buildData(ResultSet queryResult, int lp) throws SQLException {
+        String[] SQLHeaders = Headers.getShortDBHeaders();
         
         float value = queryResult.getFloat( SQLHeaders[4] );
         String stopdate = queryResult.getString( SQLHeaders[7] );
@@ -478,12 +280,15 @@ public class SettlementForm extends MenuElementsList {
     }
     
     // Buttons actions
-    protected class PrintList implements ActionListener {
+    private class PrintList implements ActionListener {
 
         @Override
         public void actionPerformed(ActionEvent e) {
             try {
-                CreatePDF(model);
+                PDFCreator pdf = new PDFCreator(output_file_name, formname + range);
+                pdf.SetLandscapeView();
+                pdf.SetRowsPerPage(rows_per_page);
+                pdf.CreatePDF(model, Headers);
                 JOptionPane.showMessageDialog(null, "Raport PDF został wygenerowany.",
                         "Generowanie PDF", JOptionPane.INFORMATION_MESSAGE);
             } catch (IOException | DocumentException ex) {
