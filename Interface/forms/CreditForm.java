@@ -34,6 +34,7 @@ import java.util.Random;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -78,7 +79,7 @@ public class CreditForm extends Forms {
     int fontSize = 12;
     int heightTextL = 20;
     int iClose = 0;
-    AutoSuggestor selectCategory = null;
+    JComboBox selectCategory = null;
     AutoSuggestor selectCustomer = null;
     JCheckBox goodClient = null;
     QueryDB setQuerry = null;
@@ -444,53 +445,25 @@ public class CreditForm extends Forms {
 
         actionPanels[1].add(namedField[5], cTab[1]);
 
-        // First i create jfield panel 
-        fields[5] = new JTextField();
-        fields[5].setPreferredSize(new Dimension(150, heightTextL));
-        fields[5].setFont(new Font("Dialog", Font.BOLD, fontSize));
-        fields[5].getDocument().addDocumentListener(new JaweryForm());
         // Create selector;
-        selectCategory = new AutoSuggestor(
-                fields[5], formFrame, null, Color.WHITE.brighter(),
-                Color.BLUE, Color.RED, 0.75f, 520, 36) {
-                    @Override
-                    public boolean wordTyped(String typedWord) {
-                        //select all from category table
-                        try {
-                            setQuerry = new QueryDB();
-                            conDB = setQuerry.getConnDB();
-                            stmt = conDB.createStatement();
+        JaweryForm newItemForm = new JaweryForm();
+        selectCategory = new JComboBox(getCategories());
+        selectCategory.setSelectedIndex(0);
+        selectCategory.addActionListener(newItemForm);
 
-                            queryResult = setQuerry.dbSetQuery("SELECT NAME FROM Category");
-                            //create list for dictionary this in your case might be done via calling a method which queries db and returns results as arraylist
-                            List<String> words = new ArrayList<>();
-
-                            while (queryResult.next()) {
-                                words.add(queryResult.getString("NAME"));
-                            }
-
-                            setQuerry.closeDB();
-                            setDictionary((ArrayList<String>) words);
-                            //addToDictionary("bye");//adds a single word
-                        } catch (SQLException ex) {
-                            LombardiaLogger startLogging = new LombardiaLogger();
-                            String text = startLogging.preparePattern("Error", ex.getMessage()
-                                    + "\n" + Arrays.toString(ex.getStackTrace()));
-                            startLogging.logToFile(text);
-                        }
-                        return super.wordTyped(typedWord);//now call super to check for any matches against newest dictionary
-                    }
-                };
         cTab[1].gridx = 1;
         cTab[1].gridy = 1;
 
-        actionPanels[1].add(fields[5], cTab[1]);
+        actionPanels[1].add(selectCategory, cTab[1]);
 
         newItemPanel = new JPanel(new GridBagLayout());
         scrollPane = new JScrollPane(newItemPanel);
         scrollPane.setPreferredSize(new Dimension(330, 118));
         scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+
+        newItemGrid.fill = GridBagConstraints.HORIZONTAL;
+        newItemForm.generateJaweryForm();
 
         cTab[1].gridwidth = 2;
         cTab[1].gridx = 0;
@@ -901,37 +874,35 @@ public class CreditForm extends Forms {
         @Override
         public void actionPerformed(ActionEvent e) {
 
-            // add item to container
-            if (fields[5].getText().length() > 0) {
-                // selec some category :D
-                switch (fields[5].getText().toLowerCase()) {
-                    case "wyroby jubilerskie":
-                        generateJaweryForm();
-                        break;
-                    case "laptop":
-                        generateLaptopForm();
-                        break;
-                    case "komputer":
-                        generatePCForm();
-                        break;
-                    case "monitor":
-                        generateMonitorForm();
-                        break;
-                    case "telewizor":
-                        generateTVForm();
-                        break;
-                    case "telefon":
-                        generatePhoneForm();
-                        break;
-                    case "tablet":
-                        generateTabletForm();
-                        break;
-                    default:
-                        generateDefault();
-                        break;
-                }
-                generateItemtoForm();
+            // selec some category :D
+            switch (selectCategory.getSelectedItem().toString().toLowerCase()) {
+                case "wyroby jubilerskie":
+                    generateJaweryForm();
+                    break;
+                case "laptop":
+                    generateLaptopForm();
+                    break;
+                case "komputer":
+                    generatePCForm();
+                    break;
+                case "monitor":
+                    generateMonitorForm();
+                    break;
+                case "telewizor":
+                    generateTVForm();
+                    break;
+                case "telefon":
+                    generatePhoneForm();
+                    break;
+                case "tablet":
+                    generateTabletForm();
+                    break;
+                default:
+                    generateDefault();
+                    break;
             }
+            generateItemtoForm();
+
         }
 
         /**
@@ -1219,12 +1190,12 @@ public class CreditForm extends Forms {
                         addItemtoList(1, fields[6].getText(), fields[7].getText(),
                                 fields[8].getText(), fields[9].getText(),
                                 fields[10].getText(), fields[17].getText(),
-                                fields[11].getText(), fields[5].getText());
+                                fields[11].getText(), selectCategory.getSelectedItem().toString());
                     } else {
                         addItemtoList(1, fields[6].getText(), fields[7].getText(),
                                 fields[8].getText(), fields[9].getText(),
                                 fields[10].getText(), fields[17].getText(),
-                                fields[11].getText(), fields[5].getText());
+                                fields[11].getText(), selectCategory.getSelectedItem().toString());
                     }
                 } else {
                     checkElement = checkItem.checkJaweryElements(fields[17].getText());
@@ -1233,12 +1204,12 @@ public class CreditForm extends Forms {
                         addItemtoList(1, fields[6].getText(), fields[7].getText(),
                                 fields[8].getText(), fields[9].getText(),
                                 fields[10].getText(), fields[17].getText(),
-                                fields[11].getText(), fields[5].getText());
+                                fields[11].getText(), selectCategory.getSelectedItem().toString());
                     } else {
                         addItemtoList(1, fields[6].getText(), fields[7].getText(),
                                 fields[8].getText(), fields[9].getText(),
                                 fields[10].getText(), fields[17].getText(),
-                                fields[11].getText(), fields[5].getText());
+                                fields[11].getText(), selectCategory.getSelectedItem().toString());
                     }
                 }
             }
@@ -1253,12 +1224,12 @@ public class CreditForm extends Forms {
                 addItemtoList(1, fields[6].getText(), fields[7].getText(),
                         fields[8].getText(), fields[9].getText(),
                         fields[10].getText(), fields[17].getText(),
-                        fields[11].getText(), fields[5].getText());
+                        fields[11].getText(), selectCategory.getSelectedItem().toString());
             } else {
                 addItemtoList(1, fields[6].getText(), fields[7].getText(),
                         fields[8].getText(), fields[9].getText(),
                         fields[10].getText(), fields[17].getText(),
-                        fields[11].getText(), fields[5].getText());
+                        fields[11].getText(), selectCategory.getSelectedItem().toString());
             }
         }
 
@@ -1270,12 +1241,12 @@ public class CreditForm extends Forms {
                 addItemtoList(1, fields[6].getText(), fields[7].getText(),
                         fields[8].getText(), fields[9].getText(),
                         fields[10].getText(), fields[17].getText(),
-                        fields[11].getText(), fields[5].getText());
+                        fields[11].getText(), selectCategory.getSelectedItem().toString());
             } else {
                 addItemtoList(1, fields[6].getText(), fields[7].getText(),
                         fields[8].getText(), fields[9].getText(),
                         fields[10].getText(), fields[17].getText(),
-                        fields[11].getText(), fields[5].getText());
+                        fields[11].getText(), selectCategory.getSelectedItem().toString());
             }
         }
 
@@ -1287,12 +1258,12 @@ public class CreditForm extends Forms {
                 addItemtoList(1, fields[6].getText(), fields[7].getText(),
                         fields[8].getText(), fields[9].getText(),
                         fields[10].getText(), fields[17].getText(),
-                        fields[11].getText(), fields[5].getText());
+                        fields[11].getText(), selectCategory.getSelectedItem().toString());
             } else {
                 addItemtoList(1, fields[6].getText(), fields[7].getText(),
                         fields[8].getText(), fields[9].getText(),
                         fields[10].getText(), fields[17].getText(),
-                        fields[11].getText(), fields[5].getText());
+                        fields[11].getText(), selectCategory.getSelectedItem().toString());
             }
         }
 
@@ -1307,12 +1278,12 @@ public class CreditForm extends Forms {
                 addItemtoList(1, fields[6].getText(), fields[7].getText(),
                         fields[8].getText(), fields[9].getText(),
                         fields[10].getText(), fields[17].getText(),
-                        fields[11].getText(), fields[5].getText());
+                        fields[11].getText(), selectCategory.getSelectedItem().toString());
             } else {
                 addItemtoList(1, fields[6].getText(), fields[7].getText(),
                         fields[8].getText(), fields[9].getText(),
                         fields[10].getText(), fields[17].getText(),
-                        fields[11].getText(), fields[5].getText());
+                        fields[11].getText(), selectCategory.getSelectedItem().toString());
             }
         }
 
@@ -1324,12 +1295,12 @@ public class CreditForm extends Forms {
                 addItemtoList(1, fields[6].getText(), fields[7].getText(),
                         fields[8].getText(), fields[9].getText(),
                         fields[17].getText(), fields[10].getText(),
-                        fields[11].getText(), fields[5].getText());
+                        fields[11].getText(), selectCategory.getSelectedItem().toString());
             } else {
                 addItemtoList(1, fields[6].getText(), fields[7].getText(),
                         fields[8].getText(), fields[9].getText(),
                         fields[17].getText(), fields[10].getText(),
-                        fields[11].getText(), fields[5].getText());
+                        fields[11].getText(), selectCategory.getSelectedItem().toString());
             }
         }
 
@@ -1343,12 +1314,12 @@ public class CreditForm extends Forms {
                     addItemtoList(1, fields[6].getText(), fields[7].getText(),
                             fields[8].getText(), fields[9].getText(),
                             fields[17].getText(), fields[10].getText(),
-                            fields[11].getText(), fields[5].getText());
+                            fields[11].getText(), selectCategory.getSelectedItem().toString());
                 } else {
                     addItemtoList(1, fields[6].getText(), fields[7].getText(),
                             fields[8].getText(), "",
                             fields[17].getText(), fields[10].getText(),
-                            fields[11].getText(), fields[5].getText());
+                            fields[11].getText(), selectCategory.getSelectedItem().toString());
                 }
             } else {
                 checkElement = checkItem.checkWeight(fields[9].getText().length(),
@@ -1357,12 +1328,12 @@ public class CreditForm extends Forms {
                     addItemtoList(1, fields[6].getText(), fields[7].getText(),
                             fields[8].getText(), fields[9].getText(),
                             fields[17].getText(), fields[10].getText(),
-                            fields[11].getText(), fields[5].getText());
+                            fields[11].getText(), selectCategory.getSelectedItem().toString());
                 } else {
                     addItemtoList(1, fields[6].getText(), fields[7].getText(),
                             fields[8].getText(), "",
                             fields[17].getText(), fields[10].getText(),
-                            fields[11].getText(), fields[5].getText());
+                            fields[11].getText(), selectCategory.getSelectedItem().toString());
                 }
             }
 
@@ -1478,7 +1449,7 @@ public class CreditForm extends Forms {
                             fields[3].getText()) == false) {
                         fields[3].setText("");
                     }
-                    if (moneySafe.chackValue(formFrame, 
+                    if (moneySafe.chackValue(formFrame,
                             Float.parseFloat(fields[4].getText().replaceAll(",", ".")))) {
                         if (update == false) {
                             moneySafe.delFtomSelf(formFrame,
@@ -1635,14 +1606,14 @@ public class CreditForm extends Forms {
                         + " VALUE_REST, SAVEPRICE, ID_CUSTOMER)"
                         + " VALUES ('"
                         + createIndex() + "','" + ft.format(curretDate) + "','"
-                        + ft.format(selectedDate) + "','" 
+                        + ft.format(selectedDate) + "','"
                         + fields[4].getText().replaceAll(",", ".") + "',"
-                        + fields[19].getText() + "," 
+                        + fields[19].getText() + ","
                         + fields[16].getText().replaceAll(",", ".") + ","
                         + fields[15].getText().replaceAll(",", ".") + ","
-                        + fields[22].getText().replaceAll(",", ".") + "," 
+                        + fields[22].getText().replaceAll(",", ".") + ","
                         + fields[14].getText().replaceAll(",", ".") + ","
-                        + "," + customer + ");");
+                        + customer + ");");
 
                 // why i must do this :(
                 // i must know id last agreement
@@ -1736,24 +1707,13 @@ public class CreditForm extends Forms {
 
     }
 
-    public class JaweryForm implements DocumentListener, ItemFormGenerator {
+    public class JaweryForm implements ActionListener, ItemFormGenerator {
 
         String text = null;
 
         @Override
-        public void insertUpdate(DocumentEvent e) {
-            changedUpdate(e);
-        }
-
-        @Override
-        public void removeUpdate(DocumentEvent e) {
-            // do nothing
-        }
-
-        @Override
-        public void changedUpdate(DocumentEvent e) {
-            newItemGrid.fill = GridBagConstraints.HORIZONTAL;
-            text = fields[5].getText();
+        public void actionPerformed(ActionEvent e) {
+            text = selectCategory.getSelectedItem().toString();
             newItemPanel.removeAll();
             newItemPanel.repaint();
 
@@ -2226,6 +2186,36 @@ public class CreditForm extends Forms {
     public boolean isClose() {
         return iClose == 1;
 
+    }
+
+    /**
+     * Get elements from category. This method move to DB interface module
+     */
+    private String[] getCategories() {
+        String[] categories = null;
+        List<String> list = new ArrayList<>();
+
+        try {
+            setQuerry = new QueryDB();
+            conDB = setQuerry.getConnDB();
+            stmt = conDB.createStatement();
+            queryResult = setQuerry.dbSetQuery("SELECT NAME FROM Category");
+            //create list for dictionary this in your case might be done via calling a method which queries db and returns results as arraylist
+
+            while (queryResult.next()) {
+                list.add(queryResult.getString("NAME"));
+            }
+
+            setQuerry.closeDB();
+            //addToDictionary("bye");//adds a single word
+        } catch (SQLException ex) {
+            LombardiaLogger startLogging = new LombardiaLogger();
+            String text = startLogging.preparePattern("Error", ex.getMessage()
+                    + "\n" + Arrays.toString(ex.getStackTrace()));
+            startLogging.logToFile(text);
+        }
+        categories = list.toArray(new String[list.size()]);
+        return categories;
     }
 
     //never ending story in this form... 
