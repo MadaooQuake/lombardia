@@ -15,4 +15,5 @@ public interface ItemFormGenerator {
     public void generateLaptopForm();
     public void generatePCForm();
     public void generateMonitorForm();
+    public void generateGamesForm();
 }

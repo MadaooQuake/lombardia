@@ -40,8 +40,14 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
+import javax.swing.JSpinner;
 import javax.swing.JTextField;
+import javax.swing.SpinnerModel;
+import javax.swing.SpinnerNumberModel;
 import javax.swing.border.TitledBorder;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import lombardia2014.ConfigRead;
@@ -99,6 +105,8 @@ public class CreditForm extends Forms {
     String weight = "0";
     boolean update = false;
     SelfCalc moneySafe = null;
+    SpinnerModel modelSpinner = null;
+    JSpinner spinner = null;
 
     // only for test in next time app get customerr list from DB
     GridBagConstraints[] cTab = new GridBagConstraints[4];
@@ -1374,6 +1382,11 @@ public class CreditForm extends Forms {
             formFrame.setVisible(true);
         }
 
+        @Override
+        public void generateGamesForm() {
+            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        }
+
         public class deleteItemFromList implements ActionListener {
 
             int indexItem;
@@ -1738,6 +1751,9 @@ public class CreditForm extends Forms {
                     break;
                 case "tablet":
                     generateTabletForm();
+                    break;
+                case "gry":
+                    generateGamesForm();
                     break;
                 default:
                     generateDefaultItemForm();
@@ -2180,6 +2196,176 @@ public class CreditForm extends Forms {
             newItemGrid.gridx = 1;
             newItemGrid.gridy = 6;
             newItemPanel.add(fields[11], newItemGrid);
+        }
+
+        @Override
+        public void generateGamesForm() {
+            newItemGrid.insets = new Insets(5, 5, 5, 5);
+
+            namedField[8] = new JLabel();
+            namedField[8].setText("Ilość gier:");
+            namedField[8].setFont(new Font("Dialog", Font.BOLD, fontSize));
+            newItemGrid.gridx = 0;
+            newItemGrid.gridy = 0;
+            newItemPanel.add(namedField[8], newItemGrid);
+
+            modelSpinner = new SpinnerNumberModel(1, 1, 20, 1);
+            spinner = new JSpinner(modelSpinner);
+            spinner.setEditor(new JSpinner.DefaultEditor(spinner));
+            spinner.addChangeListener(new createGamesForm());
+            newItemGrid.gridx = 1;
+            newItemGrid.gridy = 0;
+            newItemPanel.add(spinner, newItemGrid);
+
+            // now i must generate loop :)
+            namedField[9] = new JLabel();
+            namedField[9].setText("Nazwa gry:");
+            namedField[9].setFont(new Font("Dialog", Font.BOLD, fontSize));
+            newItemGrid.gridx = 0;
+            newItemGrid.gridy = 1;
+            newItemPanel.add(namedField[9], newItemGrid);
+
+            fields[6] = new JTextField();
+            fields[6].setPreferredSize(new Dimension(150, heightTextL));
+            fields[6].setFont(new Font("Dialog", Font.BOLD, fontSize));
+            newItemGrid.gridx = 1;
+            newItemGrid.gridy = 1;
+            newItemPanel.add(fields[6], newItemGrid);
+
+            namedField[10] = new JLabel();
+            namedField[10].setText("Platforma:");
+            namedField[10].setFont(new Font("Dialog", Font.BOLD, fontSize));
+            newItemGrid.gridx = 0;
+            newItemGrid.gridy = 2;
+            newItemPanel.add(namedField[10], newItemGrid);
+
+            fields[8] = new JTextField();
+            fields[8].setPreferredSize(new Dimension(150, heightTextL));
+            fields[8].setFont(new Font("Dialog", Font.BOLD, fontSize));
+            newItemGrid.gridx = 1;
+            newItemGrid.gridy = 2;
+            newItemPanel.add(fields[8], newItemGrid);
+
+            namedField[12] = new JLabel();
+            namedField[12].setText("Wartość:");
+            namedField[12].setFont(new Font("Dialog", Font.BOLD, fontSize));
+            newItemGrid.gridx = 0;
+            newItemGrid.gridy = 4;
+            newItemPanel.add(namedField[12], newItemGrid);
+
+            fields[10] = new JTextField();
+            fields[10].setPreferredSize(new Dimension(150, heightTextL));
+            fields[10].setFont(new Font("Dialog", Font.BOLD, fontSize));
+            newItemGrid.gridx = 1;
+            newItemGrid.gridy = 4;
+            newItemPanel.add(fields[10], newItemGrid);
+
+            namedField[13] = new JLabel();
+            namedField[13].setText("Uwagi:");
+            namedField[13].setFont(new Font("Dialog", Font.BOLD, fontSize));
+            newItemGrid.gridx = 0;
+            newItemGrid.gridy = 6;
+            newItemPanel.add(namedField[13], newItemGrid);
+
+            fields[11] = new JTextField();
+            fields[11].setPreferredSize(new Dimension(150, heightTextL));
+            fields[11].setFont(new Font("Dialog", Font.BOLD, fontSize));
+            newItemGrid.gridx = 1;
+            newItemGrid.gridy = 6;
+            newItemPanel.add(fields[11], newItemGrid);
+
+        }
+
+        private class createGamesForm implements ChangeListener {
+
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                newItemPanel.removeAll();
+                newItemPanel.repaint();
+
+                newItemGrid.insets = new Insets(5, 5, 5, 5);
+
+                namedField[8] = new JLabel();
+                namedField[8].setText("Ilość gier:");
+                namedField[8].setFont(new Font("Dialog", Font.BOLD, fontSize));
+                newItemGrid.gridx = 0;
+                newItemGrid.gridy = 0;
+                newItemPanel.add(namedField[8], newItemGrid);
+
+                newItemGrid.gridx = 1;
+                newItemGrid.gridy = 0;
+                newItemPanel.add(spinner, newItemGrid);
+                int value = 0;
+                for (int i = 0; i < Integer.parseInt(spinner.getValue().toString()); i++) {
+
+                    namedField[9] = new JLabel();
+                    namedField[9].setText("Nazwa gry:");
+                    namedField[9].setFont(new Font("Dialog", Font.BOLD, fontSize));
+                    newItemGrid.gridx = 0;
+                    newItemGrid.gridy = ++value;
+                    newItemPanel.add(namedField[9], newItemGrid);
+
+                    fields[6] = new JTextField();
+                    fields[6].setPreferredSize(new Dimension(150, heightTextL));
+                    fields[6].setFont(new Font("Dialog", Font.BOLD, fontSize));
+                    newItemGrid.gridx = 1;
+                    newItemGrid.gridy = value;
+                    newItemPanel.add(fields[6], newItemGrid);
+
+                    namedField[10] = new JLabel();
+                    namedField[10].setText("Platforma:");
+                    namedField[10].setFont(new Font("Dialog", Font.BOLD, fontSize));
+                    newItemGrid.gridx = 0;
+                    newItemGrid.gridy = ++value;
+                    newItemPanel.add(namedField[10], newItemGrid);
+
+                    fields[8] = new JTextField();
+                    fields[8].setPreferredSize(new Dimension(150, heightTextL));
+                    fields[8].setFont(new Font("Dialog", Font.BOLD, fontSize));
+                    newItemGrid.gridx = 1;
+                    newItemGrid.gridy = value;
+                    newItemPanel.add(fields[8], newItemGrid);
+
+                    namedField[12] = new JLabel();
+                    namedField[12].setText("Wartość:");
+                    namedField[12].setFont(new Font("Dialog", Font.BOLD, fontSize));
+                    newItemGrid.gridx = 0;
+                    newItemGrid.gridy = ++value;
+                    newItemPanel.add(namedField[12], newItemGrid);
+
+                    fields[10] = new JTextField();
+                    fields[10].setPreferredSize(new Dimension(150, heightTextL));
+                    fields[10].setFont(new Font("Dialog", Font.BOLD, fontSize));
+                    newItemGrid.gridx = 1;
+                    newItemGrid.gridy = value;
+                    newItemPanel.add(fields[10], newItemGrid);
+
+                    namedField[13] = new JLabel();
+                    namedField[13].setText("Uwagi:");
+                    namedField[13].setFont(new Font("Dialog", Font.BOLD, fontSize));
+                    newItemGrid.gridx = 0;
+                    newItemGrid.gridy = ++value;
+                    newItemPanel.add(namedField[13], newItemGrid);
+
+                    fields[11] = new JTextField();
+                    fields[11].setPreferredSize(new Dimension(150, heightTextL));
+                    fields[11].setFont(new Font("Dialog", Font.BOLD, fontSize));
+                    newItemGrid.gridx = 1;
+                    newItemGrid.gridy = value;
+                    newItemPanel.add(fields[11], newItemGrid);
+                    
+                    JSeparator gameFormSeparator = new JSeparator();
+                    newItemGrid.gridwidth = 2;
+                    newItemGrid.gridx = 0;
+                    newItemGrid.gridy = ++value;
+                    newItemPanel.add(gameFormSeparator, newItemGrid);
+                    newItemGrid.gridwidth = 1;
+                }
+                newItemPanel.setVisible(true);
+                formFrame.setVisible(true);
+
+            }
+
         }
     }
 

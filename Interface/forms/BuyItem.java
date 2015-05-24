@@ -643,6 +643,11 @@ public class BuyItem extends Forms implements ItemFormGenerator {
         return adRemValue;
     }
 
+    @Override
+    public void generateGamesForm() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
     // actions :D
     /**
      * @see accept new item
@@ -1139,6 +1144,11 @@ public class BuyItem extends Forms implements ItemFormGenerator {
                 }
             }
 
+        }
+
+        @Override
+        public void generateGamesForm() {
+            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
         }
 
     }

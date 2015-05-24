@@ -203,9 +203,10 @@ public class CreateDB {
             stmt.executeUpdate(sql);
             sql = "INSERT INTO Category (NAME) VALUES ('Monitor');";
             stmt.executeUpdate(sql);
+            sql = "INSERT INTO Category (NAME) VALUES ('Gry');";
+            stmt.executeUpdate(sql);
             sql = "INSERT INTO Category (NAME) VALUES ('Inne');";
             stmt.executeUpdate(sql);
-
             sql = "INSERT INTO Safe VALUES(0);";
             stmt.executeUpdate(sql);
 
