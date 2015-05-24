@@ -10,6 +10,7 @@ import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseListener;
@@ -47,10 +48,11 @@ public class LateClientsForm extends Forms {
     JScrollPane scrollPane = null;
     JTable listClients = null;
     DefaultTableModel model;
-    JPanel buttonPanel;
-    JPanel tablePanel;
+    JPanel buttonPanel, tablePanel;
+    String id = null;
+    int selectRow = -1;
     //Buttons
-    JButton cancel = null;
+    JButton cancel, solve = null;
 
     //Database
     QueryDB setQuerry = null;
@@ -102,17 +104,30 @@ public class LateClientsForm extends Forms {
 
     private void generatePanels2() {
         GridBagConstraints c2 = new GridBagConstraints();
+
+        solve = new JButton();
+        solve.setText("Rozwiąż");
+        solve.addActionListener(new solveAgreeent());
+        c2.fill = GridBagConstraints.HORIZONTAL;
+        c2.insets = new Insets(5, 5, 5, 5);
+        c2.gridwidth = 1;
+        c2.gridx = 0;
+        c2.gridy = 0;
+        buttonPanel.add(solve, c2);
+
         cancel = new JButton();
         cancel.setText("Anuluj");
         cancel.addActionListener(new CloseForm());
         c2.fill = GridBagConstraints.HORIZONTAL;
         c2.insets = new Insets(5, 5, 5, 5);
         c2.gridwidth = 1;
+        c2.gridx = 1;
+        c2.gridy = 0;
+        buttonPanel.add(cancel, c2);
+
+        mainPanel.add(tablePanel, c);
         c2.gridx = 0;
         c2.gridy = 5;
-
-        buttonPanel.add(cancel);
-        mainPanel.add(tablePanel, c);
         mainPanel.add(buttonPanel, c2);
     }
 
@@ -198,6 +213,12 @@ public class LateClientsForm extends Forms {
         @Override
         public void mouseClicked(java.awt.event.MouseEvent e) {
             JTable target = (JTable) e.getSource();
+            selectRow = target.getSelectedRow();
+            Point p = e.getPoint();
+            int row = target.rowAtPoint(p);
+
+            id = (String) listClients.getModel().getValueAt(
+                    listClients.convertRowIndexToView(selectRow), 2);
 
         }
 
@@ -219,6 +240,41 @@ public class LateClientsForm extends Forms {
         @Override
         public void mouseExited(java.awt.event.MouseEvent e) {
             //nothing to do, but i must create this method :(
+        }
+
+    }
+
+    /**
+     * class with db query - db qery move to another interface this class solve
+     * the agreeeent when clieny late to pay.
+     */
+    private class solveAgreeent implements ActionListener {
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            if (selectRow >= 0) {
+                try {
+                    selectRow = -1;
+                    // first i must update items with include to selected agreements
+                    setQuerry = new QueryDB();
+                    conDB = setQuerry.getConnDB();
+
+                    stmt = conDB.createStatement();
+                    queryResult = setQuerry.dbSetQuery("UPDATE Items SET ID_AGREEMENT = NULL "
+                            + "WHERE ID_AGREEMENT = " + id + ";");
+                    
+                    // next i remove agreement :)
+                    queryResult = setQuerry.dbSetQuery("DELETE FROM Items WHERE "
+                    + "ID_AGREEMENT =" + id + ";");
+                    
+                    setQuerry.closeDB();
+                } catch (SQLException ex) {
+                    LombardiaLogger startLogging = new LombardiaLogger();
+                    String text = startLogging.preparePattern("Error", ex.getMessage()
+                            + "\n" + Arrays.toString(ex.getStackTrace()));
+                    startLogging.logToFile(text);
+                }
+            }
         }
 
     }
