@@ -98,6 +98,7 @@ public class CreditForm extends Forms {
     GridLayout itemPanelLayout = null;
     JCheckBox[] jewelleryItem = null;
     JTextField[] jewelleryField = null;
+    JTextField[] gameFields = null;
     CreditAgreement newDoc = null;
     ValueCalc precentCalc = null;
     ConfigRead readParam = null;
@@ -905,6 +906,9 @@ public class CreditForm extends Forms {
                 case "tablet":
                     generateTabletForm();
                     break;
+                case "gry":
+                    generateGamesForm();
+                    break;
                 default:
                     generateDefault();
                     break;
@@ -982,7 +986,7 @@ public class CreditForm extends Forms {
          */
         @Override
         public void generateJaweryForm() {
-            int ring = 0, ringM = 0, bracelet = 0, chain = 0, pendant = 0,
+            int ring = 0, ringM = 0, bracelet = 0, chain = 0,
                     signet = 0, coin = 0, earring = 0, watch = 0, clip = 0,
                     brooch = 0;
 
@@ -1318,7 +1322,7 @@ public class CreditForm extends Forms {
             if (checkElement == false) {
                 checkElement = checkItem.checkWeight(fields[9].getText().length(),
                         fields[9].getText());
-                if (checkElement = true) {
+                if (checkElement == true) {
                     addItemtoList(1, fields[6].getText(), fields[7].getText(),
                             fields[8].getText(), fields[9].getText(),
                             fields[17].getText(), fields[10].getText(),
@@ -1332,7 +1336,7 @@ public class CreditForm extends Forms {
             } else {
                 checkElement = checkItem.checkWeight(fields[9].getText().length(),
                         fields[9].getText());
-                if (checkElement = true) {
+                if (checkElement == true) {
                     addItemtoList(1, fields[6].getText(), fields[7].getText(),
                             fields[8].getText(), fields[9].getText(),
                             fields[17].getText(), fields[10].getText(),
@@ -1342,6 +1346,36 @@ public class CreditForm extends Forms {
                             fields[8].getText(), "",
                             fields[17].getText(), fields[10].getText(),
                             fields[11].getText(), selectCategory.getSelectedItem().toString());
+                }
+            }
+
+        }
+
+        @Override
+        public void generateGamesForm() {
+            int howMany = (Integer) spinner.getValue();
+
+            if (howMany == 1) {
+                // another if :(
+                checkElement = gameFields[0].getText() != null
+                        && !gameFields[0].getText().isEmpty();
+                if (checkElement == true) {
+                    addItemtoList(1, gameFields[0].getText(), gameFields[1].getText(),
+                            "", "", gameFields[2].getText(), "", gameFields[3].getText(),
+                            selectCategory.getSelectedItem().toString());
+                }
+            } else {
+                // loop :(
+                for (int i = 0; i < (howMany * 4); i += 4) {
+                    // another if :(
+                    int z = i;
+                    checkElement = gameFields[z].getText() != null
+                            && !gameFields[z].getText().isEmpty();
+                    if (checkElement == true) {
+                        addItemtoList(1, gameFields[z].getText(), gameFields[++z].getText(),
+                                "", "", gameFields[++z].getText(), "", gameFields[++z].getText(),
+                                selectCategory.getSelectedItem().toString());
+                    }
                 }
             }
 
@@ -1380,11 +1414,6 @@ public class CreditForm extends Forms {
 
             itemPanel.setVisible(true);
             formFrame.setVisible(true);
-        }
-
-        @Override
-        public void generateGamesForm() {
-            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
         }
 
         public class deleteItemFromList implements ActionListener {
@@ -2200,6 +2229,7 @@ public class CreditForm extends Forms {
 
         @Override
         public void generateGamesForm() {
+            gameFields = new JTextField[4];
             newItemGrid.insets = new Insets(5, 5, 5, 5);
 
             namedField[8] = new JLabel();
@@ -2225,12 +2255,12 @@ public class CreditForm extends Forms {
             newItemGrid.gridy = 1;
             newItemPanel.add(namedField[9], newItemGrid);
 
-            fields[6] = new JTextField();
-            fields[6].setPreferredSize(new Dimension(150, heightTextL));
-            fields[6].setFont(new Font("Dialog", Font.BOLD, fontSize));
+            gameFields[0] = new JTextField();
+            gameFields[0].setPreferredSize(new Dimension(150, heightTextL));
+            gameFields[0].setFont(new Font("Dialog", Font.BOLD, fontSize));
             newItemGrid.gridx = 1;
             newItemGrid.gridy = 1;
-            newItemPanel.add(fields[6], newItemGrid);
+            newItemPanel.add(gameFields[0], newItemGrid);
 
             namedField[10] = new JLabel();
             namedField[10].setText("Platforma:");
@@ -2239,12 +2269,12 @@ public class CreditForm extends Forms {
             newItemGrid.gridy = 2;
             newItemPanel.add(namedField[10], newItemGrid);
 
-            fields[8] = new JTextField();
-            fields[8].setPreferredSize(new Dimension(150, heightTextL));
-            fields[8].setFont(new Font("Dialog", Font.BOLD, fontSize));
+            gameFields[1] = new JTextField();
+            gameFields[1].setPreferredSize(new Dimension(150, heightTextL));
+            gameFields[1].setFont(new Font("Dialog", Font.BOLD, fontSize));
             newItemGrid.gridx = 1;
             newItemGrid.gridy = 2;
-            newItemPanel.add(fields[8], newItemGrid);
+            newItemPanel.add(gameFields[1], newItemGrid);
 
             namedField[12] = new JLabel();
             namedField[12].setText("Wartość:");
@@ -2253,12 +2283,12 @@ public class CreditForm extends Forms {
             newItemGrid.gridy = 4;
             newItemPanel.add(namedField[12], newItemGrid);
 
-            fields[10] = new JTextField();
-            fields[10].setPreferredSize(new Dimension(150, heightTextL));
-            fields[10].setFont(new Font("Dialog", Font.BOLD, fontSize));
+            gameFields[2] = new JTextField();
+            gameFields[2].setPreferredSize(new Dimension(150, heightTextL));
+            gameFields[2].setFont(new Font("Dialog", Font.BOLD, fontSize));
             newItemGrid.gridx = 1;
             newItemGrid.gridy = 4;
-            newItemPanel.add(fields[10], newItemGrid);
+            newItemPanel.add(gameFields[2], newItemGrid);
 
             namedField[13] = new JLabel();
             namedField[13].setText("Uwagi:");
@@ -2267,13 +2297,12 @@ public class CreditForm extends Forms {
             newItemGrid.gridy = 6;
             newItemPanel.add(namedField[13], newItemGrid);
 
-            fields[11] = new JTextField();
-            fields[11].setPreferredSize(new Dimension(150, heightTextL));
-            fields[11].setFont(new Font("Dialog", Font.BOLD, fontSize));
+            gameFields[3] = new JTextField();
+            gameFields[3].setPreferredSize(new Dimension(150, heightTextL));
+            gameFields[3].setFont(new Font("Dialog", Font.BOLD, fontSize));
             newItemGrid.gridx = 1;
             newItemGrid.gridy = 6;
-            newItemPanel.add(fields[11], newItemGrid);
-
+            newItemPanel.add(gameFields[3], newItemGrid);
         }
 
         private class createGamesForm implements ChangeListener {
@@ -2282,7 +2311,7 @@ public class CreditForm extends Forms {
             public void stateChanged(ChangeEvent e) {
                 newItemPanel.removeAll();
                 newItemPanel.repaint();
-
+                gameFields = new JTextField[4 * Integer.parseInt(spinner.getValue().toString())];
                 newItemGrid.insets = new Insets(5, 5, 5, 5);
 
                 namedField[8] = new JLabel();
@@ -2295,7 +2324,7 @@ public class CreditForm extends Forms {
                 newItemGrid.gridx = 1;
                 newItemGrid.gridy = 0;
                 newItemPanel.add(spinner, newItemGrid);
-                int value = 0;
+                int value = 0, indexGame = 0;
                 for (int i = 0; i < Integer.parseInt(spinner.getValue().toString()); i++) {
 
                     namedField[9] = new JLabel();
@@ -2305,12 +2334,12 @@ public class CreditForm extends Forms {
                     newItemGrid.gridy = ++value;
                     newItemPanel.add(namedField[9], newItemGrid);
 
-                    fields[6] = new JTextField();
-                    fields[6].setPreferredSize(new Dimension(150, heightTextL));
-                    fields[6].setFont(new Font("Dialog", Font.BOLD, fontSize));
+                    gameFields[indexGame] = new JTextField();
+                    gameFields[indexGame].setPreferredSize(new Dimension(150, heightTextL));
+                    gameFields[indexGame].setFont(new Font("Dialog", Font.BOLD, fontSize));
                     newItemGrid.gridx = 1;
                     newItemGrid.gridy = value;
-                    newItemPanel.add(fields[6], newItemGrid);
+                    newItemPanel.add(gameFields[indexGame], newItemGrid);
 
                     namedField[10] = new JLabel();
                     namedField[10].setText("Platforma:");
@@ -2318,13 +2347,13 @@ public class CreditForm extends Forms {
                     newItemGrid.gridx = 0;
                     newItemGrid.gridy = ++value;
                     newItemPanel.add(namedField[10], newItemGrid);
-
-                    fields[8] = new JTextField();
-                    fields[8].setPreferredSize(new Dimension(150, heightTextL));
-                    fields[8].setFont(new Font("Dialog", Font.BOLD, fontSize));
+                    indexGame++;
+                    gameFields[indexGame] = new JTextField();
+                    gameFields[indexGame].setPreferredSize(new Dimension(150, heightTextL));
+                    gameFields[indexGame].setFont(new Font("Dialog", Font.BOLD, fontSize));
                     newItemGrid.gridx = 1;
                     newItemGrid.gridy = value;
-                    newItemPanel.add(fields[8], newItemGrid);
+                    newItemPanel.add(gameFields[indexGame], newItemGrid);
 
                     namedField[12] = new JLabel();
                     namedField[12].setText("Wartość:");
@@ -2332,13 +2361,13 @@ public class CreditForm extends Forms {
                     newItemGrid.gridx = 0;
                     newItemGrid.gridy = ++value;
                     newItemPanel.add(namedField[12], newItemGrid);
-
-                    fields[10] = new JTextField();
-                    fields[10].setPreferredSize(new Dimension(150, heightTextL));
-                    fields[10].setFont(new Font("Dialog", Font.BOLD, fontSize));
+                    indexGame++;
+                    gameFields[indexGame] = new JTextField();
+                    gameFields[indexGame].setPreferredSize(new Dimension(150, heightTextL));
+                    gameFields[indexGame].setFont(new Font("Dialog", Font.BOLD, fontSize));
                     newItemGrid.gridx = 1;
                     newItemGrid.gridy = value;
-                    newItemPanel.add(fields[10], newItemGrid);
+                    newItemPanel.add(gameFields[indexGame], newItemGrid);
 
                     namedField[13] = new JLabel();
                     namedField[13].setText("Uwagi:");
@@ -2346,14 +2375,14 @@ public class CreditForm extends Forms {
                     newItemGrid.gridx = 0;
                     newItemGrid.gridy = ++value;
                     newItemPanel.add(namedField[13], newItemGrid);
-
-                    fields[11] = new JTextField();
-                    fields[11].setPreferredSize(new Dimension(150, heightTextL));
-                    fields[11].setFont(new Font("Dialog", Font.BOLD, fontSize));
+                    indexGame++;
+                    gameFields[indexGame] = new JTextField();
+                    gameFields[indexGame].setPreferredSize(new Dimension(150, heightTextL));
+                    gameFields[indexGame].setFont(new Font("Dialog", Font.BOLD, fontSize));
                     newItemGrid.gridx = 1;
                     newItemGrid.gridy = value;
-                    newItemPanel.add(fields[11], newItemGrid);
-                    
+                    newItemPanel.add(gameFields[indexGame], newItemGrid);
+                    indexGame++;
                     JSeparator gameFormSeparator = new JSeparator();
                     newItemGrid.gridwidth = 2;
                     newItemGrid.gridx = 0;

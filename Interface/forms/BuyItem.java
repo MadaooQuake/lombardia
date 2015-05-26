@@ -35,8 +35,15 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
+import javax.swing.JSpinner;
 import javax.swing.JTextField;
+import javax.swing.SpinnerModel;
+import javax.swing.SpinnerNumberModel;
 import javax.swing.border.TitledBorder;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import lombardia2014.Interface.menu.ListUsers;
@@ -67,6 +74,10 @@ public class BuyItem extends Forms implements ItemFormGenerator {
     JPanel newItemPanel = null;
     double adRemValue = 0.0;
     FormValidator validator = new FormValidator();
+    JTextField[] gameFields = null;
+    SpinnerModel modelSpinner = null;
+    JSpinner spinner = null;
+    JScrollPane scrollPane = null;
 
     int iClose = 0;
     int fontSize = 16;
@@ -154,14 +165,19 @@ public class BuyItem extends Forms implements ItemFormGenerator {
         mainPanel.add(fields[0], c);
 
         newItemPanel = new JPanel(new GridBagLayout());
-        newItemPanel.setPreferredSize(new Dimension(330, 320));
-        newItemPanel.setMinimumSize(new Dimension(330, 320));
+        scrollPane = new JScrollPane(newItemPanel);
+        scrollPane.setPreferredSize(new Dimension(330, 290));
+        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
         c.gridwidth = 2;
         c.gridx = 0;
         c.gridy = 2;
-        mainPanel.add(newItemPanel, c);
+        c.ipadx = 330;
+        c.ipady = 290;
+        mainPanel.add(scrollPane, c);
         c.gridwidth = 1;
-
+        c.ipadx = 0;
+        c.ipady = 0;
         namedField[9] = new JLabel();
         namedField[9].setText("Kupiono za:");
         namedField[9].setFont(new Font("Dialog", Font.BOLD, fontSize));
@@ -645,8 +661,175 @@ public class BuyItem extends Forms implements ItemFormGenerator {
 
     @Override
     public void generateGamesForm() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        gameFields = new JTextField[4];
+            newItemGrid.insets = new Insets(5, 5, 5, 5);
+
+            namedField[8] = new JLabel();
+            namedField[8].setText("Ilość gier:");
+            namedField[8].setFont(new Font("Dialog", Font.BOLD, fontSize));
+            newItemGrid.gridx = 0;
+            newItemGrid.gridy = 0;
+            newItemPanel.add(namedField[8], newItemGrid);
+
+            modelSpinner = new SpinnerNumberModel(1, 1, 20, 1);
+            spinner = new JSpinner(modelSpinner);
+            spinner.setEditor(new JSpinner.DefaultEditor(spinner));
+            spinner.addChangeListener(new createGamesForm());
+            newItemGrid.gridx = 1;
+            newItemGrid.gridy = 0;
+            newItemPanel.add(spinner, newItemGrid);
+
+            // now i must generate loop :)
+            namedField[9] = new JLabel();
+            namedField[9].setText("Nazwa gry:");
+            namedField[9].setFont(new Font("Dialog", Font.BOLD, fontSize));
+            newItemGrid.gridx = 0;
+            newItemGrid.gridy = 1;
+            newItemPanel.add(namedField[9], newItemGrid);
+
+            gameFields[0] = new JTextField();
+            gameFields[0].setPreferredSize(new Dimension(150, heightTextL));
+            gameFields[0].setFont(new Font("Dialog", Font.BOLD, fontSize));
+            newItemGrid.gridx = 1;
+            newItemGrid.gridy = 1;
+            newItemPanel.add(gameFields[0], newItemGrid);
+
+            namedField[10] = new JLabel();
+            namedField[10].setText("Platforma:");
+            namedField[10].setFont(new Font("Dialog", Font.BOLD, fontSize));
+            newItemGrid.gridx = 0;
+            newItemGrid.gridy = 2;
+            newItemPanel.add(namedField[10], newItemGrid);
+
+            gameFields[1] = new JTextField();
+            gameFields[1].setPreferredSize(new Dimension(150, heightTextL));
+            gameFields[1].setFont(new Font("Dialog", Font.BOLD, fontSize));
+            newItemGrid.gridx = 1;
+            newItemGrid.gridy = 2;
+            newItemPanel.add(gameFields[1], newItemGrid);
+
+            namedField[12] = new JLabel();
+            namedField[12].setText("Wartość:");
+            namedField[12].setFont(new Font("Dialog", Font.BOLD, fontSize));
+            newItemGrid.gridx = 0;
+            newItemGrid.gridy = 4;
+            newItemPanel.add(namedField[12], newItemGrid);
+
+            gameFields[2] = new JTextField();
+            gameFields[2].setPreferredSize(new Dimension(150, heightTextL));
+            gameFields[2].setFont(new Font("Dialog", Font.BOLD, fontSize));
+            newItemGrid.gridx = 1;
+            newItemGrid.gridy = 4;
+            newItemPanel.add(gameFields[2], newItemGrid);
+
+            namedField[13] = new JLabel();
+            namedField[13].setText("Uwagi:");
+            namedField[13].setFont(new Font("Dialog", Font.BOLD, fontSize));
+            newItemGrid.gridx = 0;
+            newItemGrid.gridy = 6;
+            newItemPanel.add(namedField[13], newItemGrid);
+
+            gameFields[3] = new JTextField();
+            gameFields[3].setPreferredSize(new Dimension(150, heightTextL));
+            gameFields[3].setFont(new Font("Dialog", Font.BOLD, fontSize));
+            newItemGrid.gridx = 1;
+            newItemGrid.gridy = 6;
+            newItemPanel.add(gameFields[3], newItemGrid);
     }
+    
+    private class createGamesForm implements ChangeListener {
+
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                newItemPanel.removeAll();
+                newItemPanel.repaint();
+                gameFields = new JTextField[4 * Integer.parseInt(spinner.getValue().toString())];
+                newItemGrid.insets = new Insets(5, 5, 5, 5);
+
+                namedField[8] = new JLabel();
+                namedField[8].setText("Ilość gier:");
+                namedField[8].setFont(new Font("Dialog", Font.BOLD, fontSize));
+                newItemGrid.gridx = 0;
+                newItemGrid.gridy = 0;
+                newItemPanel.add(namedField[8], newItemGrid);
+
+                newItemGrid.gridx = 1;
+                newItemGrid.gridy = 0;
+                newItemPanel.add(spinner, newItemGrid);
+                int value = 0, indexGame = 0;
+                for (int i = 0; i < Integer.parseInt(spinner.getValue().toString()); i++) {
+
+                    namedField[9] = new JLabel();
+                    namedField[9].setText("Nazwa gry:");
+                    namedField[9].setFont(new Font("Dialog", Font.BOLD, fontSize));
+                    newItemGrid.gridx = 0;
+                    newItemGrid.gridy = ++value;
+                    newItemPanel.add(namedField[9], newItemGrid);
+
+                    gameFields[indexGame] = new JTextField();
+                    gameFields[indexGame].setPreferredSize(new Dimension(150, heightTextL));
+                    gameFields[indexGame].setFont(new Font("Dialog", Font.BOLD, fontSize));
+                    newItemGrid.gridx = 1;
+                    newItemGrid.gridy = value;
+                    newItemPanel.add(gameFields[indexGame], newItemGrid);
+
+                    namedField[10] = new JLabel();
+                    namedField[10].setText("Platforma:");
+                    namedField[10].setFont(new Font("Dialog", Font.BOLD, fontSize));
+                    newItemGrid.gridx = 0;
+                    newItemGrid.gridy = ++value;
+                    newItemPanel.add(namedField[10], newItemGrid);
+                    indexGame++;
+                    gameFields[indexGame] = new JTextField();
+                    gameFields[indexGame].setPreferredSize(new Dimension(150, heightTextL));
+                    gameFields[indexGame].setFont(new Font("Dialog", Font.BOLD, fontSize));
+                    newItemGrid.gridx = 1;
+                    newItemGrid.gridy = value;
+                    newItemPanel.add(gameFields[indexGame], newItemGrid);
+
+                    namedField[12] = new JLabel();
+                    namedField[12].setText("Wartość:");
+                    namedField[12].setFont(new Font("Dialog", Font.BOLD, fontSize));
+                    newItemGrid.gridx = 0;
+                    newItemGrid.gridy = ++value;
+                    newItemPanel.add(namedField[12], newItemGrid);
+                    indexGame++;
+                    gameFields[indexGame] = new JTextField();
+                    gameFields[indexGame].setPreferredSize(new Dimension(150, heightTextL));
+                    gameFields[indexGame].setFont(new Font("Dialog", Font.BOLD, fontSize));
+                    newItemGrid.gridx = 1;
+                    newItemGrid.gridy = value;
+                    newItemPanel.add(gameFields[indexGame], newItemGrid);
+
+                    namedField[13] = new JLabel();
+                    namedField[13].setText("Uwagi:");
+                    namedField[13].setFont(new Font("Dialog", Font.BOLD, fontSize));
+                    newItemGrid.gridx = 0;
+                    newItemGrid.gridy = ++value;
+                    newItemPanel.add(namedField[13], newItemGrid);
+                    indexGame++;
+                    gameFields[indexGame] = new JTextField();
+                    gameFields[indexGame].setPreferredSize(new Dimension(150, heightTextL));
+                    gameFields[indexGame].setFont(new Font("Dialog", Font.BOLD, fontSize));
+                    newItemGrid.gridx = 1;
+                    newItemGrid.gridy = value;
+                    newItemPanel.add(gameFields[indexGame], newItemGrid);
+                    indexGame++;
+                    JSeparator gameFormSeparator = new JSeparator();
+                    newItemGrid.gridwidth = 2;
+                    newItemGrid.gridx = 0;
+                    newItemGrid.gridy = ++value;
+                    newItemPanel.add(gameFormSeparator, newItemGrid);
+                    newItemGrid.gridwidth = 1;
+                }
+                newItemPanel.setVisible(true);
+                formFrame.setVisible(true);
+
+            }
+
+        }
+    
+    
 
     // actions :D
     /**
@@ -688,6 +871,9 @@ public class BuyItem extends Forms implements ItemFormGenerator {
                             break;
                         case "tablet":
                             generateTabletForm();
+                            break;
+                        case "gry":
+                            generateGamesForm();
                             break;
                         default:
                             generateDefault();
@@ -1148,7 +1334,31 @@ public class BuyItem extends Forms implements ItemFormGenerator {
 
         @Override
         public void generateGamesForm() {
-            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            int howMany = (Integer) spinner.getValue();
+
+            if (howMany == 1) {
+                // another if :(
+                checkElement = gameFields[0].getText() != null
+                        && !gameFields[0].getText().isEmpty();
+                if (checkElement == true) {
+                    addItemtoList(1, gameFields[0].getText(), gameFields[1].getText(),
+                            "", "", gameFields[2].getText(), "", gameFields[3].getText(),
+                            fields[0].getText());
+                }
+            } else {
+                // loop :(
+                for (int i = 0; i < (howMany * 4); i += 4) {
+                    // another if :(
+                    int z = i;
+                    checkElement = gameFields[z].getText() != null
+                            && !gameFields[z].getText().isEmpty();
+                    if (checkElement == true) {
+                        addItemtoList(1, gameFields[z].getText(), gameFields[++z].getText(),
+                                "", "", gameFields[++z].getText(), "", gameFields[++z].getText(),
+                                fields[0].getText());
+                    }
+                }
+            }
         }
 
     }
@@ -1210,6 +1420,9 @@ public class BuyItem extends Forms implements ItemFormGenerator {
                     break;
                 case "tablet":
                     generateTabletForm();
+                    break;
+                case "gry":
+                    generateGamesForm();
                     break;
                 default:
                     generateDefaultItemForm();

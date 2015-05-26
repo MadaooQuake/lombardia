@@ -86,6 +86,7 @@ public class LateClientsForm extends Forms {
         listClients.setAutoCreateRowSorter(true);
         scrollPane = new JScrollPane(listClients);
         listClients.setFillsViewportHeight(true);
+        listClients.addMouseListener(new GetSelectRow());
 
         c.gridwidth = 1;
         c.gridy = 2;
