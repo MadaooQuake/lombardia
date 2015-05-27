@@ -294,7 +294,7 @@ public class CreditForm extends Forms {
 
         selectCustomer = new AutoSuggestor(
                 fields[2], formFrame, null, Color.WHITE.brighter(),
-                Color.BLUE, Color.RED, 0.75f, 90, 59) {
+                Color.BLUE, Color.RED, 0.75f, 50, 59) {
                     @Override
                     public boolean wordTyped(String typedWord) {
                         try {
@@ -568,6 +568,7 @@ public class CreditForm extends Forms {
         fields[18] = new JTextField();
         fields[18].setPreferredSize(new Dimension(150, heightTextL));
         fields[18].setFont(new Font("Dialog", Font.BOLD, fontSize));
+        // i must add option when rabat is set 
         fields[18].getDocument().addDocumentListener(new calculatePaymentsOfForm());
         c.gridx = 1;
         c.gridy = 5;

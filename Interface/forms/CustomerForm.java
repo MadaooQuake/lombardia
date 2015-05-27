@@ -162,7 +162,7 @@ public class CustomerForm extends Forms {
         fields[3] = new JTextField();
         fields[3].setPreferredSize(new Dimension(150, heightTextL));
         fields[3].setFont(new Font("Dialog", Font.BOLD, fontSize));
-        fields[3].setEditable(false);
+        fields[3].setEditable(true); // admin privileges
         fields[3].setText(null);
         c.fill = GridBagConstraints.HORIZONTAL;
         c.gridx = 1;
