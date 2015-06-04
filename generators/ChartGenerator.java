@@ -10,7 +10,6 @@ import com.googlecode.charts4j.AxisLabelsFactory;
 import com.googlecode.charts4j.AxisStyle;
 import com.googlecode.charts4j.AxisTextAlignment;
 import com.googlecode.charts4j.Color;
-import com.googlecode.charts4j.Data;
 import com.googlecode.charts4j.DataUtil;
 import com.googlecode.charts4j.Fills;
 import com.googlecode.charts4j.GCharts;
@@ -22,7 +21,7 @@ import com.googlecode.charts4j.Shape;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
-import lombardia2014.UserOperations;
+import lombardia2014.core.UserOperations;
 
 /**
  *

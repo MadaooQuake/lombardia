@@ -47,7 +47,7 @@ import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import lombardia2014.Interface.menu.ListUsers;
-import lombardia2014.SelfCalc;
+import lombardia2014.core.SelfCalc;
 import lombardia2014.generators.ItemChecker;
 import lombardia2014.generators.LombardiaLogger;
 

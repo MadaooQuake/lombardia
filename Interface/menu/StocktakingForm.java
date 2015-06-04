@@ -44,10 +44,8 @@ import java.util.Calendar;
 import lombardia2014.generators.HeadersHelper;
 import lombardia2014.generators.PDFCreator;
 import lombardia2014.dataBaseInterface.QueryDB;
-import lombardia2014.ValueCalc;
+import lombardia2014.core.ValueCalc;
 import lombardia2014.generators.LombardiaLogger;
-import lombardia2014.generators.DateTools;
-import java.text.ParseException;
 
 //set initial date
 import net.sourceforge.jdatepicker.impl.UtilDateModel;
@@ -61,8 +59,9 @@ import com.itextpdf.text.DocumentException;
 import java.io.IOException;
         
 public class StocktakingForm extends MenuElementsList {
-    DateTools formDate;
+    Calendar now = Calendar.getInstance();
     String formname = "Inwentaryzacja na dzień ";;
+    String range = "roczne";
     DefaultTableModel model;
     JTable listSettlement = null;
     JScrollPane scrollPane = null;
@@ -70,17 +69,26 @@ public class StocktakingForm extends MenuElementsList {
     int window_width = 860;
     int window_heigth = 500;
     int rows_per_page = 50;
+    String date_mask = "substr(Agreements.Stop_date,7,4)";
+    String date_mask_value = Integer.toString( now.get(Calendar.YEAR) );
     String output_file_name = "_be_changed.pdf";
     ValueCalc rate = new ValueCalc();
     HeadersHelper Headers;
     
+    int month = now.get(Calendar.MONTH) + 1;
+    int year = now.get(Calendar.YEAR);
+    int d = now.get(Calendar.DAY_OF_MONTH);
     JDatePickerImpl datePicker = null;
     
     public StocktakingForm(String dateRange_) {
-        formDate = new DateTools(new Date());
         Headers = new HeadersHelper(6);
-        output_file_name = formname+formDate.GetDateAsString()+".pdf";
+        
+        output_file_name = formname+"_"+range+".pdf";
         listSettlement = new JTable(new DefaultTableModel());        
+
+        range = String.format("%02d.%02d.%04d", d, month, year);
+        date_mask_value = range;
+        output_file_name = formname+"_"+range+".pdf";
     }
     
     @Override
@@ -145,68 +153,33 @@ public class StocktakingForm extends MenuElementsList {
                + "Agreements"
                + " WHERE "
                     + "Items.ID_AGREEMENT = Agreements.ID "
-                    + "AND ( substr(Agreements.Stop_date,7,4) < '" + String.format("%04d", formDate.GetYear()) + "' or "
-                    + "(substr(Agreements.Stop_date,7,4) = '" + String.format("%04d", formDate.GetYear()) +"' and substr(Agreements.Stop_date,4,2) < '" + String.format("%02d", formDate.GetMonth()) + "') or"
-                    + "(substr(Agreements.Stop_date,4,7) = '" + String.format("%02d", formDate.GetMonth()) +"."+String.format("%04d", formDate.GetYear())+"' and substr(Agreements.Stop_date,1,2) < '" + String.format("%02d", formDate.GetDay()) + "') )"
+                    + "AND ( substr(Agreements.Stop_date,7,4) < '" + String.format("%04d", year) + "' or "
+                    + "(substr(Agreements.Stop_date,7,4) = '" + String.format("%04d", year) +"' and substr(Agreements.Stop_date,4,2) < '" + String.format("%02d", month) + "') or"
+                    + "(substr(Agreements.Stop_date,4,7) = '" + String.format("%02d", month) +"."+String.format("%04d", year)+"' and substr(Agreements.Stop_date,1,2) < '" + String.format("%02d", d) + "') )"
                 
                     + "AND ( Items.Sold_date is null or "
 
-                    + "substr(Items.Sold_date,7,4) > '" +  String.format("%04d", formDate.GetYear()) + "' or "
-                    + "(substr(Items.Sold_date,7,4) = '" + String.format("%04d", formDate.GetYear()) +"' and substr(Items.Sold_date,4,2) > '" + String.format("%02d", formDate.GetMonth()) + "') or"
-                    + "(substr(Items.Sold_date,4,7) = '" + String.format("%02d", formDate.GetMonth()) +"."+ String.format("%04d", formDate.GetYear()) +"' and substr(Items.Sold_date,1,2) > '" + String.format("%02d", formDate.GetDay()) + "') )"
+                    + "substr(Items.Sold_date,7,4) > '" +  String.format("%04d", year) + "' or "
+                    + "(substr(Items.Sold_date,7,4) = '" + String.format("%04d", year) +"' and substr(Items.Sold_date,4,2) > '" + String.format("%02d", month) + "') or"
+                    + "(substr(Items.Sold_date,4,7) = '" + String.format("%02d", month) +"."+ String.format("%04d", year) +"' and substr(Items.Sold_date,1,2) > '" + String.format("%02d", d) + "') )"
                     + " union all " 
                     + "SELECT Items.Model || ' (' || Items.Band || ')' as Description, "
                     + "Items.ID as ID, "
                     + "Items.Value as Value,"
                     + "Items.Buy_Date as Buy_Date FROM Items WHERE Buy_Date is not null AND "
-                    + "( substr(Buy_Date,7,4) < '" + String.format("%04d", formDate.GetYear()) + "' or "
-                    + "(substr(Buy_Date,7,4) = '" + String.format("%04d", formDate.GetYear()) +"' and substr(Buy_Date,4,2) < '" + String.format("%02d", formDate.GetMonth()) + "') or"
-                    + "(substr(Buy_Date,4,7) = '" + String.format("%02d", formDate.GetMonth()) +"."+String.format("%04d", formDate.GetYear())+"' and substr(Buy_Date,1,2) < '" + String.format("%02d", formDate.GetDay()) + "') )"
+                    + "( substr(Buy_Date,7,4) < '" + String.format("%04d", year) + "' or "
+                    + "(substr(Buy_Date,7,4) = '" + String.format("%04d", year) +"' and substr(Buy_Date,4,2) < '" + String.format("%02d", month) + "') or"
+                    + "(substr(Buy_Date,4,7) = '" + String.format("%02d", month) +"."+String.format("%04d", year)+"' and substr(Buy_Date,1,2) < '" + String.format("%02d", d) + "') )"
                 
                     + "AND ( Items.Sold_date is null or "                
                 
-                    + "substr(Items.Sold_date,7,4) > '" +  String.format("%04d", formDate.GetYear()) + "' or "
-                    + "(substr(Items.Sold_date,7,4) = '" + String.format("%04d", formDate.GetYear()) +"' and substr(Items.Sold_date,4,2) > '" + String.format("%02d", formDate.GetMonth()) + "') or"
-                    + "(substr(Items.Sold_date,4,7) = '" + String.format("%02d", formDate.GetMonth()) +"."+ String.format("%04d", formDate.GetYear()) +"' and substr(Items.Sold_date,1,2) > '" + String.format("%02d", formDate.GetDay()) + "') )"
+                    + "substr(Items.Sold_date,7,4) > '" +  String.format("%04d", year) + "' or "
+                    + "(substr(Items.Sold_date,7,4) = '" + String.format("%04d", year) +"' and substr(Items.Sold_date,4,2) > '" + String.format("%02d", month) + "') or"
+                    + "(substr(Items.Sold_date,4,7) = '" + String.format("%02d", month) +"."+ String.format("%04d", year) +"' and substr(Items.Sold_date,1,2) > '" + String.format("%02d", d) + "') )"
                     + ";";
 
         return result;
     }
-    
-     private String PrepareQueryNewDBStructure() {
-        String result = "SELECT ";
-
-        String[] dbHeaders = Headers.getDbHeaders();
-            
-        for (int i = 0; i < dbHeaders.length; i++) {
-            result += dbHeaders[i];
-            if (i < dbHeaders.length - 1) { //skip for last element
-                result += ",";
-            }
-        }
-        result = result + " FROM "
-               + "Items,"
-               + "Agreements"
-               + " WHERE "
-                    + "Items.ID_AGREEMENT = Agreements.ID "
-                    + "AND Agreements.Stop_date < '" + formDate.GetDateForDB() + "' "
-                    + "AND ( Items.Sold_date is null or "
-
-                    + "Items.Sold_date > '" +  formDate.GetDateForDB() + "') "
-                    + " union all " 
-                    + "SELECT Items.Model || ' (' || Items.Band || ')' as Description, "
-                    + "Items.ID as ID, "
-                    + "Items.Value as Value,"
-                    + "Items.Buy_Date as Buy_Date FROM Items WHERE Buy_Date is not null AND "
-                    + "Buy_Date < '" + formDate.GetDateForDB() + "' "
-                
-                    + "AND ( Items.Sold_date is null or "                
-                    + "Items.Sold_date > '" +  formDate.GetDateForDB() + "');";
-
-        return result;
-    }
-    
-    
     
     private Object[] buildData(ResultSet queryResult, int lp) throws SQLException {
         String[] SQLHeaders = Headers.getShortDBHeaders();
@@ -257,7 +230,7 @@ public class StocktakingForm extends MenuElementsList {
         buttonPanel.add(label, actionPanel[2]);
         
         UtilDateModel initDate = new UtilDateModel();
-        initDate.setDate(formDate.GetYear(), formDate.GetMonth() - 1, formDate.GetDay());
+        initDate.setDate(year, month - 1, d);
         initDate.setSelected(true);
         JDatePanelImpl datePanel = new JDatePanelImpl(initDate);
 
@@ -322,10 +295,10 @@ public class StocktakingForm extends MenuElementsList {
             model.fireTableDataChanged();
             
             //set title of window
-            formFrame.setTitle(formname + formDate.GetDateAsString());
+            formFrame.setTitle(formname + range);
             
             //set label on frame
-            titleBorder = BorderFactory.createTitledBorder(blackline, formname + formDate.GetDateAsString());
+            titleBorder = BorderFactory.createTitledBorder(blackline, formname + range);
             titleBorder.setTitleJustification(TitledBorder.RIGHT);
             mainPanel.setBorder(titleBorder);
             
@@ -350,7 +323,7 @@ public class StocktakingForm extends MenuElementsList {
         @Override
         public void actionPerformed(ActionEvent e) {
             try {
-                PDFCreator pdf = new PDFCreator(output_file_name, formname + formDate.GetDateAsString());
+                PDFCreator pdf = new PDFCreator(output_file_name, formname + range);
                 pdf.SetRowsPerPage(rows_per_page);
                 pdf.CreatePDF(model, Headers);
                 JOptionPane.showMessageDialog(null, "Raport PDF został wygenerowany.",
@@ -387,10 +360,14 @@ public class StocktakingForm extends MenuElementsList {
         public void actionPerformed(ActionEvent e) {
             Date selectedDate = (Date) datePicker.getModel().getValue();
             DateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy");
-            formDate.SetNewDate(selectedDate);
+            range = dateFormat.format(selectedDate);
             Calendar newDate = Calendar.getInstance();
             newDate.setTime(selectedDate);
-            output_file_name = formname+"_"+formDate.GetDateAsString()+".pdf";
+            year = newDate.get(Calendar.YEAR);
+            month = newDate.get(Calendar.MONTH) + 1;
+            d = newDate.get(Calendar.DAY_OF_MONTH);
+            date_mask_value = range;
+            output_file_name = formname+"_"+range+".pdf";
             
             refresh();
         }

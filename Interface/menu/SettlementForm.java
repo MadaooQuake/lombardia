@@ -41,7 +41,7 @@ import java.awt.event.ActionListener;
 import javax.swing.JOptionPane;
 
 //to calculate rates
-import lombardia2014.ValueCalc;
+import lombardia2014.core.ValueCalc;
 
 //to get current date
 import java.util.Calendar;

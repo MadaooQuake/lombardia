@@ -31,8 +31,8 @@ import lombardia2014.Interface.forms.PaymentForms;
 import lombardia2014.Interface.forms.PhoneReports;
 import lombardia2014.Interface.forms.RepaymentCreditForm;
 import lombardia2014.Interface.forms.ProlongationForm;
-import lombardia2014.SelfCalc;
-import lombardia2014.UserOperations;
+import lombardia2014.core.SelfCalc;
+import lombardia2014.core.UserOperations;
 import lombardia2014.generators.LombardiaLogger;
 
 /**

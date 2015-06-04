@@ -1,4 +1,4 @@
-package lombardia2014;
+package lombardia2014.core;
 
 import java.util.Calendar;
 import java.util.GregorianCalendar;

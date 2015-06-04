@@ -31,7 +31,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
-import lombardia2014.CalcDays;
+import lombardia2014.core.CalcDays;
 import lombardia2014.generators.LombardiaLogger;
 
 /**

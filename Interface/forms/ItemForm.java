@@ -28,7 +28,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
 import lombardia2014.Interface.menu.ListUsers;
-import lombardia2014.SelfCalc;
+import lombardia2014.core.SelfCalc;
 import static lombardia2014.Interface.MainMMenu.money;
 import lombardia2014.Interface.ObjectList;
 import lombardia2014.dataBaseInterface.QueryDB;

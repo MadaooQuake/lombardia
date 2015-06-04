@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package lombardia2014;
+package lombardia2014.core;
 
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;

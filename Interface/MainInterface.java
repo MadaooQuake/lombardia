@@ -28,14 +28,13 @@ import javax.swing.JTabbedPane;
 import javax.swing.KeyStroke;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import lombardia2014.Interface.menu.AppInfo;
-import lombardia2014.Interface.menu.AppMigration;
 import lombardia2014.Interface.menu.Help;
 import lombardia2014.Interface.menu.StatisticsForm;
 import lombardia2014.Interface.menu.ListUsers;
 import lombardia2014.Interface.menu.OperationList;
 import lombardia2014.Interface.menu.SettlementForm;
 import lombardia2014.Interface.menu.StocktakingForm;
-import lombardia2014.UserOperations;
+import lombardia2014.core.UserOperations;
 import lombardia2014.dataBaseInterface.DeleteDB;
 import lombardia2014.dataBaseInterface.JoinDB;
 import lombardia2014.dataBaseInterface.LoadDB;
@@ -172,16 +171,7 @@ public class MainInterface {
         menuItem.getAccessibleContext().setAccessibleDescription(
                 "Czyści bazę danych");
         menuItem.addActionListener(new RemoveDatabase());
-        menu.add(menuItem);
-
-        menu.addSeparator();
-        
-        menuItem = new JMenuItem("Wczytaj dane");
-        menuItem.getAccessibleContext().setAccessibleDescription(
-                "Wczytuje dane z poprzedniej aplikacji");
-        menuItem.addActionListener(new Migration());
-        menu.add(menuItem);
-        
+        menu.add(menuItem);        
         menu.addSeparator();
 
         menuItem = new JMenuItem("Wyjdz z aplikacji");
@@ -455,16 +445,6 @@ public class MainInterface {
 
     }
     
-    // listenr witch run teh application migrate form
-    public class Migration implements ActionListener {
-
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            AppMigration startMigrationForm = new AppMigration();
-            startMigrationForm.generateGui();
-        }
-        
-    }
 
     // class to exit application
     public class ExitApplication implements ActionListener {

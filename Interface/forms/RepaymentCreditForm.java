@@ -1,3 +1,4 @@
+
 /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
@@ -32,7 +33,7 @@ import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
 import static lombardia2014.Interface.MainMMenu.money;
-import lombardia2014.SelfCalc;
+import lombardia2014.core.SelfCalc;
 import lombardia2014.generators.LombardiaLogger;
 
 /**

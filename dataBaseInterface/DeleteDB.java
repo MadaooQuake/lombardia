@@ -6,7 +6,7 @@
 package lombardia2014.dataBaseInterface;
 
 import javax.swing.JOptionPane;
-import lombardia2014.SetLocatnion;
+import lombardia2014.core.SetLocatnion;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
