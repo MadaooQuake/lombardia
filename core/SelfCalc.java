@@ -60,8 +60,6 @@ public class SelfCalc {
     }
 // update self in db
 
-  
-
     public void addToSelf(float setValue) {
         value += setValue;
         safe.updateValue(value);
@@ -84,6 +82,10 @@ public class SelfCalc {
 
     public void setValue(float val) {
         value = val;
+    }
+    
+    public void updateValue() {
+        safe.updateValue(value);
     }
 
 }
