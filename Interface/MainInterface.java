@@ -34,7 +34,7 @@ import lombardia2014.Interface.menu.ListUsers;
 import lombardia2014.Interface.menu.OperationList;
 import lombardia2014.Interface.menu.SettlementForm;
 import lombardia2014.Interface.menu.StocktakingForm;
-import lombardia2014.core.UserOperations;
+import lombardia2014.dataBaseInterface.UserOperations;
 import lombardia2014.dataBaseInterface.DeleteDB;
 import lombardia2014.dataBaseInterface.JoinDB;
 import lombardia2014.dataBaseInterface.LoadDB;

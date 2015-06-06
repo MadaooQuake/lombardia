@@ -11,12 +11,9 @@ import java.util.Calendar;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 
-import java.util.Arrays;
-import lombardia2014.generators.LombardiaLogger;
 /**
  *
  * @author jarek_000

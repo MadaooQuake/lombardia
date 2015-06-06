@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package lombardia2014.core;
+package lombardia2014.dataBaseInterface;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -14,7 +14,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import lombardia2014.dataBaseInterface.QueryDB;
 import lombardia2014.generators.LombardiaLogger;
 
 /**

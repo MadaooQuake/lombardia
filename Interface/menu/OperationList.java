@@ -32,7 +32,7 @@ import javax.swing.border.TitledBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
-import lombardia2014.core.UserOperations;
+import lombardia2014.dataBaseInterface.UserOperations;
 
 /**
  *

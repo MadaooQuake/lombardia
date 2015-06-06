@@ -36,7 +36,7 @@ import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
 import lombardia2014.core.ConfigRead;
 import lombardia2014.Interface.forms.ItemForm;
-import lombardia2014.core.UserOperations;
+import lombardia2014.dataBaseInterface.UserOperations;
 import lombardia2014.generators.LombardiaLogger;
 
 /**

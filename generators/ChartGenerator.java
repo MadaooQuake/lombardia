@@ -21,7 +21,7 @@ import com.googlecode.charts4j.Shape;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
-import lombardia2014.core.UserOperations;
+import lombardia2014.dataBaseInterface.UserOperations;
 
 /**
  *

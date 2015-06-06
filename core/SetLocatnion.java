@@ -5,9 +5,6 @@
  */
 package lombardia2014.core;
 
-import java.util.Locale;
-import java.util.ResourceBundle;
-import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 
 /**
