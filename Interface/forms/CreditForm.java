@@ -54,6 +54,7 @@ import lombardia2014.core.ConfigRead;
 import lombardia2014.core.SelfCalc;
 import lombardia2014.core.SetLocatnion;
 import lombardia2014.core.ValueCalc;
+import lombardia2014.dataBaseInterface.MainDBQuierues;
 import lombardia2014.generators.ItemChecker;
 import lombardia2014.generators.LombardiaLogger;
 import net.sourceforge.jdatepicker.impl.JDatePanelImpl;
@@ -128,6 +129,7 @@ public class CreditForm extends Forms {
     double adRemValue = 0.0;
     ItemChecker creatItemtoDB = new ItemChecker();
     SetLocatnion polishSign = new SetLocatnion();
+    MainDBQuierues getQuery = null;
 
     public CreditForm(Map itemsList_, Map paymentPorperies_,
             Map userInfo_, boolean update_) {
@@ -297,30 +299,9 @@ public class CreditForm extends Forms {
                 Color.BLUE, Color.RED, 0.75f, 50, 59) {
                     @Override
                     public boolean wordTyped(String typedWord) {
-                        try {
-                            setQuerry = new QueryDB();
-                            conDB = setQuerry.getConnDB();
-                            stmt = conDB.createStatement();
-
-                            queryResult = setQuerry.dbSetQuery("SELECT NAME,SURNAME"
-                                    + " FROM Customers;");
-                            //create list for dictionary this in your case might be done via calling a method which queries db and returns results as arraylist
-                            List<String> words = new ArrayList<>();
-
-                            while (queryResult.next()) {
-                                words.add(queryResult.getString("NAME") + " "
-                                        + queryResult.getString("SURNAME"));
-                            }
-
-                            setQuerry.closeDB();
-                            setDictionary((ArrayList<String>) words);
-                            //addToDictionary("bye");//adds a single word
-                        } catch (SQLException ex) {
-                            LombardiaLogger startLogging = new LombardiaLogger();
-                            String text = startLogging.preparePattern("Error", ex.getMessage()
-                                    + "\n" + Arrays.toString(ex.getStackTrace()));
-                            startLogging.logToFile(text);
-                        }
+                        getQuery = new MainDBQuierues();
+                        List<String> words = (ArrayList) getQuery.getUsersByNameAndSurname();
+                        setDictionary((ArrayList<String>) words);
                         return super.wordTyped(typedWord);//now call super to check for any matches against newest dictionary
                     }
                 };
@@ -732,29 +713,12 @@ public class CreditForm extends Forms {
      * @return @see this method fill the Agreement ID
      */
     public int fillPayID() {
-        try {
-            setQuerry = new QueryDB();
-            conDB = setQuerry.getConnDB();
-            stmt = conDB.createStatement();
-
             if ((fields[0].getText().length() > 1) && (fields[1].getText().length() > 1)) {
-
-                queryResult = setQuerry.dbSetQuery("SELECT MAX(ID) FROM Agreements;");
-
-                while (queryResult.next()) {
-                    howMany = queryResult.getInt(1);
-                }
-
+                getQuery = new MainDBQuierues();
+                howMany = getQuery.getMaxIDAgreements();
             } else {
                 fields[12].setText(null);
             }
-
-        } catch (SQLException ex) {
-            LombardiaLogger startLogging = new LombardiaLogger();
-            String text = startLogging.preparePattern("Error", ex.getMessage()
-                    + "\n" + Arrays.toString(ex.getStackTrace()));
-            startLogging.logToFile(text);
-        }
 
         return howMany;
     }
@@ -1595,48 +1559,21 @@ public class CreditForm extends Forms {
 
                 // first save customer
                 // check is customer exist :D
-                queryResult = setQuerry.dbSetQuery("SELECT Count(*) AS CustomerCount "
-                        + "FROM Customers WHERE NAME LIKE '"
-                        + fields[0].getText() + "' AND SURNAME LIKE '"
-                        + fields[1].getText() + "';");
-                while (queryResult.next()) {
-                    customer = queryResult.getInt("CustomerCount");
-                }
+                getQuery = new MainDBQuierues();
 
-                if (customer == 0) {
+                if (getQuery.checkUser(fields[0].getText(), fields[1].getText())) {
                     // save customer to db
                     int goodCustomer = (goodClient.isSelected()) ? 1 : 0;
-                    if (!fields[3].getText().isEmpty()) {
-                        queryResult = setQuerry.dbSetQuery("INSERT INTO Customers (NAME, "
-                                + "SURNAME, ADDRESS, PESEL, TRUST, DISCOUNT) VALUES"
-                                + "('" + fields[0].getText() + "','"
-                                + fields[1].getText() + "','"
-                                + addresCustomer.getText() + "','"
-                                + fields[3].getText() + "',"
-                                + fields[18].getText() + ","
-                                + goodCustomer + ");");
-                    } else {
-                        queryResult = setQuerry.dbSetQuery("INSERT INTO Customers (NAME, "
-                                + "SURNAME, ADDRESS, TRUST, DISCOUNT) VALUES"
-                                + "('" + fields[0].getText() + "','"
-                                + fields[1].getText() + "','"
-                                + addresCustomer.getText() + "',"
-                                + fields[18].getText() + ","
-                                + goodCustomer + ");");
-                    }
+                    // save to db
+                    
+                    getQuery.saveUser(fields[0].getText(), fields[1].getText(),addresCustomer.getText()
+                            , goodCustomer, fields[3].getText(), fields[18].getText());
+                    
                 }
                 // next i save items
                 // Agreements
                 // get user id 
-                queryResult = setQuerry.dbSetQuery("SELECT ID FROM Customers WHERE"
-                        + " NAME LIKE '"
-                        + fields[0].getText() + "' AND SURNAME LIKE '"
-                        + fields[1].getText() + "';");
-                // save to db
-
-                while (queryResult.next()) {
-                    customer = queryResult.getInt("ID");
-                }
+                customer = getQuery.getUserID(fields[0].getText(), fields[1].getText());
 
                 //weight 
                 if (fields[15].getText().isEmpty()) {
