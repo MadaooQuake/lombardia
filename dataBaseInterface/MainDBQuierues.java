@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import lombardia2014.Interface.menu.ListUsers;
+import lombardia2014.generators.DateTools;
 import lombardia2014.generators.LombardiaLogger;
 
 /**
@@ -245,26 +246,26 @@ public class MainDBQuierues {
     }
 
     public void saveAgreements(String idAgreements, Date startDate, Date stopDate,
-            Float value, String commision, Float itemValue, Float itemWeigth, float valueRest,
-            float saveprice, int custoerID) {
+            String value, String commision, String itemValue, String itemWeigth, String valueRest,
+            String saveprice, int custoerID) {
         try {
             setQuerry = new QueryDB();
             conDB = setQuerry.getConnDB();
             stmt = conDB.createStatement();
-
-//            queryResult = setQuerry.dbSetQuery("INSERT INTO Agreements (ID_AGREEMENTS,"
-//                    + " START_DATE, STOP_DATE, VALUE, COMMISSION, ITEM_VALUE, ITEM_WEIGHT,"
-//                    + " VALUE_REST, SAVEPRICE, ID_CUSTOMER)"
-//                    + " VALUES ('"
-//                    + createIndex() + "','" + ft.format(curretDate) + "','"
-//                    + ft.format(selectedDate) + "','"
-//                    + fields[4].getText().replaceAll(",", ".") + "',"
-//                    + fields[19].getText() + ","
-//                    + fields[16].getText().replaceAll(",", ".") + ","
-//                    + fields[15].getText().replaceAll(",", ".") + ","
-//                    + fields[22].getText().replaceAll(",", ".") + ","
-//                    + fields[14].getText().replaceAll(",", ".") + ","
-//                    + customer + ");");
+                        
+            queryResult = setQuerry.dbSetQuery("INSERT INTO Agreements (ID_AGREEMENTS,"
+                    + " START_DATE, STOP_DATE, VALUE, COMMISSION, ITEM_VALUE, ITEM_WEIGHT,"
+                    + " VALUE_REST, SAVEPRICE, ID_CUSTOMER)"
+                    + " VALUES ('"
+                    + idAgreements + "','" + new DateTools(startDate).GetDateForDB() + "','"
+                    + new DateTools(stopDate).GetDateForDB() + "','"
+                    + value.replaceAll(",", ".") + "',"
+                    + commision.replaceAll(",", ".") + ","
+                    + itemValue.replaceAll(",", ".") + ","
+                    + itemWeigth.replaceAll(",", ".") + ","
+                    + valueRest.replaceAll(",", ".") + ","
+                    + saveprice.replaceAll(",", ".") + ","
+                    + custoerID + ");");
 
             setQuerry.closeDB();
         } catch (SQLException ex) {

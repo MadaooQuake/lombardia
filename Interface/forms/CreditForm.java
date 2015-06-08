@@ -713,12 +713,12 @@ public class CreditForm extends Forms {
      * @return @see this method fill the Agreement ID
      */
     public int fillPayID() {
-            if ((fields[0].getText().length() > 1) && (fields[1].getText().length() > 1)) {
-                getQuery = new MainDBQuierues();
-                howMany = getQuery.getMaxIDAgreements();
-            } else {
-                fields[12].setText(null);
-            }
+        if ((fields[0].getText().length() > 1) && (fields[1].getText().length() > 1)) {
+            getQuery = new MainDBQuierues();
+            howMany = getQuery.getMaxIDAgreements();
+        } else {
+            fields[12].setText(null);
+        }
 
         return howMany;
     }
@@ -1551,82 +1551,50 @@ public class CreditForm extends Forms {
         }
 
         private void saveToDB() {
-            try {
-                int customer = 0;
-                setQuerry = new QueryDB();
-                conDB = setQuerry.getConnDB();
-                stmt = conDB.createStatement();
-
+            int customer = 0;
                 // first save customer
-                // check is customer exist :D
-                getQuery = new MainDBQuierues();
+            // check is customer exist :D
+            getQuery = new MainDBQuierues();
 
-                if (getQuery.checkUser(fields[0].getText(), fields[1].getText())) {
-                    // save customer to db
-                    int goodCustomer = (goodClient.isSelected()) ? 1 : 0;
-                    // save to db
-                    
-                    getQuery.saveUser(fields[0].getText(), fields[1].getText(),addresCustomer.getText()
-                            , goodCustomer, fields[3].getText(), fields[18].getText());
-                    
-                }
+            if (getQuery.checkUser(fields[0].getText(), fields[1].getText())) {
+                // save customer to db
+                int goodCustomer = (goodClient.isSelected()) ? 1 : 0;
+
+                getQuery.saveUser(fields[0].getText(), fields[1].getText(), 
+                        addresCustomer.getText(), goodCustomer, 
+                        fields[3].getText(), fields[18].getText());
+
+            }
                 // next i save items
-                // Agreements
-                // get user id 
-                customer = getQuery.getUserID(fields[0].getText(), fields[1].getText());
+            // Agreements
+            // get user id 
+            customer = getQuery.getUserID(fields[0].getText(), fields[1].getText());
 
-                //weight 
-                if (fields[15].getText().isEmpty()) {
-                    fields[15].setText("0");
-                }
-
-                // i must add 
-                queryResult = setQuerry.dbSetQuery("INSERT INTO Agreements (ID_AGREEMENTS,"
-                        + " START_DATE, STOP_DATE, VALUE, COMMISSION, ITEM_VALUE, ITEM_WEIGHT,"
-                        + " VALUE_REST, SAVEPRICE, ID_CUSTOMER)"
-                        + " VALUES ('"
-                        + createIndex() + "','" + ft.format(curretDate) + "','"
-                        + ft.format(selectedDate) + "','"
-                        + fields[4].getText().replaceAll(",", ".") + "',"
-                        + fields[19].getText() + ","
-                        + fields[16].getText().replaceAll(",", ".") + ","
-                        + fields[15].getText().replaceAll(",", ".") + ","
-                        + fields[22].getText().replaceAll(",", ".") + ","
-                        + fields[14].getText().replaceAll(",", ".") + ","
-                        + customer + ");");
-
-                // why i must do this :(
-                // i must know id last agreement
-                // finnaly i save items in loop :(
-                Map<String, String> tmpItem = new HashMap<>();
-                // analyze cat id :D
-                int catID = 0;
-                howMany = fillPayID();
-                for (int i = 0; i < itemsList.size(); i++) {
-
-                    tmpItem.putAll(itemsList.get(i));
-                    queryResult = setQuerry.dbSetQuery("SELECT ID FROM Category WHERE"
-                            + " NAME LIKE '" + tmpItem.get("Kategoria") + "';");
-
-                    while (queryResult.next()) {
-                        catID = queryResult.getInt("ID");
-                    }
-
-                    creatItemtoDB.setValues(tmpItem.get("Model"), tmpItem.get("Marka"),
-                            tmpItem.get("Typ"), tmpItem.get("Waga"),
-                            tmpItem.get("IMEI"), tmpItem.get("Wartość"),
-                            tmpItem.get("Uwagi"), catID, howMany);
-                    queryResult = setQuerry.dbSetQuery(creatItemtoDB.getInsertItem());
-                }
-
-                setQuerry.closeDB();
-            } catch (SQLException ex) {
-                LombardiaLogger startLogging = new LombardiaLogger();
-                String text = startLogging.preparePattern("Error", ex.getMessage()
-                        + "\n" + Arrays.toString(ex.getStackTrace()));
-                startLogging.logToFile(text);
+            //weight 
+            if (fields[15].getText().isEmpty()) {
+                fields[15].setText("0");
             }
 
+            getQuery.saveAgreements(createIndex(), curretDate, selectedDate, fields[4].getText(),
+                    fields[19].getText(), fields[16].getText(), fields[15].getText(),
+                    fields[22].getText(), fields[14].getText(), customer);
+
+                // i must know id last agreement
+            // finnaly i save items in loop :(
+            Map<String, String> tmpItem = new HashMap<>();
+            // analyze cat id :D
+            int catID = 0;
+            howMany = fillPayID();
+            for (int i = 0; i < itemsList.size(); i++) {
+                tmpItem.putAll(itemsList.get(i));
+                catID = getQuery.getCatID(tmpItem.get("Kategoria"));
+
+                creatItemtoDB.setValues(tmpItem.get("Model"), tmpItem.get("Marka"),
+                        tmpItem.get("Typ"), tmpItem.get("Waga"),
+                        tmpItem.get("IMEI"), tmpItem.get("Wartość"),
+                        tmpItem.get("Uwagi"), catID, howMany);
+                getQuery.insertItem(creatItemtoDB.getInsertItem());
+            }
         }
 
         private void updateDB() {
