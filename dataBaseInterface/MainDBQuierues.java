@@ -12,7 +12,9 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import lombardia2014.Interface.menu.ListUsers;
@@ -129,6 +131,39 @@ public class MainDBQuierues {
         }
 
         return words;
+    }
+
+    // get users
+    public Map<String, String> getUser(String name, String surname) {
+        Map<String, String> user = new HashMap<>();
+        
+         try {
+            setQuerry = new QueryDB();
+            conDB = setQuerry.getConnDB();
+            stmt = conDB.createStatement();
+            
+            queryResult = setQuerry.dbSetQuery("SELECT NAME, SURNAME, ADDRESS,"
+                            + "PESEL, TRUST, DISCOUNT FROM Customers WHERE NAME LIKE '"
+                            + name + "' AND SURNAME LIKE '"
+                            + surname + "';");
+            
+            while (queryResult.next()) {
+                user.put("NAME", queryResult.getString("NAME"));
+                user.put("SURNAME", queryResult.getString("SURNAME"));
+                user.put("ADDRESS", queryResult.getString("ADDRESS"));
+                user.put("PESEL", queryResult.getString("PESEL"));
+                user.put("TRUST", queryResult.getString("TRUST"));
+                user.put("DISCOUNT", queryResult.getString("DISCOUNT"));
+            }
+
+            setQuerry.closeDB();
+
+            //addToDictionary("bye");//adds a single word
+        } catch (SQLException ex) {
+            Logger.getLogger(ListUsers.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        return user;
     }
 
     // check if user exist 
@@ -252,7 +287,7 @@ public class MainDBQuierues {
             setQuerry = new QueryDB();
             conDB = setQuerry.getConnDB();
             stmt = conDB.createStatement();
-                        
+
             queryResult = setQuerry.dbSetQuery("INSERT INTO Agreements (ID_AGREEMENTS,"
                     + " START_DATE, STOP_DATE, VALUE, COMMISSION, ITEM_VALUE, ITEM_WEIGHT,"
                     + " VALUE_REST, SAVEPRICE, ID_CUSTOMER)"
@@ -266,6 +301,31 @@ public class MainDBQuierues {
                     + valueRest.replaceAll(",", ".") + ","
                     + saveprice.replaceAll(",", ".") + ","
                     + custoerID + ");");
+
+            setQuerry.closeDB();
+        } catch (SQLException ex) {
+            Logger.getLogger(ListUsers.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    public void updateAgreements(String idAgreements, Date stopDate,
+            String value, String commision, String itemValue, String itemWeigth, String valueRest,
+            String saveprice, int custoerID) {
+        try {
+            setQuerry = new QueryDB();
+            conDB = setQuerry.getConnDB();
+            stmt = conDB.createStatement();
+
+            queryResult = setQuerry.dbSetQuery("UPDATE Agreements SET STOP_DATE ='"
+                    + new DateTools(stopDate).GetDateForDB() + "', VALUE = '"
+                    + value.replaceAll(",", ".") + "', COMMISSION = '"
+                    + commision.replaceAll(",", ".") + "', ITEM_VALUE = '"
+                    + itemValue.replaceAll(",", ".") + "', ITEM_WEIGHT = '"
+                    + itemWeigth.replaceAll(",", ".") + "', VALUE_REST = '"
+                    + valueRest.replaceAll(",", ".") + "', SAVEPRICE = '"
+                    + saveprice.replaceAll(",", ".") + "', ID_CUSTOMER = '"
+                    + custoerID + " WHERE ID_AGREEMENTS = '"
+                    + idAgreements + "';");
 
             setQuerry.closeDB();
         } catch (SQLException ex) {

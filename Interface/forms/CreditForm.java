@@ -31,7 +31,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.Vector;
 import javax.swing.BorderFactory;
+import javax.swing.ComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -129,7 +131,7 @@ public class CreditForm extends Forms {
     double adRemValue = 0.0;
     ItemChecker creatItemtoDB = new ItemChecker();
     SetLocatnion polishSign = new SetLocatnion();
-    MainDBQuierues getQuery = null;
+    MainDBQuierues getQuery = new MainDBQuierues();
 
     public CreditForm(Map itemsList_, Map paymentPorperies_,
             Map userInfo_, boolean update_) {
@@ -299,7 +301,6 @@ public class CreditForm extends Forms {
                 Color.BLUE, Color.RED, 0.75f, 50, 59) {
                     @Override
                     public boolean wordTyped(String typedWord) {
-                        getQuery = new MainDBQuierues();
                         List<String> words = (ArrayList) getQuery.getUsersByNameAndSurname();
                         setDictionary((ArrayList<String>) words);
                         return super.wordTyped(typedWord);//now call super to check for any matches against newest dictionary
@@ -437,7 +438,7 @@ public class CreditForm extends Forms {
 
         // Create selector;
         JaweryForm newItemForm = new JaweryForm();
-        selectCategory = new JComboBox(getCategories());
+        selectCategory = new JComboBox(getQuery.getCategories().toArray());
         selectCategory.setSelectedIndex(0);
         selectCategory.addActionListener(newItemForm);
 
@@ -714,7 +715,6 @@ public class CreditForm extends Forms {
      */
     public int fillPayID() {
         if ((fields[0].getText().length() > 1) && (fields[1].getText().length() > 1)) {
-            getQuery = new MainDBQuierues();
             howMany = getQuery.getMaxIDAgreements();
         } else {
             fields[12].setText(null);
@@ -1552,20 +1552,19 @@ public class CreditForm extends Forms {
 
         private void saveToDB() {
             int customer = 0;
-                // first save customer
+            // first save customer
             // check is customer exist :D
-            getQuery = new MainDBQuierues();
 
             if (getQuery.checkUser(fields[0].getText(), fields[1].getText())) {
                 // save customer to db
                 int goodCustomer = (goodClient.isSelected()) ? 1 : 0;
 
-                getQuery.saveUser(fields[0].getText(), fields[1].getText(), 
-                        addresCustomer.getText(), goodCustomer, 
+                getQuery.saveUser(fields[0].getText(), fields[1].getText(),
+                        addresCustomer.getText(), goodCustomer,
                         fields[3].getText(), fields[18].getText());
 
             }
-                // next i save items
+            // next i save items
             // Agreements
             // get user id 
             customer = getQuery.getUserID(fields[0].getText(), fields[1].getText());
@@ -1579,7 +1578,7 @@ public class CreditForm extends Forms {
                     fields[19].getText(), fields[16].getText(), fields[15].getText(),
                     fields[22].getText(), fields[14].getText(), customer);
 
-                // i must know id last agreement
+            // i must know id last agreement
             // finnaly i save items in loop :(
             Map<String, String> tmpItem = new HashMap<>();
             // analyze cat id :D
@@ -1598,48 +1597,21 @@ public class CreditForm extends Forms {
         }
 
         private void updateDB() {
-            try {
-                int customer = 0;
-                setQuerry = new QueryDB();
-                conDB = setQuerry.getConnDB();
-                stmt = conDB.createStatement();
+            int customer = getQuery.getUserID(fields[0].getText(), fields[1].getText());
 
-                queryResult = setQuerry.dbSetQuery("SELECT ID FROM Customers WHERE"
-                        + " NAME LIKE '"
-                        + fields[0].getText() + "' AND SURNAME LIKE '"
-                        + fields[1].getText() + "';");
-
-                while (queryResult.next()) {
-                    customer = queryResult.getInt("ID");
-                }
-
-                // update tables
-                // agreements
-                //weight 
-                if (fields[15].getText().isEmpty()) {
-                    fields[15].setText("0");
-                }
-
-                String sDate = paymentPorperies.get("Data rozpoczecia");
-                queryResult = setQuerry.dbSetQuery("UPDATE Agreements SET STOP_DATE ='"
-                        + ft.format(selectedDate) + "', VALUE = '"
-                        + fields[4].getText().replaceAll(",", ".") + "', COMMISSION = "
-                        + fields[19].getText().replaceAll(",", ".") + ", ITEM_VALUE = "
-                        + fields[16].getText().replaceAll(",", ".") + ", ITEM_WEIGHT = "
-                        + fields[15].getText().replaceAll(",", ".") + ", VALUE_REST = "
-                        + fields[4].getText().replaceAll(",", ".") + ", SAVEPRICE = "
-                        + ", ID_CUSTOMER = "
-                        + customer + " WHERE ID_AGREEMENTS = '"
-                        + paymentPorperies.get("NR Umowy") + "';");
-
-                //items 
-                setQuerry.closeDB();
-            } catch (SQLException ex) {
-                LombardiaLogger startLogging = new LombardiaLogger();
-                String text = startLogging.preparePattern("Error", ex.getMessage()
-                        + "\n" + Arrays.toString(ex.getStackTrace()));
-                startLogging.logToFile(text);
+            // update tables
+            // agreements
+            //weight 
+            if (fields[15].getText().isEmpty()) {
+                fields[15].setText("0");
             }
+
+            getQuery.updateAgreements(paymentPorperies.get("NR Umowy"), selectedDate, fields[4].getText(),
+                    fields[19].getText(), fields[16].getText(), fields[15].getText(), fields[4].getText(),
+                    fields[22].getText(), customer);
+
+            //items 
+            setQuerry.closeDB();
         }
     }
 
@@ -2309,37 +2281,8 @@ public class CreditForm extends Forms {
 
     }
 
-    /**
-     * Get elements from category. This method move to DB interface module
-     */
-    private String[] getCategories() {
-        String[] categories = null;
-        List<String> list = new ArrayList<>();
-
-        try {
-            setQuerry = new QueryDB();
-            conDB = setQuerry.getConnDB();
-            stmt = conDB.createStatement();
-            queryResult = setQuerry.dbSetQuery("SELECT NAME FROM Category");
-            //create list for dictionary this in your case might be done via calling a method which queries db and returns results as arraylist
-
-            while (queryResult.next()) {
-                list.add(queryResult.getString("NAME"));
-            }
-
-            setQuerry.closeDB();
-            //addToDictionary("bye");//adds a single word
-        } catch (SQLException ex) {
-            LombardiaLogger startLogging = new LombardiaLogger();
-            String text = startLogging.preparePattern("Error", ex.getMessage()
-                    + "\n" + Arrays.toString(ex.getStackTrace()));
-            startLogging.logToFile(text);
-        }
-        categories = list.toArray(new String[list.size()]);
-        return categories;
-    }
-
     //never ending story in this form... 
+
     public class calculatePaymentsOfForm implements DocumentListener, ActionListener {
 
         @Override
@@ -2424,37 +2367,18 @@ public class CreditForm extends Forms {
 
         @Override
         public void changedUpdate(DocumentEvent e) {
-            // fill :D
-            try {
-                setQuerry = new QueryDB();
-                conDB = setQuerry.getConnDB();
-                stmt = conDB.createStatement();
-                String[] nameSurnam = fields[2].getText().split(" ");
-                //quer to db
-                if (nameSurnam.length > 1) {
-                    queryResult = setQuerry.dbSetQuery("SELECT NAME, SURNAME, ADDRESS,"
-                            + "PESEL, TRUST, DISCOUNT FROM Customers WHERE NAME LIKE '"
-                            + nameSurnam[0] + "' AND SURNAME LIKE '"
-                            + nameSurnam[1] + "';");
+            String[] nameSurname = fields[2].getText().split(" ");
+            //quer to db
+            if (nameSurname.length > 1) {
+                Map<String, String> user = (HashMap<String, String>) getQuery.getUser(nameSurname[0], nameSurname[1]);
 
-                    while (queryResult.next()) {
-                        fields[0].setText(queryResult.getString("NAME"));
-                        fields[1].setText(queryResult.getString("SURNAME"));
-                        addresCustomer.setText(queryResult.getString("ADDRESS"));
-                        fields[3].setText(queryResult.getString("PESEL"));
-                        boolean trust = queryResult.getInt("TRUST") != 0;
-                        goodClient.setSelected(trust);
-                        fields[18].setText(queryResult.getString("DISCOUNT"));
-                    }
-                    setQuerry.closeDB();
-                    //fillPayID();
-                }
-
-            } catch (SQLException ex) {
-                LombardiaLogger startLogging = new LombardiaLogger();
-                String text = startLogging.preparePattern("Error", ex.getMessage()
-                        + "\n" + Arrays.toString(ex.getStackTrace()));
-                startLogging.logToFile(text);
+                fields[0].setText(user.get("NAME"));
+                fields[1].setText(user.get("SURNAME"));
+                addresCustomer.setText(user.get("ADDRESS"));
+                fields[3].setText(user.get("PESEL"));
+                boolean trust = Integer.parseInt(user.get("TRUST")) != 0;
+                goodClient.setSelected(trust);
+                fields[18].setText(user.get("DISCOUNT"));
             }
 
         }
