@@ -27,6 +27,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
+import lombardia2014.dataBaseInterface.UserQuieries;
 import lombardia2014.generators.LombardiaLogger;
 
 /**
@@ -188,61 +189,21 @@ public class Authorization {
      * method with check is user exist
      */
     public void checkUser() {
-        try {
 
-            // check login
-            //onnect to db 
-            setQuerry = new QueryDB();
-            conDB = setQuerry.getConnDB();
-            stmt = conDB.createStatement();
-            int ID = 0;
-            queryResult = setQuerry.dbSetQuery("SELECT Users.ID, Users.NAME, Users.PASSWORD"
-                    + ", Auth.ID AS ID_a, Users.ID_auth FROM Users, Auth "
-                    + "WHERE LOGIN LIKE '" + loginField.getText()
-                    + "' AND Auth.ID = Users.ID_auth "
-                    + ";");
-            int ok = 0;
-            user = "";
-            while (queryResult.next()) {
-                user = queryResult.getString("NAME");
-                password = queryResult.getString("PASSWORD");
-                userPriv = queryResult.getInt("ID_a");
-                ID = queryResult.getInt("ID");
-            }
+        UserQuieries getQuery = new UserQuieries();
 
-            if (!user.isEmpty()) {
-                ok++;
-            } else {
-                JOptionPane.showMessageDialog(loginFrame,
-                        "Zostało podane nieprawidłowy login",
-                        "Autoryzacja nie udana!",
-                        JOptionPane.ERROR_MESSAGE);
-            }
-            char[] passDefine = passField.getPassword();
-
-            if (!String.valueOf(passDefine).equals(password)) {
-                JOptionPane.showMessageDialog(loginFrame,
-                        "Zostało podane nieprawidłowe hasło",
-                        "Autoryzacja nie udana!",
-                        JOptionPane.ERROR_MESSAGE);
-            } else {
-                ok++;
-            }
-
-            if (ok == 2) {
-                mainGUI = new MainInterface(userPriv, ID);
-                loginFrame.setVisible(false);
-                loginFrame.dispose();
-            }
-
-            setQuerry.closeDB();
-        } catch (SQLException ex) {
-            LombardiaLogger startLogging = new LombardiaLogger();
-            String text = startLogging.preparePattern("Error", ex.getMessage()
-                    + "\n" + Arrays.toString(ex.getStackTrace()));
-            startLogging.logToFile(text);
-            System.exit(0);
+        if (getQuery.checkUserAutorization(loginField.getText(), passField.getText())) {
+            mainGUI = new MainInterface(getQuery.getPrivilages(), getQuery.getID());
+            loginFrame.setVisible(false);
+            loginFrame.dispose();
+        } else {
+            JOptionPane.showMessageDialog(loginFrame,
+                    "Zostało podane nieprawidłowy login lub hasło",
+                    "Autoryzacja nie udana!",
+                    JOptionPane.ERROR_MESSAGE);
         }
+
+        setQuerry.closeDB();
     }
 
     /**
