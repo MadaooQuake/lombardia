@@ -136,17 +136,17 @@ public class MainDBQuierues {
     // get users
     public Map<String, String> getUser(String name, String surname) {
         Map<String, String> user = new HashMap<>();
-        
-         try {
+
+        try {
             setQuerry = new QueryDB();
             conDB = setQuerry.getConnDB();
             stmt = conDB.createStatement();
-            
+
             queryResult = setQuerry.dbSetQuery("SELECT NAME, SURNAME, ADDRESS,"
-                            + "PESEL, TRUST, DISCOUNT FROM Customers WHERE NAME LIKE '"
-                            + name + "' AND SURNAME LIKE '"
-                            + surname + "';");
-            
+                    + "PESEL, TRUST, DISCOUNT FROM Customers WHERE NAME LIKE '"
+                    + name + "' AND SURNAME LIKE '"
+                    + surname + "';");
+
             while (queryResult.next()) {
                 user.put("NAME", queryResult.getString("NAME"));
                 user.put("SURNAME", queryResult.getString("SURNAME"));
@@ -162,7 +162,7 @@ public class MainDBQuierues {
         } catch (SQLException ex) {
             Logger.getLogger(ListUsers.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
+
         return user;
     }
 
@@ -220,6 +220,73 @@ public class MainDBQuierues {
         return id;
     }
 
+    // get all users <- hmmmm
+    public List<HashMap<String, String>> getAllCustomers() {
+        List<HashMap<String, String>> getAllCustomers = new ArrayList<>();
+
+        try {
+            setQuerry = new QueryDB();
+            conDB = setQuerry.getConnDB();
+            stmt = conDB.createStatement();
+
+            queryResult = setQuerry.dbSetQuery("SELECT NAME, SURNAME, ADDRESS, "
+                    + "PESEL, TRUST FROM Customers;");
+
+            while (queryResult.next()) {
+                Map<String, String> user = new HashMap<>();
+
+                user.put("NAME", queryResult.getString("NAME"));
+                user.put("SURNAME", queryResult.getString("SURNAME"));
+                user.put("ADDRESS", queryResult.getString("ADDRESS"));
+                user.put("PESEL", queryResult.getString("PESEL"));
+                user.put("TRUST", queryResult.getString("TRUST"));
+
+                getAllCustomers.add((HashMap<String, String>) user);
+            }
+
+            setQuerry.closeDB();
+
+        } catch (SQLException ex) {
+            Logger.getLogger(ListUsers.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        return getAllCustomers;
+    }
+
+    // search customer
+    public List<HashMap<String, String>> searchCustomer(String searchText) {
+        List<HashMap<String, String>> getAllCustomers = new ArrayList<>();
+        try {
+            setQuerry = new QueryDB();
+            conDB = setQuerry.getConnDB();
+            stmt = conDB.createStatement();
+
+            queryResult = setQuerry.dbSetQuery("SELECT * FROM Customers"
+                    + " WHERE NAME LIKE '%" + searchText
+                    + "%' OR SURNAME LIKE '%" + searchText
+                    + "%';");
+
+            while (queryResult.next()) {
+                Map<String, String> user = new HashMap<>();
+
+                user.put("NAME", queryResult.getString("NAME"));
+                user.put("SURNAME", queryResult.getString("SURNAME"));
+                user.put("ADDRESS", queryResult.getString("ADDRESS"));
+                user.put("PESEL", queryResult.getString("PESEL"));
+                user.put("TRUST", queryResult.getString("TRUST"));
+
+                getAllCustomers.add((HashMap<String, String>) user);
+            }
+
+            setQuerry.closeDB();
+
+        } catch (SQLException ex) {
+            Logger.getLogger(ListUsers.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        return getAllCustomers;
+    }
+
     // save user :)
     public void saveUser(String name, String surename, String addres, int Trust,
             String pesel, String discount) {
@@ -227,7 +294,7 @@ public class MainDBQuierues {
             setQuerry = new QueryDB();
             conDB = setQuerry.getConnDB();
             stmt = conDB.createStatement();
-
+            discount = discount == null ? "0" : discount;
             if (!pesel.isEmpty()) {
                 queryResult = setQuerry.dbSetQuery("INSERT INTO Customers (NAME, "
                         + "SURNAME, ADDRESS, PESEL, TRUST, DISCOUNT) VALUES"
@@ -235,16 +302,16 @@ public class MainDBQuierues {
                         + surename + "','"
                         + addres + "','"
                         + pesel + "',"
-                        + discount + ","
-                        + Trust + ");");
+                        + Trust + ",'"
+                        + discount + "');");
             } else {
                 queryResult = setQuerry.dbSetQuery("INSERT INTO Customers (NAME, "
                         + "SURNAME, ADDRESS, TRUST, DISCOUNT) VALUES"
                         + "('" + name + "','"
                         + surename + "','"
                         + addres + "',"
-                        + discount + ","
-                        + Trust + ");");
+                        + Trust + ",'"
+                        + discount + "');");
             }
 
             setQuerry.closeDB();
@@ -269,7 +336,7 @@ public class MainDBQuierues {
             while (queryResult.next()) {
                 maxID = queryResult.getInt(1);
             }
-
+            setQuerry.closeDB();
         } catch (SQLException ex) {
             LombardiaLogger startLogging = new LombardiaLogger();
             String text = startLogging.preparePattern("Error", ex.getMessage()

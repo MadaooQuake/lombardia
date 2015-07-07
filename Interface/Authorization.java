@@ -16,10 +16,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.Arrays;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -28,7 +25,6 @@ import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import lombardia2014.dataBaseInterface.UserQuieries;
-import lombardia2014.generators.LombardiaLogger;
 
 /**
  *
@@ -56,7 +52,6 @@ public class Authorization {
     JButton logIn = null;
     MainInterface mainGUI = null;
     QueryDB setQuerry = null;
-    private ResultSet queryResult = null;
     Connection conDB = null;
     Statement stmt = null;
     int userPriv = 0;
@@ -198,12 +193,10 @@ public class Authorization {
             loginFrame.dispose();
         } else {
             JOptionPane.showMessageDialog(loginFrame,
-                    "Zostało podane nieprawidłowy login lub hasło",
+                    "Został wprowadzony nieprawidłowy login lub hasło",
                     "Autoryzacja nie udana!",
                     JOptionPane.ERROR_MESSAGE);
         }
-
-        setQuerry.closeDB();
     }
 
     /**

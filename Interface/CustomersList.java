@@ -22,6 +22,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JPanel;
@@ -33,6 +36,7 @@ import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
 import lombardia2014.Interface.forms.CustomerForm;
+import lombardia2014.dataBaseInterface.MainDBQuierues;
 import lombardia2014.generators.LombardiaLogger;
 
 /**
@@ -59,6 +63,7 @@ public final class CustomersList extends javax.swing.JPanel {
     int id = 0;
     int selectRow = -1;
     SwingWorker worker = null;
+    MainDBQuierues getQuery = new MainDBQuierues();
 
     public CustomersList(Boolean update_) {
         update = update_;
@@ -184,37 +189,27 @@ public final class CustomersList extends javax.swing.JPanel {
      * @see load from db customers and add to object :D
      */
     public void addCustomerstoTable() {
-        try {
-            setQuerry = new QueryDB();
-            conDB = setQuerry.getConnDB();
+        List<HashMap<String, String>> usersList = getQuery.getAllCustomers();
 
-            stmt = conDB.createStatement();
+        for (Map<String, String> user : usersList) {
+            String trustString = "Nie zaufany";
+            int trustVal = Integer.parseInt(user.get("TRUST"));
 
-            queryResult = setQuerry.dbSetQuery("SELECT NAME, SURNAME, ADDRESS, "
-                    + "PESEL, TRUST FROM Customers;");
-
-            while (queryResult.next()) {
-                String trustString = "Nie zaufany";
-                int trustVal = queryResult.getInt("TRUST");
-                if (trustVal == 1) {
-                    trustString = "Zaufany";
-                }
-                Object[] data = {
-                    queryResult.getString("NAME"),
-                    queryResult.getString("SURNAME"),
-                    queryResult.getString("ADDRESS"),
-                    queryResult.getString("PESEL"),
-                    trustString
-                };
-                model.addRow(data);
+            if (trustVal == 1) {
+                trustString = "Zaufany";
             }
 
-        } catch (SQLException ex) {
-            LombardiaLogger startLogging = new LombardiaLogger();
-            String text = startLogging.preparePattern("Error", ex.getMessage()
-                    + "\n" + Arrays.toString(ex.getStackTrace()));
-            startLogging.logToFile(text);
+            Object[] data = {
+                user.get("NAME"),
+                user.get("SURNAME"),
+                user.get("ADDRESS") == null ? "" : user.get("ADDRESS"),
+                user.get("PESEL") == null ? "" : user.get("PESEL"),
+                trustString
+            };
+            model.addRow(data);
+
         }
+
     }
 
     /**
@@ -286,31 +281,10 @@ public final class CustomersList extends javax.swing.JPanel {
         }
 
         private int getCusId() {
-            int id = 0;
-            try {
-                setQuerry = new QueryDB();
-                conDB = setQuerry.getConnDB();
-
-                stmt = conDB.createStatement();
-
-                queryResult = setQuerry.dbSetQuery("SELECT ID FROM Customers"
-                        + " WHERE NAME LIKE '" + litsCustomers.getModel().getValueAt(
-                                litsCustomers.convertRowIndexToView(selectRow), 0)
-                        + "' AND SURNAME LIKE '" + litsCustomers.getModel().getValueAt(
-                                litsCustomers.convertRowIndexToView(selectRow), 1)
-                        + "';");
-
-                while (queryResult.next()) {
-                    id = queryResult.getInt("ID");
-                }
-                selectRow = -1;
-                setQuerry.closeDB();
-            } catch (SQLException ex) {
-                LombardiaLogger startLogging = new LombardiaLogger();
-                String text = startLogging.preparePattern("Error", ex.getMessage()
-                        + "\n" + Arrays.toString(ex.getStackTrace()));
-                startLogging.logToFile(text);
-            }
+            int id = getQuery.getUserID(litsCustomers.getModel().getValueAt(
+                    litsCustomers.convertRowIndexToView(selectRow), 0).toString(),
+                    litsCustomers.getModel().getValueAt(
+                            litsCustomers.convertRowIndexToView(selectRow), 1).toString());
             return id;
         }
 
@@ -333,41 +307,28 @@ public final class CustomersList extends javax.swing.JPanel {
 
         // search customer
         private void searchCustomer() {
-            try {
-                model.setRowCount(0);
-                setQuerry = new QueryDB();
-                conDB = setQuerry.getConnDB();
+            model.setRowCount(0);
+            List<HashMap<String, String>> usersList = getQuery.searchCustomer(searchText.getText());
+            
+            for (Map<String, String> user : usersList) {
+                String trustString = "Nie zaufany";
+                int trustVal = Integer.parseInt(user.get("TRUST"));
 
-                stmt = conDB.createStatement();
-
-                queryResult = setQuerry.dbSetQuery("SELECT * FROM Customers"
-                        + " WHERE NAME LIKE '%" + searchText.getText()
-                        + "%' OR SURNAME LIKE '%" + searchText.getText()
-                        + "%';");
-
-                while (queryResult.next()) {
-                    String trustString = "Nie zaufany";
-                    int trustVal = queryResult.getInt("TRUST");
-                    if (trustVal == 1) {
-                        trustString = "Zaufany";
-                    }
-                    Object[] data = {
-                        queryResult.getString("NAME"),
-                        queryResult.getString("SURNAME"),
-                        queryResult.getString("ADDRESS"),
-                        queryResult.getString("PESEL"),
-                        trustString
-                    };
-                    model.addRow(data);
-                    repaint();
+                if (trustVal == 1) {
+                    trustString = "Zaufany";
                 }
 
-            } catch (SQLException ex) {
-                LombardiaLogger startLogging = new LombardiaLogger();
-                String text = startLogging.preparePattern("Error", ex.getMessage()
-                        + "\n" + Arrays.toString(ex.getStackTrace()));
-                startLogging.logToFile(text);
+                Object[] data = {
+                    user.get("NAME"),
+                    user.get("SURNAME"),
+                    user.get("ADDRESS") == null ? "" : user.get("ADDRESS"),
+                    user.get("PESEL") == null ? "" : user.get("PESEL"),
+                    trustString
+                };
+                model.addRow(data);
+
             }
+
         }
     }
 

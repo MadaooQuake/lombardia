@@ -1161,7 +1161,6 @@ public class CreditForm extends Forms {
                 checkElement = checkItem.checkValue(fields[10].getText().length(),
                         fields[10].getText());
                 if (checkElement == false) {
-                    checkElement = checkItem.checkJaweryElements(fields[17].getText());
 
                     if (checkElement == true) {
                         addItemtoList(1, fields[6].getText(), fields[7].getText(),
@@ -1175,7 +1174,6 @@ public class CreditForm extends Forms {
                                 fields[11].getText(), selectCategory.getSelectedItem().toString());
                     }
                 } else {
-                    checkElement = checkItem.checkJaweryElements(fields[17].getText());
 
                     if (checkElement == true) {
                         addItemtoList(1, fields[6].getText(), fields[7].getText(),
@@ -1610,8 +1608,6 @@ public class CreditForm extends Forms {
                     fields[19].getText(), fields[16].getText(), fields[15].getText(), fields[4].getText(),
                     fields[22].getText(), customer);
 
-            //items 
-            setQuerry.closeDB();
         }
     }
 
