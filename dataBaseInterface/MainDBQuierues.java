@@ -104,6 +104,97 @@ public class MainDBQuierues {
         return catID;
     }
 
+    // select all items
+    public List<HashMap<String, String>> getAllItems() {
+        List<HashMap<String, String>> allItems = new ArrayList<>();
+
+        try {
+            setQuerry = new QueryDB();
+            conDB = setQuerry.getConnDB();
+            stmt = conDB.createStatement();
+
+            queryResult = setQuerry.dbSetQuery("SELECT Items.ID AS ID_ITEM, NAME, MODEL, BAND, TYPE, "
+                    + "WEIGHT, Items.VALUE AS VALUE, IMEI, ATENCION, Agreements.ID_AGREEMENTS AS ID_AGREEMENTS"
+                    + " FROM Items"
+                    + " INNER JOIN Category"
+                    + " ON Items.ID_CATEGORY = Category.ID"
+                    + " LEFT OUTER JOIN Agreements"
+                    + " ON Agreements.ID = Items.ID_AGREEMENT;");
+
+            while (queryResult.next()) {
+                Map<String, String> item = new HashMap<>();
+
+                item.put("ID_ITEM", queryResult.getString("ID_ITEM"));
+                item.put("NAME", queryResult.getString("NAME"));
+                item.put("MODEL", queryResult.getString("MODEL"));
+                item.put("BAND", queryResult.getString("BAND"));
+                item.put("TYPE", queryResult.getString("TYPE"));
+                item.put("WEIGHT", queryResult.getString("WEIGHT"));
+                item.put("VALUE", queryResult.getString("VALUE"));
+                item.put("IMEI", queryResult.getString("IMEI"));
+                item.put("ID_AGREEMENTS", queryResult.getString("ID_AGREEMENTS"));
+
+                allItems.add((HashMap<String, String>) item);
+            }
+
+            setQuerry.closeDB();
+
+            //addToDictionary("bye");//adds a single word
+        } catch (SQLException ex) {
+            Logger.getLogger(ListUsers.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        return allItems;
+    }
+
+    // search item
+    public List<HashMap<String, String>> searchItem(String text) {
+        List<HashMap<String, String>> allItems = new ArrayList<>();
+
+        try {
+            setQuerry = new QueryDB();
+            conDB = setQuerry.getConnDB();
+            stmt = conDB.createStatement();
+
+            queryResult = setQuerry.dbSetQuery("SELECT Items.ID AS ID_ITEM, NAME, MODEL, BAND, TYPE, "
+                    + "WEIGHT, Items.VALUE AS VALUE, IMEI, ATENCION, Agreements.ID_AGREEMENTS AS ID_AGREEMENTS"
+                    + " FROM Items"
+                    + " INNER JOIN Category"
+                    + " ON Items.ID_CATEGORY = Category.ID"
+                    + " LEFT OUTER JOIN Agreements"
+                    + " ON Agreements.ID = Items.ID_AGREEMENT"
+                    + " WHERE"
+                    + " MODEL LIKE '%" + text
+                    + "%' OR BAND LIKE '%" + text
+                    + "%'"
+                    + ";");
+
+            while (queryResult.next()) {
+                Map<String, String> item = new HashMap<>();
+
+                item.put("ID_ITEM", queryResult.getString("ID_ITEM"));
+                item.put("NAME", queryResult.getString("NAME"));
+                item.put("MODEL", queryResult.getString("MODEL"));
+                item.put("BAND", queryResult.getString("BAND"));
+                item.put("TYPE", queryResult.getString("TYPE"));
+                item.put("WEIGHT", queryResult.getString("WEIGHT"));
+                item.put("VALUE", queryResult.getString("VALUE"));
+                item.put("IMEI", queryResult.getString("IMEI"));
+                item.put("ID_AGREEMENTS", queryResult.getString("ID_AGREEMENTS"));
+
+                allItems.add((HashMap<String, String>) item);
+            }
+
+            setQuerry.closeDB();
+
+            //addToDictionary("bye");//adds a single word
+        } catch (SQLException ex) {
+            Logger.getLogger(ListUsers.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        return allItems;
+    }
+
     //==========================================================================
     // Quueries for users 
     //==========================================================================

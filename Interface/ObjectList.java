@@ -22,6 +22,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.BorderFactory;
@@ -36,6 +39,7 @@ import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
 import lombardia2014.core.ConfigRead;
 import lombardia2014.Interface.forms.ItemForm;
+import lombardia2014.dataBaseInterface.MainDBQuierues;
 import lombardia2014.dataBaseInterface.UserOperations;
 import lombardia2014.generators.LombardiaLogger;
 
@@ -65,6 +69,7 @@ public final class ObjectList extends javax.swing.JPanel {
     ConfigRead readVat = new ConfigRead();
     float vat = 0, value = 0;
     UserOperations sniffOperations = null;
+    MainDBQuierues getQuery = new MainDBQuierues();
 
     public ObjectList(UserOperations sniffOperations_) {
         sniffOperations = sniffOperations_;
@@ -191,50 +196,26 @@ public final class ObjectList extends javax.swing.JPanel {
      * @see load from db items which kategories
      */
     public void itemsTable() {
-        try {
-            setQuerry = new QueryDB();
-            conDB = setQuerry.getConnDB();
+        List<HashMap<String, String>> IteList = getQuery.getAllItems();
 
-            stmt = conDB.createStatement();
-
-            // calc value + vat from ValueCalc class
-            // 3 tables: Items, Category, and Agreement form
-            // Agremment - in action when i load another form :/
-            queryResult = setQuerry.dbSetQuery("SELECT Items.ID, NAME, MODEL, BAND, TYPE, "
-                    + "WEIGHT, Items.VALUE, IMEI, ATENCION, Agreements.ID_AGREEMENTS AS ID_AGREEMENTS"
-                    + " FROM Items"
-                    + " INNER JOIN Category"
-                    + " ON Items.ID_CATEGORY = Category.ID"
-                    + " LEFT OUTER JOIN Agreements"
-                    + " ON Agreements.ID = Items.ID_AGREEMENT;");
-
-            while (queryResult.next()) {
-                String idAgreement = "";
-                if (queryResult.getString("ID_AGREEMENTS") != null) {
-                    idAgreement = queryResult.getString("ID_AGREEMENTS");
-                }
-
-                Object[] dataTMP = {
-                    queryResult.getString("ID"),
-                    queryResult.getString("NAME"),
-                    queryResult.getString("MODEL"),
-                    queryResult.getString("BAND"),
-                    queryResult.getString("TYPE"),
-                    queryResult.getString("WEIGHT"),
-                    value = queryResult.getFloat("VALUE"),
-                    calcBrutto(),
-                    queryResult.getString("IMEI"),
-                    queryResult.getString("ATENCION"),
-                    idAgreement
-                };
-                model.addRow(dataTMP);
+        for (Map<String, String> item : IteList) {
+            if (item.get("VALUE") != null) {
+                value = Float.parseFloat(item.get("VALUE"));
             }
-            setQuerry.closeDB();
-        } catch (SQLException ex) {
-            LombardiaLogger startLogging = new LombardiaLogger();
-            String text = startLogging.preparePattern("Error", ex.getMessage()
-                    + "\n" + Arrays.toString(ex.getStackTrace()));
-            startLogging.logToFile(text);
+            Object[] data = {
+                item.get("ID_ITEM"),
+                item.get("NAME"),
+                item.get("MODEL") == null ? "" : item.get("MODEL"),
+                item.get("BAND") == null ? "" : item.get("BAND"),
+                item.get("TYPE") == null ? "" : item.get("TYPE"),
+                item.get("WEIGHT") == null ? "" : item.get("WEIGHT"),
+                item.get("VALUE") == null ? "" : item.get("VALUE"),
+                calcBrutto(),
+                item.get("IMEI") == null ? "" : item.get("IMEI"),
+                item.get("ATENCION") == null ? "" : item.get("ATENCION"),
+                item.get("ID_AGREEMENTS") == null ? "" : item.get("ID_AGREEMENTS"),};
+            model.addRow(data);
+
         }
     }
 
@@ -276,13 +257,13 @@ public final class ObjectList extends javax.swing.JPanel {
             if (e.getClickCount() == 2) {
                 selectRow = table.getSelectedRow();
                 int row = table.rowAtPoint(p);
-                boolean agreement =  objectList.getModel().getValueAt(
+                boolean agreement = objectList.getModel().getValueAt(
                         objectList.convertRowIndexToView(selectRow), 10
-                        ) != null;
+                ) != null;
 
                 id = Integer.parseInt((String) objectList.getModel().getValueAt(
                         objectList.convertRowIndexToView(selectRow), 0));
-              
+
                 sellForm = new ItemForm(id, agreement);
                 sellForm.generateGui();
 
@@ -348,58 +329,29 @@ public final class ObjectList extends javax.swing.JPanel {
         }
 
         private void searchItem() {
-            try {
-                model.setRowCount(0);
-                setQuerry = new QueryDB();
-                conDB = setQuerry.getConnDB();
+            model.setRowCount(0);
+            List<HashMap<String, String>> IteList = getQuery.searchItem(searchText.getText());
 
-                stmt = conDB.createStatement();
-
-                queryResult = setQuerry.dbSetQuery("SELECT Items.ID, Category.NAME, "
-                        + " MODEL, BAND, TYPE, WEIGHT, Items.VALUE, IMEI, ATENCION,"
-                        + " Agreements.ID_AGREEMENTS AS ID_AGREEMENTS "
-                        + " FROM Items"
-                        + " INNER JOIN Category"
-                        + " ON Items.ID_CATEGORY = Category.ID"
-                        + " LEFT OUTER JOIN Agreements"
-                        + " ON Agreements.ID = Items.ID_AGREEMENT"
-                        + " WHERE"
-                        + " MODEL LIKE '%" + searchText.getText()
-                        + "%' OR BAND LIKE '%" + searchText.getText()
-                        + "%'"
-                        + ";");
-
-                while (queryResult.next()) {
-                    String idAgreement = "";
-                    if (queryResult.getString("ID_AGREEMENTS") != null) {
-                        idAgreement = queryResult.getString("ID_AGREEMENTS");
-                    }
-                    Object[] data = {
-                        queryResult.getString("ID"),
-                        queryResult.getString("NAME"),
-                        queryResult.getString("MODEL"),
-                        queryResult.getString("BAND"),
-                        queryResult.getString("TYPE"),
-                        queryResult.getString("WEIGHT"),
-                        value = queryResult.getFloat("VALUE"),
-                        calcBrutto(),
-                        queryResult.getString("IMEI"),
-                        queryResult.getString("ATENCION"),
-                         idAgreement
-                    };
-                    model.addRow(data);
-                    repaint();
+            for (Map<String, String> item : IteList) {
+                if (item.get("VALUE") != null) {
+                    value = Float.parseFloat(item.get("VALUE"));
                 }
+                Object[] data = {
+                    item.get("ID_ITEM"),
+                    item.get("NAME"),
+                    item.get("MODEL") == null ? "" : item.get("MODEL"),
+                    item.get("BAND") == null ? "" : item.get("BAND"),
+                    item.get("TYPE") == null ? "" : item.get("TYPE"),
+                    item.get("WEIGHT") == null ? "" : item.get("WEIGHT"),
+                    item.get("VALUE") == null ? "" : item.get("VALUE"),
+                    calcBrutto(),
+                    item.get("IMEI") == null ? "" : item.get("IMEI"),
+                    item.get("ATENCION") == null ? "" : item.get("ATENCION"),
+                    item.get("ID_AGREEMENTS") == null ? "" : item.get("ID_AGREEMENTS"),};
+                model.addRow(data);
 
-                setQuerry.closeDB();
-            } catch (SQLException ex) {
-                LombardiaLogger startLogging = new LombardiaLogger();
-                String text = startLogging.preparePattern("Error", ex.getMessage()
-                        + "\n" + Arrays.toString(ex.getStackTrace()));
-                startLogging.logToFile(text);
             }
+
         }
-
     }
-
 }
