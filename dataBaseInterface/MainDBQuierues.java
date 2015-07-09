@@ -257,6 +257,36 @@ public class MainDBQuierues {
         return user;
     }
 
+    public Map<String, String> getUserByID(int id) {
+        Map<String, String> user = new HashMap<>();
+
+        try {
+            setQuerry = new QueryDB();
+            conDB = setQuerry.getConnDB();
+            stmt = conDB.createStatement();
+
+            queryResult = setQuerry.dbSetQuery("SELECT NAME, SURNAME, ADDRESS,"
+                    + "PESEL, TRUST, DISCOUNT FROM Customers WHERE ID = " + id + ";");
+
+            while (queryResult.next()) {
+                user.put("NAME", queryResult.getString("NAME"));
+                user.put("SURNAME", queryResult.getString("SURNAME"));
+                user.put("ADDRESS", queryResult.getString("ADDRESS"));
+                user.put("PESEL", queryResult.getString("PESEL"));
+                user.put("TRUST", queryResult.getString("TRUST"));
+                user.put("DISCOUNT", queryResult.getString("DISCOUNT"));
+            }
+
+            setQuerry.closeDB();
+
+            //addToDictionary("bye");//adds a single word
+        } catch (SQLException ex) {
+            Logger.getLogger(ListUsers.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        return user;
+    }
+
     // check if user exist 
     public boolean checkUser(String name, String surname) {
         int customer = 0;
@@ -403,6 +433,40 @@ public class MainDBQuierues {
                         + addres + "',"
                         + Trust + ",'"
                         + discount + "');");
+            }
+
+            setQuerry.closeDB();
+        } catch (SQLException ex) {
+            Logger.getLogger(ListUsers.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    // update customer
+    public void updateUser(String name, String surename, String addres, int Trust,
+            String pesel, String discount, int id) {
+        try {
+            setQuerry = new QueryDB();
+            conDB = setQuerry.getConnDB();
+            stmt = conDB.createStatement();
+            
+            discount = discount.isEmpty() ? "0" : discount;
+            if (pesel.isEmpty()) {
+                queryResult = setQuerry.dbSetQuery("UPDATE Customers SET"
+                        + " NAME = '" + name + "',"
+                        + " SURNAME = '" + surename + "', "
+                        + "ADDRESS = '" + addres + "'"
+                        + ", TRUST =" + Trust
+                        + ", DISCOUNT = " + discount
+                        + " WHERE ID = " + id + ";");
+            } else {
+                queryResult = setQuerry.dbSetQuery("UPDATE Customers SET"
+                        + " NAME = '" + name + "',"
+                        + " SURNAME = '" + surename + "', "
+                        + "ADDRESS = '" + addres + "', "
+                        + "PESEL =" + pesel
+                        + " , TRUST =" + Trust
+                        + ", DISCOUNT =" + discount
+                        + " WHERE ID = " + id + ";");
             }
 
             setQuerry.closeDB();

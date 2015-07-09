@@ -15,9 +15,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.Connection;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -28,7 +28,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
-import lombardia2014.generators.LombardiaLogger;
+import lombardia2014.dataBaseInterface.MainDBQuierues;
 
 /**
  *
@@ -50,6 +50,7 @@ public class CustomerForm extends Forms {
     boolean valdiate = false;
     FormValidator checkItem = new FormValidator();
     boolean iclose = false;
+    MainDBQuierues getQuery = new MainDBQuierues();
 
     public CustomerForm(int cusID) {
         customerID = cusID;
@@ -150,7 +151,7 @@ public class CustomerForm extends Forms {
         c.gridx = 1;
         c.gridy = 3;
         mainPanel.add(fields[2], c);
-        
+
         namedField[5] = new JLabel();
         namedField[5].setText("Rabat:");
         namedField[5].setFont(new Font("Dialog", Font.BOLD, fontSize));
@@ -215,31 +216,16 @@ public class CustomerForm extends Forms {
      * @see method with query to db
      */
     private void fillFields() {
-        try {
-            setQuerry = new QueryDB();
-            conDB = setQuerry.getConnDB();
 
-            stmt = conDB.createStatement();
+        Map<String, String> user = (HashMap<String, String>) getQuery.getUserByID(customerID);
 
-            queryResult = setQuerry.dbSetQuery("SELECT NAME, SURNAME, ADDRESS, "
-                    + "PESEL, TRUST, DISCOUNT FROM Customers WHERE ID = " + customerID + ";");
-
-            while (queryResult.next()) {
-                fields[0].setText(queryResult.getString("NAME"));
-                fields[1].setText(queryResult.getString("SURNAME"));
-                addresCustomer.setText(queryResult.getString("ADDRESS"));
-                fields[2].setText(queryResult.getString("PESEL"));
-                boolean trust = queryResult.getInt("TRUST") == 1;
-                fields[3].setText(queryResult.getString("DISCOUNT"));
-                goodClient.setSelected(trust);
-            }
-            setQuerry.closeDB();
-        } catch (SQLException ex) {
-            LombardiaLogger startLogging = new LombardiaLogger();
-            String text = startLogging.preparePattern("Error", ex.getMessage()
-                    + "\n" + Arrays.toString(ex.getStackTrace()));
-            startLogging.logToFile(text);
-        }
+        fields[0].setText(user.get("NAME"));
+        fields[1].setText(user.get("SURNAME"));
+        addresCustomer.setText(user.get("ADDRESS"));
+        fields[2].setText(user.get("PESEL"));
+        boolean trust = Integer.parseInt(user.get("TRUST")) != 0;
+        goodClient.setSelected(trust);
+        fields[3].setText(user.get("DISCOUNT"));
     }
 
     public boolean isClose() {
@@ -302,41 +288,11 @@ public class CustomerForm extends Forms {
         }
 
         private boolean updateCustomer() {
-            try {
-                float discount = 0;
-                if(fields[3].getText() != null && !fields[3].getText().isEmpty()) {
-                    discount = Float.parseFloat(fields[3].getText().replaceAll(",", "."));
-                }
-                setQuerry = new QueryDB();
-                conDB = setQuerry.getConnDB();
 
-                stmt = conDB.createStatement();
+            getQuery.updateUser(fields[0].getText(), fields[1].getText(),
+                    addresCustomer.getText(), (goodClient.isSelected() ? 1 : 0),
+                    fields[2].getText(), fields[3].getText().replaceAll(",", "."), customerID);
 
-                if (fields[2].getText().isEmpty()) {
-                    queryResult = setQuerry.dbSetQuery("UPDATE Customers SET"
-                            + " NAME = '" + fields[0].getText() + "',"
-                            + " SURNAME = '" + fields[1].getText() + "', "
-                            + "ADDRESS = '" + addresCustomer.getText() + "'"
-                            + ", TRUST =" + (goodClient.isSelected() ? 1 : 0)
-                            + ", DISCOUNT =" + discount
-                            + " WHERE ID = " + customerID + ";");
-                } else {
-                    queryResult = setQuerry.dbSetQuery("UPDATE Customers SET"
-                            + " NAME = '" + fields[0].getText() + "',"
-                            + " SURNAME = '" + fields[1].getText() + "', "
-                            + "ADDRESS = '" + addresCustomer.getText() + "', "
-                            + "PESEL =" + fields[2].getText()
-                            + " , TRUST =" + (goodClient.isSelected() ? 1 : 0)
-                            + ", DISCOUNT =" + discount
-                            + " WHERE ID = " + customerID + ";");
-                }
-                setQuerry.closeDB();
-            } catch (SQLException ex) {
-                LombardiaLogger startLogging = new LombardiaLogger();
-                String text = startLogging.preparePattern("Error", ex.getMessage()
-                        + "\n" + Arrays.toString(ex.getStackTrace()));
-                startLogging.logToFile(text);
-            }
             return true;
         }
 
