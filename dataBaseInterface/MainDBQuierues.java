@@ -195,6 +195,45 @@ public class MainDBQuierues {
         return allItems;
     }
 
+    public Map<String, String> getItem(int id) {
+        Map<String, String> item = new HashMap();
+        try {
+            setQuerry = new QueryDB();
+            conDB = setQuerry.getConnDB();
+            stmt = conDB.createStatement();
+
+            queryResult = setQuerry.dbSetQuery("SELECT Category.ID, Items.ID AS ID_ITEM, NAME, MODEL, BAND, TYPE, WEIGHT, VALUE, IMEI, ATENCION FROM Items, Category WHERE  Items.ID_CATEGORY = Category.ID  AND Items.ID = " + id + ";");
+            while (queryResult.next()) {
+                item.put("ID_ITEM", this.queryResult.getString("ID_ITEM"));
+                item.put("NAME", this.queryResult.getString("NAME"));
+                item.put("MODEL", this.queryResult.getString("MODEL"));
+                item.put("BAND", this.queryResult.getString("BAND"));
+                item.put("TYPE", this.queryResult.getString("TYPE"));
+                item.put("WEIGHT", this.queryResult.getString("WEIGHT"));
+                item.put("VALUE", this.queryResult.getString("VALUE"));
+                item.put("IMEI", this.queryResult.getString("IMEI"));
+            }
+            setQuerry.closeDB();
+        } catch (SQLException ex) {
+            Logger.getLogger(ListUsers.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return item;
+    }
+
+    public void deleteObject(int id) {
+        try {
+            setQuerry = new QueryDB();
+            conDB = setQuerry.getConnDB();
+            stmt = conDB.createStatement();
+
+            queryResult = setQuerry.dbSetQuery("DELETE FROM Items  WHERE ID = " + id + "");
+
+            setQuerry.closeDB();
+        } catch (SQLException ex) {
+            Logger.getLogger(ListUsers.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
     //==========================================================================
     // Quueries for users 
     //==========================================================================
@@ -448,7 +487,7 @@ public class MainDBQuierues {
             setQuerry = new QueryDB();
             conDB = setQuerry.getConnDB();
             stmt = conDB.createStatement();
-            
+
             discount = discount.isEmpty() ? "0" : discount;
             if (pesel.isEmpty()) {
                 queryResult = setQuerry.dbSetQuery("UPDATE Customers SET"

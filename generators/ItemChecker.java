@@ -11,8 +11,8 @@ package lombardia2014.generators;
  */
 public class ItemChecker {
 
-    String prepareParameters = null, values = null, insertItem = null;
-
+    String prepareParameters = null, values = null, insertItem = null, updateItem = null;
+    boolean update = false;
     /*
      full insert into
      queryResult = setQuerry.dbSetQuery("INSERT INTO Items (MODEL,"
@@ -24,6 +24,7 @@ public class ItemChecker {
      + tmpItem.get("Wartość") + ",'" + tmpItem.get("Uwagi")
      + "'," + catID + "," + howMany + ");");
      */
+
     // check parameters
     // brand and model is required 
     // check BAND // brand :O
@@ -45,8 +46,8 @@ public class ItemChecker {
         insertItem += ", ID_CATEGORY, ID_AGREEMENT) VALUES (" + values
                 + "," + ID_CATEGORY + "," + ID_AGREEMENT + ");";
     }
-    
-        public void setValues(String MODEL, String BAND, String TYPE, String WEIGHT,
+
+    public void setValues(String MODEL, String BAND, String TYPE, String WEIGHT,
             String IMEI, String VALUE, String ATENCION, int ID_CATEGORY,
             int ID_AGREEMENT, String BUY_DATE) {
 
@@ -61,15 +62,19 @@ public class ItemChecker {
         checkVaue(VALUE);
         checkAtencion(ATENCION);
         insertItem += ", ID_CATEGORY, ID_AGREEMENT, BUY_DATE) VALUES (" + values
-                + "," + ID_CATEGORY + "," + ID_AGREEMENT + ",'" + BUY_DATE +"');";
+                + "," + ID_CATEGORY + "," + ID_AGREEMENT + ",'" + BUY_DATE + "');";
     }
 
     private void checkBrand(String Brand_) {
         String brand = Brand_;
         if (brand != null) {
             if (brand.length() > 0) {
-                insertItem += ", BAND";
-                values += ",'" + brand + "'";
+                if (update) {
+
+                } else {
+                    insertItem += ", BAND";
+                    values += ",'" + brand + "'";
+                }
             }
         }
     }
@@ -78,8 +83,12 @@ public class ItemChecker {
         String type = Type_;
         if (type != null) {
             if (type.length() > 0) {
-                insertItem += ", TYPE";
-                values += ",'" + type + "'";
+                if (update) {
+                    values += " , TYPE = '" + type + "' ";
+                } else {
+                    insertItem += ", TYPE";
+                    values += ",'" + type + "'";
+                }
             }
         }
 
@@ -89,8 +98,12 @@ public class ItemChecker {
         String weight = weight_;
         if (weight != null) {
             if (weight_.length() > 0) {
-                insertItem += ", WEIGHT";
-                values += ", " + weight + " ";
+                if (update) {
+                    values += " , WEIGHT = " + weight + " ";
+                } else {
+                    insertItem += ", WEIGHT";
+                    values += ", " + weight + " ";
+                }
             }
         }
     }
@@ -99,8 +112,12 @@ public class ItemChecker {
         String imei = imei_;
         if (imei != null) {
             if (imei.length() > 0) {
-                insertItem += ", IMEI";
-                values += ", " + imei + " ";
+                if (update) {
+                    values += " , IMEI = '" + imei + "'";
+                } else {
+                    insertItem += ", IMEI";
+                    values += ", " + imei + " ";
+                }
             }
         }
     }
@@ -109,8 +126,12 @@ public class ItemChecker {
         String value = value_;
         if (value != null) {
             if (value.length() > 0) {
-                insertItem += ", VALUE";
-                values += ", " + value + " ";
+                if (update) {
+                    values += " , VALUE = " + value + " ";
+                } else {
+                    insertItem += ", VALUE";
+                    values += ", " + value + " ";
+                }
             }
         }
     }
@@ -119,8 +140,12 @@ public class ItemChecker {
         String atencion = atencion_;
         if (atencion != null) {
             if (atencion.length() > 0) {
-                insertItem += ", ATENCION";
-                values += ",'" + atencion + "'";
+                if (update) {
+                    values += " , ATENCION = '" + atencion + "'";
+                } else {
+                    insertItem += ", ATENCION";
+                    values += ",'" + atencion + "'";
+                }
             }
         }
     }
@@ -131,4 +156,21 @@ public class ItemChecker {
 
     // save to db
     // create insert into
+    // creaate update table
+    public String updateItem(String MODEL, String BAND, String TYPE, String WEIGHT,
+            String IMEI, String VALUE, String ATENCION, int ID) {
+        update = true;
+        updateItem = "UPDATE Items SET ";
+        values = " MODEL = '" + MODEL + "' ";
+        checkBrand(BAND);
+        checkType(TYPE);
+        checkWeight(WEIGHT);
+        checkImei(IMEI);
+        checkVaue(VALUE);
+        checkAtencion(ATENCION);
+        updateItem += values + "WHERE ID = " + ID + ";";
+        // now i check all elements :)
+        return updateItem;
+    }
+
 }

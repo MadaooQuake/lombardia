@@ -17,8 +17,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Arrays;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.HashMap;
+import java.util.Map;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -27,11 +27,12 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
-import lombardia2014.Interface.menu.ListUsers;
 import lombardia2014.core.SelfCalc;
 import static lombardia2014.Interface.MainMMenu.money;
 import lombardia2014.Interface.ObjectList;
+import lombardia2014.dataBaseInterface.MainDBQuierues;
 import lombardia2014.dataBaseInterface.QueryDB;
+import lombardia2014.generators.ItemChecker;
 import lombardia2014.generators.LombardiaLogger;
 
 /**
@@ -53,6 +54,7 @@ public class ItemForm extends Forms {
     ResultSet queryResult = null;
     Connection conDB = null;
     Statement stmt = null;
+    Double value = 0.0;
 
     int iClose = 0;
     int fontSize = 16;
@@ -62,6 +64,7 @@ public class ItemForm extends Forms {
     ObjectList objects = null;
     double adRemValue = 0.0;
     boolean isAgrement = false;
+    MainDBQuierues getQuery = new MainDBQuierues();
 
     public ItemForm(int id_, boolean isAgrement_) {
         id = id_;
@@ -261,91 +264,32 @@ public class ItemForm extends Forms {
      * @see fill fields in item field
      */
     private void fillItemForm() {
-        try {
-            setQuerry = new QueryDB();
-            conDB = setQuerry.getConnDB();
-            stmt = conDB.createStatement();
-            queryResult = setQuerry.dbSetQuery("SELECT Category.ID, "
-                    + "Items.ID, NAME, MODEL, BAND, TYPE, "
-                    + "WEIGHT, VALUE, IMEI, ATENCION"
-                    + " FROM Items, Category WHERE "
-                    + " Items.ID_CATEGORY = Category.ID  AND Items.ID = " + id + ";");
-
-            while (queryResult.next()) {
-                fields[0].setText(queryResult.getString("NAME"));
-                fields[1].setText(queryResult.getString("MODEL"));
-                fields[2].setText(queryResult.getString("BAND"));
-                fields[3].setText(queryResult.getString("TYPE"));
-                fields[4].setText(queryResult.getString("WEIGHT"));
-                fields[5].setText(queryResult.getString("VALUE"));
-                fields[6].setText(queryResult.getString("IMEI"));
-                fields[7].setText(queryResult.getString("ATENCION"));
-            }
-
-            setQuerry.closeDB();
-        } catch (SQLException ex) {
-            LombardiaLogger startLogging = new LombardiaLogger();
-            String text = startLogging.preparePattern("Error", ex.getMessage()
-                    + "\n" + Arrays.toString(ex.getStackTrace()));
-            startLogging.logToFile(text);
+        Map<String, String> item = getQuery.getItem(id);
+        if (item.get("VALUE") != null) {
+            value = Double.parseDouble(item.get("VALUE"));
         }
+        fields[0].setText(item.get("NAME"));
+        fields[1].setText(item.get("MODEL"));
+        fields[2].setText(item.get("BAND"));
+        fields[3].setText(item.get("TYPE"));
+        fields[4].setText(item.get("WEIGHT"));
+        fields[5].setText(Double.toString(value));
+        fields[6].setText(item.get("IMEI"));
+        fields[7].setText(item.get("ATENCION"));
+
     }
 
     /**
      *
      */
     private void updateItem() {
-        try {
-            setQuerry = new QueryDB();
-            conDB = setQuerry.getConnDB();
 
-            stmt = conDB.createStatement();
-
-            //set values
-            if (fields[6].getText().isEmpty() && fields[4].getText().isEmpty()) {
-                queryResult = setQuerry.dbSetQuery("UPDATE Items SET"
-                        + " MODEL = '" + fields[1].getText() + "',"
-                        + " BAND = '" + fields[2].getText() + "',"
-                        + " TYPE = '" + fields[3].getText() + "',"
-                        + " VALUE = " + fields[5].getText() + ","
-                        + " ATENCION = '" + fields[7].getText()
-                        + "' WHERE ID = " + id + ";");
-            } else if (fields[6].getText().isEmpty()) {
-                queryResult = setQuerry.dbSetQuery("UPDATE Items SET"
-                        + " MODEL = '" + fields[1].getText() + "',"
-                        + " BAND = '" + fields[2].getText() + "',"
-                        + " TYPE = '" + fields[3].getText() + "',"
-                        + " WEIGHT = " + fields[4].getText() + ","
-                        + " VALUE = " + fields[5].getText() + ","
-                        + " ATENCION = '" + fields[7].getText()
-                        + "' WHERE ID = " + id + ";");
-            } else if (fields[4].getText().isEmpty()) {
-                queryResult = setQuerry.dbSetQuery("UPDATE Items SET"
-                        + " MODEL = '" + fields[1].getText() + "',"
-                        + " BAND = '" + fields[2].getText() + "',"
-                        + " TYPE = '" + fields[3].getText() + "',"
-                        + " VALUE = " + fields[5].getText() + ","
-                        + " ATENCION = '" + fields[7].getText()
-                        + "' WHERE ID = " + id + ";");
-            } else {
-                queryResult = setQuerry.dbSetQuery("UPDATE Items SET"
-                        + " MODEL = '" + fields[1].getText() + "',"
-                        + " BAND = '" + fields[2].getText() + "',"
-                        + " TYPE = '" + fields[3].getText() + "',"
-                        + " WEIGHT = " + fields[4].getText() + ","
-                        + " IMEI = " + fields[6].getText() + ","
-                        + " VALUE = " + fields[5].getText() + ","
-                        + " ATENCION = '" + fields[7].getText()
-                        + "' WHERE ID = " + id + ";");
-            }
-
-            setQuerry.closeDB();
-        } catch (SQLException ex) {
-            LombardiaLogger startLogging = new LombardiaLogger();
-            String text = startLogging.preparePattern("Error", ex.getMessage()
-                    + "\n" + Arrays.toString(ex.getStackTrace()));
-            startLogging.logToFile(text);
-        }
+        String query = null;
+        ItemChecker createQuery = new ItemChecker();
+        query = createQuery.updateItem(fields[1].getText(), fields[2].getText(),
+                fields[3].getText(), fields[4].getText(), fields[6].getText(),
+                fields[5].getText(), fields[7].getText(), id);
+        getQuery.insertItem(query);
     }
 
     /**
@@ -364,62 +308,42 @@ public class ItemForm extends Forms {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            try {
-                
-                if (isAgrement == false) {
-                    setQuerry = new QueryDB();
-                    conDB = setQuerry.getConnDB();
-                    stmt = conDB.createStatement();
+            if (isAgrement == false) {
 
-                    queryResult = setQuerry.dbSetQuery("SELECT VALUE FROM Items"
-                            + " WHERE ID = " + id);
+                String dialogWindow = (String) JOptionPane.showInputDialog(formFrame,
+                        "Podaj cenę za jaką sprzedano przedmiot",
+                        "0");
 
-                    itemBaseValue = queryResult.getInt("VALUE");
-
-                    String dialogWindow = (String) JOptionPane.showInputDialog(formFrame,
-                            "Podaj cenę za jaką sprzedano przedmiot",
-                            "0");
-
-                    FormValidator validate = new FormValidator();
-                    if (validate.checkPrice(dialogWindow.length(), dialogWindow) == false) {
-                        JOptionPane.showMessageDialog(formFrame,
-                                "Wprowadź liczbę",
-                                "Niepoprawna wartość",
-                                JOptionPane.ERROR_MESSAGE);
-                    } else if (Float.valueOf(dialogWindow) < 1) {
-                        JOptionPane.showMessageDialog(formFrame,
-                                "Musisz wpisać wartość większą od 0",
-                                "Niepoprawna wartość",
-                                JOptionPane.ERROR_MESSAGE);
-                    } else {
-                        queryResult = setQuerry.dbSetQuery("DELETE FROM Items "
-                                + " WHERE ID = " + id + "");
-                        setQuerry.closeDB();
-
-                        Float sellingPrice = Float.valueOf(dialogWindow);
-                        adRemValue = sellingPrice;
-                        SelfCalc moneys = new SelfCalc();
-                        moneys.addToSelf(sellingPrice);
-
-                        SelfCalc actualCalc = new SelfCalc();
-                        actualCalc.chackValue(formFrame);
-                        money.setText(actualCalc.getValue() + " zł");
-
-                        fillItemForm();
-
-                    }
+                FormValidator validate = new FormValidator();
+                if (validate.checkPrice(dialogWindow.length(), dialogWindow) == false) {
+                    JOptionPane.showMessageDialog(formFrame,
+                            "Wprowadź liczbę",
+                            "Niepoprawna wartość",
+                            JOptionPane.ERROR_MESSAGE);
+                } else if (Float.valueOf(dialogWindow) < 1) {
+                    JOptionPane.showMessageDialog(formFrame,
+                            "Musisz wpisać wartość większą od 0",
+                            "Niepoprawna wartość",
+                            JOptionPane.ERROR_MESSAGE);
                 } else {
-                     JOptionPane.showMessageDialog(formFrame,                       
-                                "Produkt jest podpięty pod umowe kredytu - nie można go sprzedać",
-                                "Nieprawidłowy produkt",
-                                JOptionPane.ERROR_MESSAGE);
-                }
+                    getQuery.deleteObject(id);
+                    Float sellingPrice = Float.valueOf(dialogWindow);
+                    adRemValue = sellingPrice;
+                    SelfCalc moneys = new SelfCalc();
+                    moneys.addToSelf(sellingPrice);
 
-            } catch (SQLException ex) {
-                LombardiaLogger startLogging = new LombardiaLogger();
-                String text = startLogging.preparePattern("Error", ex.getMessage()
-                        + "\n" + Arrays.toString(ex.getStackTrace()));
-                startLogging.logToFile(text);
+                    SelfCalc actualCalc = new SelfCalc();
+                    actualCalc.chackValue(formFrame);
+                    money.setText(actualCalc.getValue() + " zł");
+
+                    fillItemForm();
+
+                }
+            } else {
+                JOptionPane.showMessageDialog(formFrame,
+                        "Produkt jest podpięty pod umowe kredytu - nie można go sprzedać",
+                        "Nieprawidłowy produkt",
+                        JOptionPane.ERROR_MESSAGE);
             }
 
             iclose = true;
