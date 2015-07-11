@@ -37,8 +37,13 @@ public class CalcDays {
      * @param endDate_
      */
     public CalcDays(String endDate_, String startDate_) {
-        endDate = endDate_.substring(0, endDate_.indexOf(" "));
-        startDate = startDate_.substring(0, startDate_.indexOf(" "));
+        if(endDate_.contains(" ") && startDate_.contains(" ")) {
+            endDate = endDate_.substring(0, endDate_.indexOf(" "));
+            startDate = startDate_.substring(0, startDate_.indexOf(" ")); 
+        } else {
+            endDate = endDate_;
+            startDate = startDate_;
+        }
         
         if(endDate.equals(startDate)) {
             daysCount = 0;

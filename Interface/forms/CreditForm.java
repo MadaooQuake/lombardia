@@ -752,17 +752,17 @@ public class CreditForm extends Forms {
         // user info
         // userInfo
         // name
-        fields[0].setText(userInfo.get("Imie"));
+        fields[0].setText(userInfo.get("NAME"));
         // surename
-        fields[1].setText(userInfo.get("Nazwisko"));
+        fields[1].setText(userInfo.get("SURNAME"));
         // address
-        addresCustomer.setText(userInfo.get("Adres"));
+        addresCustomer.setText(userInfo.get("ADDRESS"));
         // pesel
-        fields[3].setText(userInfo.get("Pesel"));
+        fields[3].setText(userInfo.get("PESEL"));
         // trust :D
-        trust = userInfo.get("Zaufany klient").equals("1");
+        trust = userInfo.get("TRUST").equals("1");
         goodClient.setSelected(trust);
-
+        fields[18].setText(userInfo.get("DISCOUNT"));
         // agreement info paymentPorperies
         //agreement id
         // end date

@@ -9,6 +9,7 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -31,6 +32,7 @@ public class MainDBQuierues {
     ResultSet queryResult = null;
     Connection conDB = null;
     Statement stmt = null;
+    DateTools convertDate = null;
 
     //==========================================================================
     // Quueries for Items table
@@ -60,6 +62,70 @@ public class MainDBQuierues {
         }
 
         return words;
+    }
+
+    // categories with id
+    public Map<Integer, String> getCategoriesWithID() {
+        Map<Integer, String> categories = new HashMap<>();
+
+        try {
+            setQuerry = new QueryDB();
+            conDB = setQuerry.getConnDB();
+            stmt = conDB.createStatement();
+
+            queryResult = setQuerry.dbSetQuery("SELECT * FROM Category;");
+
+            while (queryResult.next()) {
+                categories.put(queryResult.getInt("ID"),
+                        queryResult.getString("NAME"));
+            }
+
+        } catch (SQLException ex) {
+            LombardiaLogger startLogging = new LombardiaLogger();
+            String text = startLogging.preparePattern("Error", ex.getMessage()
+                    + "\n" + Arrays.toString(ex.getStackTrace()));
+            startLogging.logToFile(text);
+        }
+        setQuerry.closeDB();
+
+        return categories;
+    }
+
+    public Map<Integer, HashMap> itemsElement(Map<Integer, String> categories, int agrID) {
+        Map<Integer, HashMap> itemsList = new HashMap<>();
+        Map<String, String> items = new HashMap<>();
+        int i = 0;
+        try {
+            setQuerry = new QueryDB();
+            conDB = setQuerry.getConnDB();
+            stmt = conDB.createStatement();
+
+            queryResult = setQuerry.dbSetQuery("SELECT * FROM Items WHERE "
+                    + "ID_AGREEMENT = " + agrID + ";");
+            
+                        while (queryResult.next()) {
+                items.put("Kategoria", categories.get(
+                        queryResult.getInt("ID_CATEGORY")));
+                items.put("Model", queryResult.getString("MODEL"));
+                items.put("Marka", queryResult.getString("BAND"));
+                items.put("Typ", queryResult.getString("TYPE"));
+                items.put("Waga", queryResult.getString("WEIGHT"));
+                items.put("Wartość", queryResult.getString("VALUE"));
+                items.put("IMEI", queryResult.getString("IMEI"));
+                items.put("Uwagi", queryResult.getString("ATENCION"));
+                itemsList.put(i, (HashMap) items);
+                i++;
+            }
+            
+
+        } catch (SQLException ex) {
+            LombardiaLogger startLogging = new LombardiaLogger();
+            String text = startLogging.preparePattern("Error", ex.getMessage()
+                    + "\n" + Arrays.toString(ex.getStackTrace()));
+            startLogging.logToFile(text);
+        }
+
+        return itemsList;
     }
 
     public void insertItem(String item) {
@@ -592,6 +658,43 @@ public class MainDBQuierues {
         } catch (SQLException ex) {
             Logger.getLogger(ListUsers.class.getName()).log(Level.SEVERE, null, ex);
         }
+    }
+
+    // get last agreement
+    public Map<String, String> getLastAgreement() {
+        Map<String, String> paymentPorperies = new HashMap<>();
+
+        try {
+            setQuerry = new QueryDB();
+            conDB = setQuerry.getConnDB();
+            stmt = conDB.createStatement();
+
+            queryResult = setQuerry.dbSetQuery("SELECT * FROM Agreements ORDER BY "
+                    + "ID DESC LIMIT 1");
+
+            while (queryResult.next()) {
+                paymentPorperies.put("NR Umowy", queryResult.getString("ID_AGREEMENTS"));
+
+                paymentPorperies.put("Data rozpoczecia", new DateTools(queryResult.getString("START_DATE")).GetDateAsString());
+                paymentPorperies.put("Data zwrotu", new DateTools(queryResult.getString("STOP_DATE")).GetDateAsString());
+                paymentPorperies.put("Kwota", queryResult.getString("VALUE"));
+                paymentPorperies.put("Opłata magayznowania", queryResult.getString("SAVEPRICE"));
+                paymentPorperies.put("Opłata manipulacyjna", queryResult.getString("COMMISSION"));
+                paymentPorperies.put("Razem do zapłaty", queryResult.getString("VALUE_REST"));
+                paymentPorperies.put("Łączna waga", queryResult.getString("ITEM_WEIGHT"));
+                paymentPorperies.put("Łączna wartosc", queryResult.getString("ITEM_VALUE"));
+                paymentPorperies.put("CustID", queryResult.getString("ID_CUSTOMER"));
+                paymentPorperies.put("AgrID", queryResult.getString("ID"));
+            }
+            setQuerry.closeDB();
+        } catch (SQLException | ParseException ex) {
+            LombardiaLogger startLogging = new LombardiaLogger();
+            String text = startLogging.preparePattern("Error", ex.getMessage()
+                    + "\n" + Arrays.toString(ex.getStackTrace()));
+            startLogging.logToFile(text);
+        }
+
+        return paymentPorperies;
     }
 
 }
