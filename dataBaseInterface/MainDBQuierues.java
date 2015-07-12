@@ -102,8 +102,8 @@ public class MainDBQuierues {
 
             queryResult = setQuerry.dbSetQuery("SELECT * FROM Items WHERE "
                     + "ID_AGREEMENT = " + agrID + ";");
-            
-                        while (queryResult.next()) {
+
+            while (queryResult.next()) {
                 items.put("Kategoria", categories.get(
                         queryResult.getInt("ID_CATEGORY")));
                 items.put("Model", queryResult.getString("MODEL"));
@@ -116,7 +116,6 @@ public class MainDBQuierues {
                 itemsList.put(i, (HashMap) items);
                 i++;
             }
-            
 
         } catch (SQLException ex) {
             LombardiaLogger startLogging = new LombardiaLogger();
@@ -574,6 +573,55 @@ public class MainDBQuierues {
                         + " WHERE ID = " + id + ";");
             }
 
+            setQuerry.closeDB();
+        } catch (SQLException ex) {
+            Logger.getLogger(ListUsers.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    // late client
+    public List<HashMap<String, String>> lateClients() {
+        List<HashMap<String, String>> lateClients = new ArrayList<>();
+
+        try {
+            setQuerry = new QueryDB();
+            conDB = setQuerry.getConnDB();
+            stmt = conDB.createStatement();
+
+            queryResult = setQuerry.dbSetQuery("SELECT Customers.NAME AS NAME, "
+                    + "Customers.SURNAME AS SURNAME, "
+                    + "Agreements.ID_AGREEMENTS AS AGREEMENT_ID,"
+                    + "Agreements.STOP_DATE AS END_DATE FROM Customers, Agreements"
+                    + " WHERE Agreements.ID_CUSTOMER = Customers.ID AND END_DATE < '"
+                    + new DateTools(new Date()).GetDateForDB() + "';");
+
+            while (queryResult.next()) {
+                Map<String, String> user = new HashMap<>();
+
+                user.put("NAME", queryResult.getString("NAME"));
+                user.put("SURNAME", queryResult.getString("SURNAME"));
+                user.put("AGREEMENT_ID", queryResult.getString("AGREEMENT_ID"));
+                user.put("END_DATE", new DateTools(queryResult.getString("END_DATE")).GetDateAsString());
+                lateClients.add((HashMap<String, String>) user);
+            }
+
+            setQuerry.closeDB();
+        } catch (SQLException | ParseException ex) {
+            Logger.getLogger(ListUsers.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        return lateClients;
+    }
+
+    public void removeItemFromAgreement(String aggID) {
+        try {
+            setQuerry = new QueryDB();
+            conDB = setQuerry.getConnDB();
+            stmt = conDB.createStatement();
+            
+            queryResult = setQuerry.dbSetQuery("UPDATE Items SET ID_AGREEMENT = NULL "
+                            + "WHERE ID_AGREEMENT = " + aggID + ";");
+            
             setQuerry.closeDB();
         } catch (SQLException ex) {
             Logger.getLogger(ListUsers.class.getName()).log(Level.SEVERE, null, ex);

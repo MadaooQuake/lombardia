@@ -21,8 +21,8 @@ import java.sql.Statement;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.HashMap;
+import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -32,6 +32,7 @@ import javax.swing.JTable;
 import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
 import lombardia2014.core.CalcDays;
+import lombardia2014.dataBaseInterface.MainDBQuierues;
 import lombardia2014.generators.LombardiaLogger;
 
 /**
@@ -53,6 +54,7 @@ public class LateClientsForm extends Forms {
     int selectRow = -1;
     //Buttons
     JButton cancel, solve = null;
+    MainDBQuierues getQuery = new MainDBQuierues();
 
     //Database
     QueryDB setQuerry = null;
@@ -174,37 +176,17 @@ public class LateClientsForm extends Forms {
     }
 
     public void getLateClients() {
-        try {
-            setQuerry = new QueryDB();
-            conDB = setQuerry.getConnDB();
 
-            stmt = conDB.createStatement();
+        List<HashMap<String, String>> lateClients = getQuery.lateClients();
 
-            queryResult = setQuerry.dbSetQuery("SELECT Customers.NAME AS NAME, "
-                    + "Customers.SURNAME AS SURNAME, "
-                    + "Agreements.ID_AGREEMENTS AS AGREEMENT_ID,"
-                    + "Agreements.STOP_DATE AS END_DATE FROM Customers, Agreements"
-                    + " WHERE Agreements.ID_CUSTOMER = Customers.ID");
-
-            while (queryResult.next()) {
-                String startDate = queryResult.getString("END_DATE");
-                count = new CalcDays(stopDate, startDate);
-                daysCount = count.calculateDays();
-
-                if (daysCount > 0) {
-                    Object[] data = {queryResult.getString("NAME"),
-                        queryResult.getString("SURNAME"),
-                        queryResult.getString("AGREEMENT_ID"),
-                        queryResult.getString("END_DATE")};
-                    model.addRow(data);
-                }
-            }
-
-        } catch (SQLException ex) {
-            LombardiaLogger startLogging = new LombardiaLogger();
-            String text = startLogging.preparePattern("Error", ex.getMessage()
-                    + "\n" + Arrays.toString(ex.getStackTrace()));
-            startLogging.logToFile(text);
+        for (HashMap<String, String> lateClient : lateClients) {
+            Object[] data = {
+                lateClient.get("NAME"),
+                lateClient.get("SURNAME"),
+                lateClient.get("SURNAME"),
+                lateClient.get("END_DATE")
+            };
+            model.addRow(data);
         }
     }
 
@@ -254,27 +236,12 @@ public class LateClientsForm extends Forms {
         @Override
         public void actionPerformed(ActionEvent e) {
             if (selectRow >= 0) {
-                try {
-                    selectRow = -1;
-                    // first i must update items with include to selected agreements
-                    setQuerry = new QueryDB();
-                    conDB = setQuerry.getConnDB();
-
-                    stmt = conDB.createStatement();
-                    queryResult = setQuerry.dbSetQuery("UPDATE Items SET ID_AGREEMENT = NULL "
-                            + "WHERE ID_AGREEMENT = " + id + ";");
-                    
-                    // next i remove agreement :)
-                    queryResult = setQuerry.dbSetQuery("DELETE FROM Items WHERE "
-                    + "ID_AGREEMENT =" + id + ";");
-                    
-                    setQuerry.closeDB();
-                } catch (SQLException ex) {
-                    LombardiaLogger startLogging = new LombardiaLogger();
-                    String text = startLogging.preparePattern("Error", ex.getMessage()
-                            + "\n" + Arrays.toString(ex.getStackTrace()));
-                    startLogging.logToFile(text);
-                }
+                selectRow = -1;
+                getQuery.removeItemFromAgreement(id);
+                    // add new flag in aggreement 
+                // next i remove agreement :)
+//                    queryResult = setQuerry.dbSetQuery("DELETE FROM Items WHERE "
+//                    + "ID_AGREEMENT =" + id + ";");
             }
         }
 
