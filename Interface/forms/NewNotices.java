@@ -30,6 +30,8 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
+import lombardia2014.dataBaseInterface.MainDBQuierues;
+import lombardia2014.dataBaseInterface.NoticesDBQueries;
 import lombardia2014.dataBaseInterface.QueryDB;
 import lombardia2014.generators.AutoSuggestor;
 import lombardia2014.generators.LombardiaLogger;
@@ -57,6 +59,7 @@ public class NewNotices extends Forms {
     UtilDateModel model = new UtilDateModel();
     Date curretDate = null;
     SimpleDateFormat ft = new SimpleDateFormat("dd.MM.YYYY HH:mm");
+    MainDBQuierues getQuery = new MainDBQuierues();
 
     @Override
     public void generateGui() {
@@ -70,7 +73,7 @@ public class NewNotices extends Forms {
         mainPanel.setBorder(titleBorder);
 
         generatePanels(c);
-        
+
         formFrame.add(mainPanel);
         formFrame.setVisible(true);
     }
@@ -87,8 +90,7 @@ public class NewNotices extends Forms {
         c.gridy = 1;
         mainPanel.add(generateActionButton(), c);
     }
-    
-    
+
     private JPanel generateFields() {
         JPanel fieldsPanel = new JPanel(new GridBagLayout());
         namedField = new JLabel[5];
@@ -116,30 +118,8 @@ public class NewNotices extends Forms {
                 Color.BLUE, Color.RED, 0.75f, 45, 80) {
                     @Override
                     public boolean wordTyped(String typedWord) {
-                        try {
-                            setQuerry = new QueryDB();
-                            conDB = setQuerry.getConnDB();
-                            stmt = conDB.createStatement();
-
-                            queryResult = setQuerry.dbSetQuery("SELECT NAME,SURNAME"
-                                    + " FROM Customers;");
-                            //create list for dictionary this in your case might be done via calling a method which queries db and returns results as arraylist
-                            List<String> words = new ArrayList<>();
-
-                            while (queryResult.next()) {
-                                words.add(queryResult.getString("NAME") + " "
-                                        + queryResult.getString("SURNAME"));
-                            }
-
-                            setQuerry.closeDB();
-                            setDictionary((ArrayList<String>) words);
-                            //addToDictionary("bye");//adds a single word
-                        } catch (SQLException ex) {
-                            LombardiaLogger startLogging = new LombardiaLogger();
-                            String text = startLogging.preparePattern("Error", ex.getMessage()
-                                    + "\n" + Arrays.toString(ex.getStackTrace()));
-                            startLogging.logToFile(text);
-                        }
+                        List<String> words = getQuery.getUsersByNameAndSurname();
+                        setDictionary((ArrayList<String>) words);
                         return super.wordTyped(typedWord);
                         //now call super to check for any matches against newest dictionary
                     }
@@ -251,53 +231,36 @@ public class NewNotices extends Forms {
 
         @Override
         public void actionPerformed(ActionEvent ae) {
-            try {
-                boolean result = false;
-                setQuerry = new QueryDB();
-                conDB = setQuerry.getConnDB();
-                stmt = conDB.createStatement();
-                FormValidator checkItem = new FormValidator();
-                String phone = checkItem.checkCountryCode(fields[1].getText());
-                // validation
-                result = (!fields[0].getText().isEmpty()
-                        && !fields[3].getText().isEmpty()
-                        && !fields[2].getText().isEmpty()
-                        && checkItem.checkLenghtnumber(phone));
-                Date dateReport = (Date) datePicker.getModel().getValue();
-                if (result) {
-                    queryResult = setQuerry.dbSetQuery("INSERT INTO Notices ("
-                            + "Number, Title, Content, Date, ID_CUSTOMER) VALUES ( '"
-                            + phone + "','"
-                            + fields[2].getText() + "','"
-                            + fields[3].getText() + "','"
-                            + ft.format(dateReport) + "',"
-                            + "(SELECT Customers.ID FROM Customers WHERE Customers.NAME LIKE '"
-                            + fields[0].getText().
-                            substring(0, fields[0].getText().lastIndexOf(" ")) + "' "
-                            + "AND Customers.SURNAME LIKE '"
-                            + fields[0].getText().
-                            substring(fields[0].getText().indexOf(" ") + 1,
-                                    fields[0].getText().length())
-                            + "'));");
-                    JOptionPane.showMessageDialog(null,
-                            "Raport został zapisany",
-                            "Raport został zapisany",
-                            JOptionPane.INFORMATION_MESSAGE);
-                    formFrame.dispose();
-                    iClose = 1;
-                } else {
-                    JOptionPane.showMessageDialog(null,
-                            "Jedno lub wiele pól jest pusta",
-                            "Nieprawidłowa warotść!",
-                            JOptionPane.ERROR_MESSAGE);
-                }
+            boolean result = false;
+            FormValidator checkItem = new FormValidator();
+            String phone = checkItem.checkCountryCode(fields[1].getText());
+            // validation
+            result = (!fields[0].getText().isEmpty()
+                    && !fields[3].getText().isEmpty()
+                    && !fields[2].getText().isEmpty()
+                    && checkItem.checkLenghtnumber(phone));
+            Date dateReport = (Date) datePicker.getModel().getValue();
+            if (result) {
+                new NoticesDBQueries().insertNewNotices(phone, fields[2].getText(),
+                        fields[3].getText(), fields[0].getText().
+                        substring(0, fields[0].getText().lastIndexOf(" ")),
+                        fields[0].getText().
+                        substring(fields[0].getText().indexOf(" ") + 1,
+                                fields[0].getText().length()));
 
-            } catch (SQLException ex) {
-                LombardiaLogger startLogging = new LombardiaLogger();
-                String text = startLogging.preparePattern("Error", ex.getMessage()
-                        + "\n" + Arrays.toString(ex.getStackTrace()));
-                startLogging.logToFile(text);
+                JOptionPane.showMessageDialog(null,
+                        "Raport został zapisany",
+                        "Raport został zapisany",
+                        JOptionPane.INFORMATION_MESSAGE);
+                formFrame.dispose();
+                iClose = 1;
+            } else {
+                JOptionPane.showMessageDialog(null,
+                        "Jedno lub wiele pól jest pusta",
+                        "Nieprawidłowa warotść!",
+                        JOptionPane.ERROR_MESSAGE);
             }
+
         }
 
     }
@@ -310,6 +273,5 @@ public class NewNotices extends Forms {
         }
 
     }
-
 
 }

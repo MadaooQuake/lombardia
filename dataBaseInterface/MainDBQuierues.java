@@ -39,6 +39,24 @@ public class MainDBQuierues {
     //==========================================================================
     // items
     // categories 
+    // add new categories 
+    public void addCategoeirs(String name) {
+
+        try {
+            setQuerry = new QueryDB();
+            conDB = setQuerry.getConnDB();
+            stmt = conDB.createStatement();
+
+            queryResult = setQuerry.dbSetQuery("INSERT INTO Category (NAME) VALUES"
+                    + "('" + name + "');");
+
+            setQuerry.closeDB();
+        } catch (SQLException ex) {
+            Logger.getLogger(ListUsers.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+    }
+
     public List<String> getCategories() {
         List<String> words = new ArrayList<>();
 
@@ -618,10 +636,10 @@ public class MainDBQuierues {
             setQuerry = new QueryDB();
             conDB = setQuerry.getConnDB();
             stmt = conDB.createStatement();
-            
+
             queryResult = setQuerry.dbSetQuery("UPDATE Items SET ID_AGREEMENT = NULL "
-                            + "WHERE ID_AGREEMENT = " + aggID + ";");
-            
+                    + "WHERE ID_AGREEMENT = " + aggID + ";");
+
             setQuerry.closeDB();
         } catch (SQLException ex) {
             Logger.getLogger(ListUsers.class.getName()).log(Level.SEVERE, null, ex);

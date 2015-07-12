@@ -20,8 +20,6 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -30,7 +28,7 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
-import lombardia2014.Interface.menu.ListUsers;
+import lombardia2014.dataBaseInterface.MainDBQuierues;
 import lombardia2014.generators.LombardiaLogger;
 
 /**
@@ -51,6 +49,7 @@ public class NewCategory extends Forms {
     Connection conDB = null;
     Statement stmt = null;
     List<String> listCategories = new ArrayList<>();
+    MainDBQuierues getQuery = new MainDBQuierues();
 
     // for test only
     @Override
@@ -124,18 +123,12 @@ public class NewCategory extends Forms {
                 conDB = setQuerry.getConnDB();
                 stmt = conDB.createStatement();
 
-                // select all elements in DB
-                queryResult = setQuerry.dbSetQuery("SELECT NAME FROM Category");
-
-                while (queryResult.next()) {
-                    String data = queryResult.getString("NAME");
-                    listCategories.add(data);
-                }
+                listCategories = getQuery.getCategories();
 
                 if (listCategories.isEmpty()) {
                     // save and close  
-                    queryResult = setQuerry.dbSetQuery("INSERT INTO Category (NAME) VALUES"
-                            + "('" + fields[0].getText() + "');");
+                    getQuery.addCategoeirs(fields[0].getText());
+
                     JOptionPane.showMessageDialog(formFrame,
                             "Ta kategoria została dodana ",
                             "Kategoria została dodana!",
