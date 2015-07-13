@@ -27,8 +27,10 @@ public class NoticesDBQueries {
     Statement stmt = null;
     SimpleDateFormat ft = new SimpleDateFormat("dd.MM.YYYY HH:mm");
 
+    // notices
+
     public void insertNewNotices(String name, String surename, String number, String title,
-    String content) {
+            String content) {
         try {
             setQuerry = new QueryDB();
             conDB = setQuerry.getConnDB();
@@ -43,7 +45,7 @@ public class NoticesDBQueries {
                     + "(SELECT Customers.ID FROM Customers WHERE Customers.NAME LIKE '"
                     + name + "' "
                     + "AND Customers.SURNAME LIKE '"
-                    + surename 
+                    + surename
                     + "'));");
 
             setQuerry.closeDB();
@@ -53,4 +55,30 @@ public class NoticesDBQueries {
 
     }
 
+    // phonereport
+    public void insertNewPhone(String name, String surename, String number, String title,
+            String content) {
+        try {
+            setQuerry = new QueryDB();
+            conDB = setQuerry.getConnDB();
+            stmt = conDB.createStatement();
+
+            queryResult = setQuerry.dbSetQuery("INSERT INTO PhoneReports ("
+                    + "Number, Title, Content, Date, ID_CUSTOMER) VALUES ( '"
+                    + number + "','"
+                    + title + "','"
+                    + content + "','"
+                    + ft.format(new Date()) + "',"
+                    + "(SELECT Customers.ID FROM Customers WHERE Customers.NAME LIKE '"
+                    + name + "' "
+                    + "AND Customers.SURNAME LIKE '"
+                    + surename
+                    + "'));");
+
+            setQuerry.closeDB();
+        } catch (SQLException ex) {
+            Logger.getLogger(ListUsers.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+    }
 }

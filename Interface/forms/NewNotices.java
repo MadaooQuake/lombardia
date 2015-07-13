@@ -239,7 +239,7 @@ public class NewNotices extends Forms {
                     && !fields[3].getText().isEmpty()
                     && !fields[2].getText().isEmpty()
                     && checkItem.checkLenghtnumber(phone));
-            Date dateReport = (Date) datePicker.getModel().getValue();
+
             if (result) {
                 new NoticesDBQueries().insertNewNotices(phone, fields[2].getText(),
                         fields[3].getText(), fields[0].getText().

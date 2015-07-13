@@ -30,6 +30,8 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
+import lombardia2014.dataBaseInterface.MainDBQuierues;
+import lombardia2014.dataBaseInterface.NoticesDBQueries;
 import lombardia2014.dataBaseInterface.QueryDB;
 import lombardia2014.generators.AutoSuggestor;
 import lombardia2014.generators.LombardiaLogger;
@@ -57,6 +59,7 @@ public class NewPhoneReport extends Forms {
     UtilDateModel model = new UtilDateModel();
     Date curretDate = null;
     SimpleDateFormat ft = new SimpleDateFormat("dd.MM.YYYY HH:mm");
+    MainDBQuierues getQuery = new MainDBQuierues();
 
     @Override
     public void generateGui() {
@@ -115,30 +118,10 @@ public class NewPhoneReport extends Forms {
                 Color.BLUE, Color.RED, 0.75f, 45, 80) {
                     @Override
                     public boolean wordTyped(String typedWord) {
-                        try {
-                            setQuerry = new QueryDB();
-                            conDB = setQuerry.getConnDB();
-                            stmt = conDB.createStatement();
 
-                            queryResult = setQuerry.dbSetQuery("SELECT NAME,SURNAME"
-                                    + " FROM Customers;");
-                            //create list for dictionary this in your case might be done via calling a method which queries db and returns results as arraylist
-                            List<String> words = new ArrayList<>();
+                        List<String> words = getQuery.getUsersByNameAndSurname();
+                        setDictionary((ArrayList<String>) words);
 
-                            while (queryResult.next()) {
-                                words.add(queryResult.getString("NAME") + " "
-                                        + queryResult.getString("SURNAME"));
-                            }
-
-                            setQuerry.closeDB();
-                            setDictionary((ArrayList<String>) words);
-                            //addToDictionary("bye");//adds a single word
-                        } catch (SQLException ex) {
-                            LombardiaLogger startLogging = new LombardiaLogger();
-                            String text = startLogging.preparePattern("Error", ex.getMessage()
-                                    + "\n" + Arrays.toString(ex.getStackTrace()));
-                            startLogging.logToFile(text);
-                        }
                         return super.wordTyped(typedWord);
                         //now call super to check for any matches against newest dictionary
                     }
@@ -262,22 +245,13 @@ public class NewPhoneReport extends Forms {
                         && !fields[3].getText().isEmpty()
                         && !fields[2].getText().isEmpty()
                         && checkItem.checkLenghtnumber(phone));
-                Date dateReport = (Date) datePicker.getModel().getValue();
                 if (result) {
-                    queryResult = setQuerry.dbSetQuery("INSERT INTO PhoneReports ("
-                            + "Number, Title, Content, Date, ID_CUSTOMER) VALUES ( '"
-                            + phone + "','"
-                            + fields[2].getText() + "','"
-                            + fields[3].getText() + "','"
-                            + ft.format(dateReport) + "',"
-                            + "(SELECT Customers.ID FROM Customers WHERE Customers.NAME LIKE '"
-                            + fields[0].getText().
-                            substring(0, fields[0].getText().lastIndexOf(" ")) + "' "
-                            + "AND Customers.SURNAME LIKE '"
-                            + fields[0].getText().
+                    new NoticesDBQueries().insertNewPhone(phone, fields[2].getText(),
+                            fields[3].getText(), fields[0].getText().
+                            substring(0, fields[0].getText().lastIndexOf(" ")),
+                            fields[0].getText().
                             substring(fields[0].getText().indexOf(" ") + 1,
-                                    fields[0].getText().length())
-                            + "'));");
+                                    fields[0].getText().length()));
                     JOptionPane.showMessageDialog(null,
                             "Raport został zapisany",
                             "Raport został zapisany",
