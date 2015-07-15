@@ -70,7 +70,7 @@ public class ItemChecker {
         if (brand != null) {
             if (brand.length() > 0) {
                 if (update) {
-
+                    values += " , TYPE = '" + brand + "' ";
                 } else {
                     insertItem += ", BAND";
                     values += ",'" + brand + "'";

@@ -15,25 +15,23 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseListener;
 import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFrame;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.SwingWorker;
 import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
-import lombardia2014.generators.LombardiaLogger;
 import static lombardia2014.Interface.MainInterface.userName;
 import static lombardia2014.Interface.MainInterface.userSurename;
+import lombardia2014.dataBaseInterface.NoticesDBQueries;
 
 /**
  *
@@ -64,10 +62,10 @@ public class Notices extends Forms {
 
     //Database
     QueryDB setQuerry = null;
-    private ResultSet queryResult = null;
     Connection conDB = null;
     Statement stmt = null;
     SwingWorker worker = null;
+    NoticesDBQueries getNOticesQuery = new NoticesDBQueries();
 
     //Date and Time usage
     Date now = new Date();
@@ -189,35 +187,17 @@ public class Notices extends Forms {
     }
 
     public void getNotices() {
-        try {
-            setQuerry = new QueryDB();
-            conDB = setQuerry.getConnDB();
+        List<HashMap<String, String>> notices = getNOticesQuery.getNotices();
 
-            stmt = conDB.createStatement();
-
-            queryResult = setQuerry.dbSetQuery("SELECT Notices.* , "
-                    + "Customers.NAME as Name, Customers.SURNAME as Surename"
-                    + " FROM Notices, Customers "
-                    + "WHERE Notices.ID_CUSTOMER = Customers.ID;");
-
-            while (queryResult.next()) {
-                Object[] data = {
-                    queryResult.getInt("ID"),
-                    queryResult.getString("TITLE"),
-                    queryResult.getString("CONTENT"),
-                    queryResult.getString("Name") + " "
-                    + queryResult.getString("Surename"),
-                    queryResult.getString("DATE"),
-                    "+" + queryResult.getString("NUMBER")};
-                model.addRow(data);
-            }
-            setQuerry.closeDB();
-
-        } catch (SQLException ex) {
-            LombardiaLogger startLogging = new LombardiaLogger();
-            String text = startLogging.preparePattern("Error", ex.getMessage()
-                    + "\n" + Arrays.toString(ex.getStackTrace()));
-            startLogging.logToFile(text);
+        for (HashMap<String, String> notice : notices) {
+            Object[] data = {
+                notice.get("ID"),
+                notice.get("TITLE"),
+                notice.get("CONTENT"),
+                notice.get("NAME"),
+                notice.get("DATE"),
+                notice.get("NUMBER")};
+            model.addRow(data);
         }
     }
 
@@ -233,23 +213,7 @@ public class Notices extends Forms {
 
         @Override
         public void actionPerformed(ActionEvent ae) {
-
-            try {
-                setQuerry = new QueryDB();
-                conDB = setQuerry.getConnDB();
-
-                stmt = conDB.createStatement();
-
-                queryResult = setQuerry.dbSetQuery("DELETE FROM Notices WHERE "
-                        + "ID = " + ID + ";");
-
-            } catch (SQLException ex) {
-                LombardiaLogger startLogging = new LombardiaLogger();
-                String text = startLogging.preparePattern("Error", ex.getMessage()
-                        + "\n" + Arrays.toString(ex.getStackTrace()));
-                startLogging.logToFile(text);
-            }
-
+            getNOticesQuery.deleteNotices(ID);
         }
     }
 

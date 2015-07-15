@@ -63,7 +63,7 @@ public class NewNotices extends Forms {
 
     @Override
     public void generateGui() {
-        formFrame.setSize(350, 400);
+        formFrame.setSize(350, 300);
         formFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         formFrame.setResizable(false);
         formFrame.setTitle("Nowa uwaga");
@@ -148,21 +148,6 @@ public class NewNotices extends Forms {
         cTab[0].gridy = 1;
         fieldsPanel.add(datePicker, cTab[0]);
 
-        namedField[2] = new JLabel();
-        namedField[2].setText("Nr. telefonu :");
-        namedField[2].setFont(new Font("Dialog", Font.BOLD, fontSize));
-        cTab[0].fill = GridBagConstraints.HORIZONTAL;
-        cTab[0].gridx = 0;
-        cTab[0].gridy = 2;
-        fieldsPanel.add(namedField[2], cTab[0]);
-
-        fields[1] = new JTextField();
-        fields[1].setPreferredSize(new Dimension(150, heightTextL));
-        fields[1].setFont(new Font("Dialog", Font.BOLD, fontSize));
-        cTab[0].gridx = 1;
-        cTab[0].gridy = 2;
-        fieldsPanel.add(fields[1], cTab[0]);
-
         namedField[3] = new JLabel();
         namedField[3].setText("Tytuł:");
         namedField[3].setFont(new Font("Dialog", Font.BOLD, fontSize));
@@ -233,15 +218,13 @@ public class NewNotices extends Forms {
         public void actionPerformed(ActionEvent ae) {
             boolean result = false;
             FormValidator checkItem = new FormValidator();
-            String phone = checkItem.checkCountryCode(fields[1].getText());
             // validation
             result = (!fields[0].getText().isEmpty()
                     && !fields[3].getText().isEmpty()
-                    && !fields[2].getText().isEmpty()
-                    && checkItem.checkLenghtnumber(phone));
+                    && !fields[2].getText().isEmpty());
 
             if (result) {
-                new NoticesDBQueries().insertNewNotices(phone, fields[2].getText(),
+                new NoticesDBQueries().insertNewNotices(fields[2].getText(),
                         fields[3].getText(), fields[0].getText().
                         substring(0, fields[0].getText().lastIndexOf(" ")),
                         fields[0].getText().
