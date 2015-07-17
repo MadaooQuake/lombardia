@@ -19,8 +19,6 @@ import java.io.IOException;
 import com.itextpdf.text.Chunk;
 import javax.swing.table.DefaultTableModel;
 
-import lombardia2014.generators.HeadersHelper;
-
 /**
  *
  * @author jarek_000
@@ -50,7 +48,8 @@ public class PDFCreator {
     }
 
     public void CreatePDF(DefaultTableModel data,
-            HeadersHelper headers
+            String[] headers,
+            float[] headers_widths
     ) throws DocumentException, IOException {
         String[][][] convertedData = ConvertData(data, rows_per_page);
         Document document = null;
@@ -73,8 +72,8 @@ public class PDFCreator {
             document.add(Chunk.NEWLINE);
             PdfPTable table = createPDFTable(convertedData[row],
                     smallFont,
-                    headers.getHeaders(),
-                    headers.getHeadersWidth()
+                    headers,
+                    headers_widths
             );
             document.add(table);
             document.newPage();

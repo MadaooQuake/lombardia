@@ -23,13 +23,10 @@ import java.awt.Insets;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.util.Arrays;
-import java.sql.SQLException;
-import java.sql.ResultSet;
+import lombardia2014.dataBaseInterface.MainDBQuierues;
 
-import lombardia2014.dataBaseInterface.QueryDB;
 import lombardia2014.generators.LombardiaLogger;
 import lombardia2014.generators.PDFCreator;
-import lombardia2014.generators.HeadersHelper;
 
 //to Generate PDF iText
 import com.itextpdf.text.DocumentException;
@@ -40,15 +37,15 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.JOptionPane;
 
-//to calculate rates
-import lombardia2014.core.ValueCalc;
-
 //to get current date
 import java.util.Calendar;
 
 //to open output dir
 import java.io.File;
 import java.awt.Desktop;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 public class SettlementForm extends MenuElementsList {
     Calendar now = Calendar.getInstance();
@@ -61,25 +58,23 @@ public class SettlementForm extends MenuElementsList {
     int window_width = 860;
     int window_heigth = 500;
     int rows_per_page = 20;
-    String date_mask = "substr(Agreements.Stop_date,7,4)";
-    String date_mask_value = Integer.toString( now.get(Calendar.YEAR) );
     String output_file_name = "_be_changed.pdf";
-    ValueCalc rate = new ValueCalc();
-    HeadersHelper Headers;
+    String[] headers = {"L.p.", "Imię", "Nazwisko", "Adres", "Data pożyczki", "Kwota pożyczki", "Opis zastawu", "Wartość zastawu", "Termin zwrotu", "Odsetki"};
+    float[] headers_width = {0.9f, 3.0f, 5.0f, 5.0f, 2.6f, 2.6f, 5.0f, 2.6f, 2.6f, 1.8f};
+    MainDBQuierues DB = new MainDBQuierues();
+    String from,to;
 
     public SettlementForm(String dateRange_) {
         int month = now.get(Calendar.MONTH) + 1;
         int year = now.get(Calendar.YEAR);
-        Headers = new HeadersHelper(10);
+        int days = now.getActualMaximum(Calendar.DAY_OF_MONTH);
+        from = String.format("%04d%02d%02d", year, 1, 1);
+        to = String.format("%04d%02d%02d", year, 12, 31);
         
         if(dateRange_.equals("Month")) {
             range = "miesięczne";            
-            date_mask = "substr(Agreements.Stop_date,4,7)";
-            if (month < 1) {
-                month = 12;
-                year --;
-            }
-            date_mask_value = String.format("%02d.%04d", month, year);
+            from = String.format("%04d%02d%02d", year, month, 1);
+            to = String.format("%04d%02d%02d", year, month, days);
         }
         output_file_name = formname+"_"+range+".pdf";
         listSettlement = new JTable(new DefaultTableModel());
@@ -104,56 +99,16 @@ public class SettlementForm extends MenuElementsList {
                     
             //set width of form columns
             listSettlement.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-            float[] widths = Headers.getHeadersWidth();
-            for (int i=0; i < widths.length; i++) {
-                int int_val = Math.round(widths[i] * 40);
+            for (int i=0; i < headers_width.length; i++) {
+                int int_val = Math.round(headers_width[i] * 40);
                 listSettlement.getColumnModel().getColumn(i).setPreferredWidth(int_val);
             }
 
             listSettlement.setAutoCreateRowSorter(true);
     }
     
-    private void prepareHeaders() {
-        Headers.BuildHeader("","","L.p.",0.9f);
-        Headers.BuildHeader("Customers.Name","Name","Imię",3.0f);
-        Headers.BuildHeader("Customers.Surname","Surname","Nazwisko",5.0f);
-        Headers.BuildHeader("Customers.Address","Address","Adres",5.0f);
-        Headers.BuildHeader("Agreements.Start_Date","Start_Date","Data pożyczki",2.6f);
-        Headers.BuildHeader("Agreements.Value","Lean_Value","Kwota pożyczki",2.6f);
-        Headers.BuildHeader("GROUP_CONCAT(Items.Model || IFNULL(' (' || Items.Band || ') ', ', '))","Description","Opis zastawu",5.0f);
-        Headers.BuildHeader("Items.Value","Item_Value","Wartość zastawu",2.6f);
-        Headers.BuildHeader("Agreements.Stop_date","Stop_date","Termin zwrotu",2.6f);
-        Headers.BuildHeader("","","Odsetki",1.8f);
-    }
-
-    private String PrepareQuery() {
-        String result = "SELECT ";
-
-        String[] dbHeaders = Headers.getDbHeaders();
-            
-        
-        for (int i = 0; i < dbHeaders.length; i++) {
-            result += dbHeaders[i];
-            if (i < dbHeaders.length - 1) { //skip for last element
-                result += ",";
-            }
-        }
-        result = result + " FROM "
-               + "Customers,"
-               + "Items,"
-               + "Agreements"
-               + " WHERE "
-                    + "Items.ID_AGREEMENT = Agreements.ID "
-                    + "AND Agreements.ID_CUSTOMER = Customers.ID "
-                    + "AND " + date_mask + " = '" + date_mask_value + "' "
-                    + " GROUP BY Agreements.ID;";
-
-        return result;
-    }
-
     @Override
     public void generateGui() {
-        prepareHeaders();
         
         formFrame.setSize(window_width, window_heigth);
         formFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -229,53 +184,23 @@ public class SettlementForm extends MenuElementsList {
                 return false;//This causes all cells to be not editable
             }
         };
-
-        String[] headers = Headers.getHeaders();
-        for (int i=0; i<headers.length; i++) {
-            result.addColumn(headers[i]);
+      
+        List<HashMap<String, String>> data = DB.getSettlementsFromDateRange(from, to);
+               
+        //build headers
+        for (String header : headers) {
+            result.addColumn(header);
         }
-        
-        try {
-            QueryDB setQuerry = new QueryDB(); 
-            ResultSet queryResult = setQuerry.dbSetQuery( PrepareQuery() );
-            int lp = 0;
-            
-            while (queryResult.next()) {
-                lp++;
-                result.addRow(buildData(queryResult, lp));
+                
+        //build data
+        for (HashMap<String, String> dbrow : data) {
+            Object[] row = new Object[headers.length];
+            for (int i=0; i < headers.length; i++) {
+                row[i] = dbrow.get(headers[i]);
             }
-
-        } catch (SQLException ex) {
-            LombardiaLogger startLogging = new LombardiaLogger();
-            String text = startLogging.preparePattern("Error", ex.getMessage()
-                    + "\n" + Arrays.toString(ex.getStackTrace()));
-            startLogging.logToFile(text);
+            result.addRow(row);
         }
         
-        return result;
-    }
-    
-    private Object[] buildData(ResultSet queryResult, int lp) throws SQLException {
-        String[] SQLHeaders = Headers.getShortDBHeaders();
-        
-        float value = queryResult.getFloat( SQLHeaders[4] );
-        String stopdate = queryResult.getString( SQLHeaders[7] );
-        String startdate = queryResult.getString( SQLHeaders[3] );
-        rate.dailyEarn(stopdate, startdate, value);
-        float r = rate.lombardRate(value);   
-        
-        Object[] result = {
-                    lp,
-                    queryResult.getString( SQLHeaders[0] ),
-                    queryResult.getString( SQLHeaders[1] ),
-                    queryResult.getString( SQLHeaders[2] ),
-                    startdate,
-                    Float.toString(value),
-                    queryResult.getString( SQLHeaders[5] ),
-                    queryResult.getString( SQLHeaders[6] ),
-                    stopdate,
-                    Float.toString(r),
-                    };
         return result;
     }
     
@@ -288,7 +213,7 @@ public class SettlementForm extends MenuElementsList {
                 PDFCreator pdf = new PDFCreator(output_file_name, formname + range);
                 pdf.SetLandscapeView();
                 pdf.SetRowsPerPage(rows_per_page);
-                pdf.CreatePDF(model, Headers);
+                pdf.CreatePDF(model, headers, headers_width);
                 JOptionPane.showMessageDialog(null, "Raport PDF został wygenerowany.",
                         "Generowanie PDF", JOptionPane.INFORMATION_MESSAGE);
             } catch (IOException | DocumentException ex) {

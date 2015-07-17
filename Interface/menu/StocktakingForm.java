@@ -23,14 +23,11 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.JScrollPane;
 import javax.swing.JPanel;
 import javax.swing.JOptionPane;
-import java.util.Arrays;
 import javax.swing.JFrame;
 
 import java.awt.Insets;
 import java.awt.Dimension;
 import java.awt.Font;
-import java.sql.SQLException;
-import java.sql.ResultSet;
 import net.sourceforge.jdatepicker.impl.JDatePanelImpl;
 import net.sourceforge.jdatepicker.impl.JDatePickerImpl;
 
@@ -41,9 +38,7 @@ import java.awt.event.ActionListener;
 //to get current date
 import java.util.Calendar;
 
-import lombardia2014.generators.HeadersHelper;
 import lombardia2014.generators.PDFCreator;
-import lombardia2014.dataBaseInterface.QueryDB;
 import lombardia2014.generators.LombardiaLogger;
 import lombardia2014.generators.DateTools;
 
@@ -58,7 +53,12 @@ import java.awt.Desktop;
 //to Generate PDF iText
 import com.itextpdf.text.DocumentException;
 import java.io.IOException;
-import lombardia2014.core.ValueCalc;
+import java.util.ArrayList;
+
+import java.util.List;
+import java.util.Arrays;
+import java.util.HashMap;
+import lombardia2014.dataBaseInterface.MainDBQuierues;
         
 public class StocktakingForm extends MenuElementsList {
     DateTools formDate;
@@ -71,21 +71,22 @@ public class StocktakingForm extends MenuElementsList {
     int window_heigth = 500;
     int rows_per_page = 50;
     String output_file_name = "_be_changed.pdf";
-    ValueCalc rate = new ValueCalc();
-    HeadersHelper Headers;
+    String[]  headers = {"L.p.", "Opis towaru", "Identyfikator", "Cena netto", "Wartość netto", "Data zakupu"};
+    float[] headers_width = {0.9f, 5.0f, 3.0f, 3.0f, 3.0f, 2.6f};
+    MainDBQuierues DB = new MainDBQuierues();
+    String from,to;
+
     
     JDatePickerImpl datePicker = null;
     
     public StocktakingForm(String dateRange_) {
         formDate = new DateTools(new Date());
-        Headers = new HeadersHelper(6);
         output_file_name = formname+formDate.GetDateAsString()+".pdf";
         listSettlement = new JTable(new DefaultTableModel());        
     }
     
     @Override
     public void generateGui() {
-        prepareHeaders();
         
         formFrame.setSize(window_width, window_heigth);
         formFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -118,108 +119,6 @@ public class StocktakingForm extends MenuElementsList {
         ct.ipadx = 8;
         ct.ipady = 8;
         mainPanel.add(scrollPane, ct);
-    }
-    
-    private void prepareHeaders() {
-        Headers.BuildHeader("","","L.p.",0.9f);
-        Headers.BuildHeader("Items.Model || ' (' || Items.Band || ')'","Description","Opis towaru",5.0f);
-        Headers.BuildHeader("Items.ID","ID","Identyfikator",3.0f);
-        Headers.BuildHeader("Items.Value","Value","Cena netto",3.0f);
-        Headers.BuildHeader("","","Wartość netto",3.0f);
-        Headers.BuildHeader("Agreements.Stop_date","Buy_Date","Data zakupu",2.6f);
-    }
-    
-    private String PrepareQuery() {
-        String result = "SELECT ";
-
-        String[] dbHeaders = Headers.getDbHeaders();
-            
-        for (int i = 0; i < dbHeaders.length; i++) {
-            result += dbHeaders[i];
-            if (i < dbHeaders.length - 1) { //skip for last element
-                result += ",";
-            }
-        }
-        result = result + " FROM "
-               + "Items,"
-               + "Agreements"
-               + " WHERE "
-                    + "Items.ID_AGREEMENT = Agreements.ID "
-                    + "AND ( substr(Agreements.Stop_date,7,4) < '" + String.format("%04d", formDate.GetYear()) + "' or "
-                    + "(substr(Agreements.Stop_date,7,4) = '" + String.format("%04d", formDate.GetYear()) +"' and substr(Agreements.Stop_date,4,2) < '" + String.format("%02d", formDate.GetMonth()) + "') or"
-                    + "(substr(Agreements.Stop_date,4,7) = '" + String.format("%02d", formDate.GetMonth()) +"."+String.format("%04d", formDate.GetYear())+"' and substr(Agreements.Stop_date,1,2) < '" + String.format("%02d", formDate.GetDay()) + "') )"
-                
-                    + "AND ( Items.Sold_date is null or "
-
-                    + "substr(Items.Sold_date,7,4) > '" +  String.format("%04d", formDate.GetYear()) + "' or "
-                    + "(substr(Items.Sold_date,7,4) = '" + String.format("%04d", formDate.GetYear()) +"' and substr(Items.Sold_date,4,2) > '" + String.format("%02d", formDate.GetMonth()) + "') or"
-                    + "(substr(Items.Sold_date,4,7) = '" + String.format("%02d", formDate.GetMonth()) +"."+ String.format("%04d", formDate.GetYear()) +"' and substr(Items.Sold_date,1,2) > '" + String.format("%02d", formDate.GetDay()) + "') )"
-                    + " union all " 
-                    + "SELECT Items.Model || ' (' || Items.Band || ')' as Description, "
-                    + "Items.ID as ID, "
-                    + "Items.Value as Value,"
-                    + "Items.Buy_Date as Buy_Date FROM Items WHERE Buy_Date is not null AND "
-                    + "( substr(Buy_Date,7,4) < '" + String.format("%04d", formDate.GetYear()) + "' or "
-                    + "(substr(Buy_Date,7,4) = '" + String.format("%04d", formDate.GetYear()) +"' and substr(Buy_Date,4,2) < '" + String.format("%02d", formDate.GetMonth()) + "') or"
-                    + "(substr(Buy_Date,4,7) = '" + String.format("%02d", formDate.GetMonth()) +"."+String.format("%04d", formDate.GetYear())+"' and substr(Buy_Date,1,2) < '" + String.format("%02d", formDate.GetDay()) + "') )"
-                
-                    + "AND ( Items.Sold_date is null or "                
-                
-                    + "substr(Items.Sold_date,7,4) > '" +  String.format("%04d", formDate.GetYear()) + "' or "
-                    + "(substr(Items.Sold_date,7,4) = '" + String.format("%04d", formDate.GetYear()) +"' and substr(Items.Sold_date,4,2) > '" + String.format("%02d", formDate.GetMonth()) + "') or"
-                    + "(substr(Items.Sold_date,4,7) = '" + String.format("%02d", formDate.GetMonth()) +"."+ String.format("%04d", formDate.GetYear()) +"' and substr(Items.Sold_date,1,2) > '" + String.format("%02d", formDate.GetDay()) + "') )"
-                    + ";";
-
-        return result;
-    }
-    
-     private String PrepareQueryNewDBStructure() {
-        String result = "SELECT ";
-
-        String[] dbHeaders = Headers.getDbHeaders();
-            
-        for (int i = 0; i < dbHeaders.length; i++) {
-            result += dbHeaders[i];
-            if (i < dbHeaders.length - 1) { //skip for last element
-                result += ",";
-            }
-        }
-        result = result + " FROM "
-               + "Items,"
-               + "Agreements"
-               + " WHERE "
-                    + "Items.ID_AGREEMENT = Agreements.ID "
-                    + "AND Agreements.Stop_date < '" + formDate.GetDateForDB() + "' "
-                    + "AND ( Items.Sold_date is null or "
-
-                    + "Items.Sold_date > '" +  formDate.GetDateForDB() + "') "
-                    + " union all " 
-                    + "SELECT Items.Model || ' (' || Items.Band || ')' as Description, "
-                    + "Items.ID as ID, "
-                    + "Items.Value as Value,"
-                    + "Items.Buy_Date as Buy_Date FROM Items WHERE Buy_Date is not null AND "
-                    + "Buy_Date < '" + formDate.GetDateForDB() + "' "
-                
-                    + "AND ( Items.Sold_date is null or "                
-                    + "Items.Sold_date > '" +  formDate.GetDateForDB() + "');";
-
-        return result;
-    }
-    
-    
-    
-    private Object[] buildData(ResultSet queryResult, int lp) throws SQLException {
-        String[] SQLHeaders = Headers.getShortDBHeaders();
-        
-        Object[] result = {
-                    lp,
-                    queryResult.getString( SQLHeaders[0] ),
-                    queryResult.getString( SQLHeaders[1] ),
-                    queryResult.getString( SQLHeaders[2] ),
-                    queryResult.getString( SQLHeaders[2] ),
-                    queryResult.getString( SQLHeaders[3] ),
-                    };
-        return result;
     }
     
     private void generateButtons(GridBagConstraints ct) {    
@@ -289,27 +188,25 @@ public class StocktakingForm extends MenuElementsList {
                 return false;//This causes all cells to be not editable
             }
         };
-
-        String[] headers = Headers.getHeaders();
-        for (int i=0; i<headers.length; i++) {
-            result.addColumn(headers[i]);
-        }
         
-        try {
-            QueryDB setQuerry = new QueryDB(); 
-            ResultSet queryResult = setQuerry.dbSetQuery( PrepareQuery() );
-            int lp = 0;
-            
-            while (queryResult.next()) {
-                lp++;
-                result.addRow(buildData(queryResult, lp));
+        List<HashMap<String, String>> data = DB.getStockTakingsFromDateRange(formDate.GetDateForDB());
+        
+//        if (data.size() > 0) {
+//            headers.addAll( data.get(0).keySet() );
+//        }
+        
+        //build headers
+        for (String header : headers) {
+            result.addColumn(header);
+        }
+                
+        //build data
+        for (HashMap<String, String> dbrow : data) {
+            Object[] row = new Object[headers.length];
+            for (int i=0; i < headers.length; i++) {
+                row[i] = dbrow.get(headers[i]);
             }
-
-        } catch (SQLException ex) {
-            LombardiaLogger startLogging = new LombardiaLogger();
-            String text = startLogging.preparePattern("Error", ex.getMessage()
-                    + "\n" + Arrays.toString(ex.getStackTrace()));
-            startLogging.logToFile(text);
+            result.addRow(row);
         }
         
         return result;
@@ -334,9 +231,8 @@ public class StocktakingForm extends MenuElementsList {
                     
             //set width of form columns
             listSettlement.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-            float[] widths = Headers.getHeadersWidth();
-            for (int i=0; i < widths.length; i++) {
-                int int_val = Math.round(widths[i] * 40);
+            for (int i=0; i < headers_width.length; i++) {
+                int int_val = Math.round(headers_width[i] * 40);
                 listSettlement.getColumnModel().getColumn(i).setPreferredWidth(int_val);
             }
 
@@ -352,7 +248,7 @@ public class StocktakingForm extends MenuElementsList {
             try {
                 PDFCreator pdf = new PDFCreator(output_file_name, formname + formDate.GetDateAsString());
                 pdf.SetRowsPerPage(rows_per_page);
-                pdf.CreatePDF(model, Headers);
+                pdf.CreatePDF(model, headers, headers_width);
                 JOptionPane.showMessageDialog(null, "Raport PDF został wygenerowany.",
                         "Generowanie PDF", JOptionPane.INFORMATION_MESSAGE);
             } catch (IOException | DocumentException ex) {
