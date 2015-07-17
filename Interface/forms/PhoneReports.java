@@ -21,6 +21,8 @@ import java.sql.Statement;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -33,6 +35,7 @@ import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
 import lombardia2014.generators.LombardiaLogger;
 import static lombardia2014.Interface.MainInterface.userSurename;
+import lombardia2014.dataBaseInterface.NoticesDBQueries;
 
 /**
  *
@@ -71,6 +74,7 @@ public class PhoneReports extends Forms {
     Connection conDB = null;
     Statement stmt = null;
     SwingWorker worker = null;
+    NoticesDBQueries getNOticesQuery = new NoticesDBQueries();
 
     //Date and Time usage
     Date now = new Date();
@@ -195,33 +199,16 @@ public class PhoneReports extends Forms {
     }
 
     public void getReportContent() {
-        try {
-            setQuerry = new QueryDB();
-            conDB = setQuerry.getConnDB();
-            stmt = conDB.createStatement();
-
-            queryResult = setQuerry.dbSetQuery("SELECT PhoneReports.* , "
-                    + "Customers.NAME as Name, Customers.SURNAME as Surename"
-                    + " FROM PhoneReports, Customers "
-                    + "WHERE PhoneReports.ID_CUSTOMER = Customers.ID;");
-
-            while (queryResult.next()) {
-                Object[] data = {
-                    queryResult.getInt("ID"),
-                    queryResult.getString("TITLE"),
-                    queryResult.getString("CONTENT"),
-                    queryResult.getString("Name") + " "
-                    + queryResult.getString("Surename"),
-                    queryResult.getString("DATE"),
-                    "+" + queryResult.getString("NUMBER")};
-                model.addRow(data);
-            }
-            setQuerry.closeDB();
-        } catch (SQLException ex) {
-            LombardiaLogger startLogging = new LombardiaLogger();
-            String text = startLogging.preparePattern("Error", ex.getMessage()
-                    + "\n" + Arrays.toString(ex.getStackTrace()));
-            startLogging.logToFile(text);
+        List<HashMap<String, String>> phonesReport = getNOticesQuery.getPhonesReport();
+        for (HashMap<String, String> phone : phonesReport) {
+            Object[] data = {
+                phone.get("ID"),
+                phone.get("TITLE"),
+                phone.get("CONTENT"),
+                phone.get("NAME"),
+                phone.get("DATE"),
+                phone.get("NUMBER")};
+            model.addRow(data);
         }
     }
 
@@ -266,29 +253,18 @@ public class PhoneReports extends Forms {
         @Override
         public void actionPerformed(ActionEvent ae) {
             if (selectRow >= 0 && selectRow < model.getRowCount()) {
-                try {
-
+                  
                     int selectedOption = JOptionPane.showConfirmDialog(formFrame,
                             "Czy na pewno cheszu usunąć tego użytkownika ?",
                             "uwaga unuwanie!",
                             JOptionPane.YES_NO_OPTION);
                     if (selectedOption == JOptionPane.YES_OPTION) {
-                        setQuerry = new QueryDB();
-                        conDB = setQuerry.getConnDB();
-                        stmt = conDB.createStatement();
-                        queryResult = setQuerry.dbSetQuery("DELETE FROM PhoneReports"
-                                + " WHERE ID = " + ID + ";");
-                        setQuerry.closeDB();
+                        getNOticesQuery.deletePhoneReport(ID);
                         model.removeTableModelListener(listPhoneReports);
                         model.removeRow(selectRow);
                         model.addTableModelListener(listPhoneReports);
                     }
-                } catch (SQLException ex) {
-                    LombardiaLogger startLogging = new LombardiaLogger();
-                    String text = startLogging.preparePattern("Error", ex.getMessage()
-                            + "\n" + Arrays.toString(ex.getStackTrace()));
-                    startLogging.logToFile(text);
-                }
+
             } else {
                 JOptionPane.showMessageDialog(null, "Musisz zaznaczyć zgłoszenie",
                         "Zgłoszenie nie zostałow wybrane!",
@@ -309,8 +285,8 @@ public class PhoneReports extends Forms {
             if (selectRow >= 0) {
                 int row = table.rowAtPoint(p);
 
-                ID = (int) listPhoneReports.getModel().getValueAt(
-                        listPhoneReports.convertRowIndexToView(selectRow), 0);
+                ID = Integer.parseInt((String) listPhoneReports.getModel().getValueAt(
+                        listPhoneReports.convertRowIndexToView(selectRow), 0));
                 JTable target = (JTable) e.getSource();
             }
         }

@@ -195,8 +195,7 @@ public class Notices extends Forms {
                 notice.get("TITLE"),
                 notice.get("CONTENT"),
                 notice.get("NAME"),
-                notice.get("DATE"),
-                notice.get("NUMBER")};
+                notice.get("DATE")};
             model.addRow(data);
         }
     }
