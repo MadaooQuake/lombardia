@@ -16,6 +16,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -29,6 +30,7 @@ import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
 import static lombardia2014.Interface.MainMMenu.money;
 import lombardia2014.core.SelfCalc;
+import lombardia2014.dataBaseInterface.MainDBQuierues;
 import lombardia2014.dataBaseInterface.UserOperations;
 import lombardia2014.generators.LombardiaLogger;
 
@@ -71,6 +73,8 @@ public class ProlongationForm extends Forms {
     //creditForm object
     CreditForm newCredit = null;
     double adRemValue = 0.0;
+    MainDBQuierues getQuery = new MainDBQuierues();
+
 
     //maps
     Map<String, String> paymentPorperies = new HashMap<>();
@@ -204,39 +208,13 @@ public class ProlongationForm extends Forms {
     }
 
     private Map<String, Integer> prolongAgreement() {
+        paymentPorperies = getQuery.getAgreementByID(ID);
         Map<String, Integer> ids = new HashMap<>();
 
-        try {
-            setQuerry = new QueryDB();
-            conDB = setQuerry.getConnDB();
-            stmt = conDB.createStatement();
-
-            queryResult = setQuerry.dbSetQuery("SELECT * FROM Agreements "
-                    + "WHERE ID_AGREEMENTS LIKE '" + ID + "';");
-
-            while (queryResult.next()) {
-                paymentPorperies.put("NR Umowy", queryResult.getString("ID_AGREEMENTS"));
-                paymentPorperies.put("Data rozpoczecia", queryResult.getString("START_DATE"));
-                paymentPorperies.put("Data zwrotu", queryResult.getString("STOP_DATE"));
-                paymentPorperies.put("Kwota", queryResult.getString("VALUE"));
-                paymentPorperies.put("Rabat", queryResult.getString("DISCOUNT"));
-                paymentPorperies.put("Opłata magayznowania", queryResult.getString("SAVEPRICE"));
-                paymentPorperies.put("Opłata manipulacyjna", queryResult.getString("COMMISSION"));
-                paymentPorperies.put("Razem do zapłaty", queryResult.getString("VALUE_REST"));
-                paymentPorperies.put("Łączna waga", queryResult.getString("ITEM_WEIGHT"));
-                paymentPorperies.put("Łączna wartosc", queryResult.getString("ITEM_VALUE"));
-                // get ids
-                ids.put("CustID", queryResult.getInt("ID_CUSTOMER"));
-                ids.put("AgrID", queryResult.getInt("ID"));
-            }
-
-        } catch (SQLException ex) {
-            LombardiaLogger startLogging = new LombardiaLogger();
-            String text = startLogging.preparePattern("Error", ex.getMessage()
-                    + "\n" + Arrays.toString(ex.getStackTrace()));
-            startLogging.logToFile(text);
-        }
-        setQuerry.closeDB();
+        // get ids
+        ids.put("CustID", Integer.parseInt(paymentPorperies.get("CustID")));
+        ids.put("AgrID", Integer.parseInt(paymentPorperies.get("AgrID")));
+        
         return ids;
     }
 
@@ -245,125 +223,34 @@ public class ProlongationForm extends Forms {
      *
      */
     private void getUserInfo(int id) {
-        try {
-            setQuerry = new QueryDB();
-            conDB = setQuerry.getConnDB();
-            stmt = conDB.createStatement();
-
-            queryResult = setQuerry.dbSetQuery("SELECT * FROM Customers WHERE "
-                    + "ID = " + id + ";");
-
-            while (queryResult.next()) {
-                userInfo.put("Imie", queryResult.getString("NAME"));
-                userInfo.put("Nazwisko", queryResult.getString("SURNAME"));
-                userInfo.put("Adres", queryResult.getString("ADDRESS"));
-                userInfo.put("Pesel", queryResult.getString("PESEL"));
-                userInfo.put("Zaufany klient", queryResult.getString("TRUST"));
-            }
-
-        } catch (SQLException ex) {
-            LombardiaLogger startLogging = new LombardiaLogger();
-            String text = startLogging.preparePattern("Error", ex.getMessage()
-                    + "\n" + Arrays.toString(ex.getStackTrace()));
-            startLogging.logToFile(text);
-        }
-        setQuerry.closeDB();
+          userInfo = getQuery.getUserByID(id);
     }
 
     /**
      * @see this method get items from
      */
     private void getItemsFromAgreement(int id) {
-        try {
-            setQuerry = new QueryDB();
-            conDB = setQuerry.getConnDB();
-            stmt = conDB.createStatement();
-            int i = 0; //inrement this value to save item to list
-
-            // first i select categories and save to db :)
-            queryResult = setQuerry.dbSetQuery("SELECT * FROM Category;");
-
-            while (queryResult.next()) {
-                categories.put(queryResult.getInt("ID"),
-                        queryResult.getString("NAME"));
-            }
-
-            // now action to items
-            queryResult = setQuerry.dbSetQuery("SELECT * FROM Items WHERE "
-                    + "ID_AGREEMENT = " + id + ";");
-            Map<String, String> items = new HashMap<>();
-
-            while (queryResult.next()) {
-                items.put("Kategoria", categories.get(
-                        queryResult.getInt("ID_CATEGORY")));
-                items.put("Model", queryResult.getString("MODEL"));
-                items.put("Marka", queryResult.getString("BAND"));
-                items.put("Typ", queryResult.getString("TYPE"));
-                items.put("Waga", queryResult.getString("WEIGHT"));
-                items.put("Wartość", queryResult.getString("VALUE"));
-                items.put("IMEI", queryResult.getString("IMEI"));
-                items.put("Uwagi", queryResult.getString("ATENCION"));
-                itemsList.put(i, (HashMap) items);
-                i++;
-            }
-        } catch (SQLException ex) {
-            LombardiaLogger startLogging = new LombardiaLogger();
-            String text = startLogging.preparePattern("Error", ex.getMessage()
-                    + "\n" + Arrays.toString(ex.getStackTrace()));
-            startLogging.logToFile(text);
-        }
-
+        categories = getQuery.getCategoriesWithID();
+        itemsList = getQuery.itemsElement(categories, id);
     }
 
     public void getAgreements() {
-        try {
-            setQuerry = new QueryDB();
-            conDB = setQuerry.getConnDB();
+        List<HashMap<String, String>> Settlements = getQuery.getAgreementsAndCustomers();
 
-            stmt = conDB.createStatement();
-
-            queryResult = setQuerry.dbSetQuery("SELECT Customers.NAME AS NAME, "
-                    + "Customers.SURNAME AS SURNAME, Customers.ID AS CustomerID, "
-                    + "Agreements.ID_AGREEMENTS AS AGREEMENT_ID, Agreements.ID AS ID,"
-                    + " Agreements.STOP_DATE AS END_DATE"
-                    + " FROM Customers, Agreements WHERE Customers.ID = Agreements.ID_CUSTOMER ;");
-
-            while (queryResult.next()) {
-
-                Object[] data = {queryResult.getString("NAME"),
-                    queryResult.getString("SURNAME"),
-                    queryResult.getString("AGREEMENT_ID"),
-                    queryResult.getString("END_DATE")};
-                model.addRow(data);
-                agreementIdent = queryResult.getInt("ID");
-
-            }
-
-        } catch (SQLException ex) {
-            LombardiaLogger startLogging = new LombardiaLogger();
-            String text = startLogging.preparePattern("Error", ex.getMessage()
-                    + "\n" + Arrays.toString(ex.getStackTrace()));
-            startLogging.logToFile(text);
+        for(HashMap<String, String> agreement : Settlements) {
+            Object[] data = {
+                agreement.get("Imie"),
+                agreement.get("Nazwisko"),
+                agreement.get("NR Umowy"),
+                agreement.get("Data zwrotu"),
+            };
+            model.addRow(data);
+            agreementIdent = Integer.parseInt(agreement.get("AgrID"));
         }
     }
 
     public void deleteAgreement(String ID) {
-        try {
-            setQuerry = new QueryDB();
-            conDB = setQuerry.getConnDB();
-
-            stmt = conDB.createStatement();
-
-            queryResult = setQuerry.dbSetQuery("DELETE FROM Agreements WHERE "
-                    + "ID_AGREEMENTS LIKE '" + ID + "';");
-
-        } catch (SQLException ex) {
-            LombardiaLogger startLogging = new LombardiaLogger();
-            String text = startLogging.preparePattern("Error", ex.getMessage()
-                    + "\n" + Arrays.toString(ex.getStackTrace()));
-            startLogging.logToFile(text);
-        }
-
+        getQuery.deleteAgreement(ID);
     }
 
     // actions for selected elements in table
@@ -372,11 +259,9 @@ public class ProlongationForm extends Forms {
         @Override
         public void mouseClicked(MouseEvent e) {
             JTable table = (JTable) e.getSource();
-            Point p = e.getPoint();
 
             if (e.getClickCount() == 2) {
                 selectRow = table.getSelectedRow();
-                int row = table.rowAtPoint(p);
 
                 ID = (String) listAgreements.getModel().getValueAt(
                         listAgreements.convertRowIndexToView(selectRow), 2);

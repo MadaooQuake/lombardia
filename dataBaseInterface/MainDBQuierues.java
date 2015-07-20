@@ -726,30 +726,29 @@ public class MainDBQuierues {
             Logger.getLogger(ListUsers.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-    
+
     //get all stocktakings
     public List<HashMap<String, String>> getStockTakingsFromDateRange(String point_of_time) {
         List<HashMap<String, String>> StockTakings = new ArrayList<>();
         String query = "SELECT Items.Model, Items.Band, Items.ID, Items.Value, Agreements.Stop_date as Buy_date "
                 + "FROM Items, Agreements WHERE Items.ID_AGREEMENT = Agreements.ID "
-                    + "AND Agreements.Stop_date < '" + point_of_time + "' "
-                    + "AND ( Items.Sold_date is null or Items.Sold_date > '" + point_of_time +"') "
-            + "union all " 
+                + "AND Agreements.Stop_date < '" + point_of_time + "' "
+                + "AND ( Items.Sold_date is null or Items.Sold_date > '" + point_of_time + "') "
+                + "union all "
                 + "SELECT Model, Band, ID, Value, Buy_Date "
                 + " FROM Items WHERE Buy_Date is not null AND Buy_Date < '" + point_of_time + "' "
-                    + "AND ( Sold_date is null or Sold_date > '" + point_of_time + "');";
+                + "AND ( Sold_date is null or Sold_date > '" + point_of_time + "');";
 
         try {
             setQuerry = new QueryDB();
             conDB = setQuerry.getConnDB();
             stmt = conDB.createStatement();
 
-        
             queryResult = setQuerry.dbSetQuery(query);
             int lp = 0;
-   
+
             while (queryResult.next()) {
-                lp ++;
+                lp++;
                 Map<String, String> st = new HashMap<>();
                 st.put("L.p.", Integer.toString(lp));
                 st.put("Opis towaru", queryResult.getString("Model") + '(' + queryResult.getString("Band") + ')');
@@ -758,15 +757,17 @@ public class MainDBQuierues {
                 st.put("Wartość netto", queryResult.getString("Value"));
                 st.put("Data zakupu", queryResult.getString("Buy_date"));
                 StockTakings.add((HashMap<String, String>) st);
-                }
+            }
             setQuerry.closeDB();
         } catch (SQLException ex) {
             Logger.getLogger(ListUsers.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
+
         return StockTakings;
     }
+
     //get all settlements
+
     public List<HashMap<String, String>> getSettlementsFromDateRange(String from, String to) {
         List<HashMap<String, String>> Settlements = new ArrayList<>();
         try {
@@ -775,7 +776,7 @@ public class MainDBQuierues {
             stmt = conDB.createStatement();
 
             String query = "SELECT Name, Surname, Address, Start_Date, Agreements.Value as avalue, Model, Band, Items.Value as ivalue, Stop_Date "
-                + "FROM Customers, Items, Agreements WHERE "
+                    + "FROM Customers, Items, Agreements WHERE "
                     //join conditions
                     + "Items.ID_AGREEMENT = Agreements.ID "
                     + "AND Agreements.ID_CUSTOMER = Customers.ID "
@@ -784,13 +785,13 @@ public class MainDBQuierues {
                     + from + "' AND '" + to + "' "
                     //finish him
                     + "GROUP BY Agreements.ID;";
-            
+
             queryResult = setQuerry.dbSetQuery(query);
 
             int lp = 0;
-            
+
             while (queryResult.next()) {
-                lp ++;
+                lp++;
                 Map<String, String> agreement = new HashMap<>();
                 agreement.put("L.p.", Integer.toString(lp));
                 agreement.put("Imię", queryResult.getString("Name"));
@@ -800,17 +801,17 @@ public class MainDBQuierues {
                 agreement.put("Kwota pożyczki", queryResult.getString("avalue"));
                 String desc = queryResult.getString("Model");
                 String Brand = queryResult.getString("Band");
-                if (! queryResult.wasNull()) {
+                if (!queryResult.wasNull()) {
                     desc = desc + '(' + Brand + ')';
                 }
                 agreement.put("Opis zastawu", desc);
                 float value = queryResult.getFloat("ivalue");
-                
+
                 agreement.put("Wartość zastawu", Float.toString(value));
                 agreement.put("Termin zwrotu", queryResult.getString("Stop_date"));
-                
+
                 ValueCalc rate = new ValueCalc();
-                agreement.put("Odsetki", Float.toString( rate.lombardRate(value) ));
+                agreement.put("Odsetki", Float.toString(rate.lombardRate(value)));
 
                 Settlements.add((HashMap<String, String>) agreement);
             }
@@ -859,4 +860,90 @@ public class MainDBQuierues {
         return paymentPorperies;
     }
 
+    public Map<String, String> getAgreementByID(String ID) {
+        Map<String, String> paymentPorperies = new HashMap<>();
+
+        try {
+            setQuerry = new QueryDB();
+            conDB = setQuerry.getConnDB();
+            stmt = conDB.createStatement();
+
+            queryResult = setQuerry.dbSetQuery("SELECT * FROM Agreements "
+                    + "WHERE ID_AGREEMENTS LIKE '" + ID + "';");
+
+            while (queryResult.next()) {
+                paymentPorperies.put("NR Umowy", queryResult.getString("ID_AGREEMENTS"));
+                paymentPorperies.put("Data rozpoczecia", new DateTools(queryResult.getString("START_DATE")).GetDateAsString());
+                paymentPorperies.put("Data zwrotu", new DateTools(queryResult.getString("STOP_DATE")).GetDateAsString());
+                paymentPorperies.put("Kwota", queryResult.getString("VALUE"));
+                paymentPorperies.put("Opłata magayznowania", queryResult.getString("SAVEPRICE"));
+                paymentPorperies.put("Opłata manipulacyjna", queryResult.getString("COMMISSION"));
+                paymentPorperies.put("Razem do zapłaty", queryResult.getString("VALUE_REST"));
+                paymentPorperies.put("Łączna waga", queryResult.getString("ITEM_WEIGHT"));
+                paymentPorperies.put("Łączna wartosc", queryResult.getString("ITEM_VALUE"));
+                paymentPorperies.put("CustID", queryResult.getString("ID_CUSTOMER"));
+                paymentPorperies.put("AgrID", queryResult.getString("ID"));
+            }
+            setQuerry.closeDB();
+        } catch (SQLException | ParseException ex) {
+            LombardiaLogger startLogging = new LombardiaLogger();
+            String text = startLogging.preparePattern("Error", ex.getMessage()
+                    + "\n" + Arrays.toString(ex.getStackTrace()));
+            startLogging.logToFile(text);
+        }
+
+        return paymentPorperies;
+    }
+
+    public List<HashMap<String, String>> getAgreementsAndCustomers() {
+        List<HashMap<String, String>> Settlements = new ArrayList<>();
+
+        try {
+            setQuerry = new QueryDB();
+            conDB = setQuerry.getConnDB();
+            stmt = conDB.createStatement();
+            
+            
+            queryResult = setQuerry.dbSetQuery("SELECT Customers.NAME AS NAME, "
+                    + "Customers.SURNAME AS SURNAME, Customers.ID AS CustomerID, "
+                    + "Agreements.ID_AGREEMENTS AS AGREEMENT_ID, Agreements.ID AS ID,"
+                    + " Agreements.STOP_DATE AS END_DATE"
+                    + " FROM Customers, Agreements WHERE Customers.ID = Agreements.ID_CUSTOMER ;");
+
+            while (queryResult.next()) {
+                Map<String, String> paymentPorperies = new HashMap<>();
+                paymentPorperies.put("NR Umowy", queryResult.getString("AGREEMENT_ID"));
+                paymentPorperies.put("Data zwrotu", new DateTools(queryResult.getString("END_DATE")).GetDateAsString());
+                paymentPorperies.put("Imie", queryResult.getString("NAME"));
+                paymentPorperies.put("Nazwisko", queryResult.getString("SURNAME"));
+                paymentPorperies.put("AgrID", queryResult.getString("ID"));
+                Settlements.add((HashMap<String, String>) paymentPorperies);
+            }
+            setQuerry.closeDB();
+        } catch (SQLException | ParseException ex) {
+            LombardiaLogger startLogging = new LombardiaLogger();
+            String text = startLogging.preparePattern("Error", ex.getMessage()
+                    + "\n" + Arrays.toString(ex.getStackTrace()));
+            startLogging.logToFile(text);
+        }
+
+        return Settlements;
+    }
+        
+
+    // delete agreement
+    public void deleteAgreement(String ID) {
+        try {
+            setQuerry = new QueryDB();
+            conDB = setQuerry.getConnDB();
+            stmt = conDB.createStatement();
+
+            queryResult = setQuerry.dbSetQuery("DELETE FROM Agreements WHERE "
+                    + "ID_AGREEMENTS LIKE '" + ID + "';");
+
+            setQuerry.closeDB();
+        } catch (SQLException ex) {
+            Logger.getLogger(ListUsers.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
 }
