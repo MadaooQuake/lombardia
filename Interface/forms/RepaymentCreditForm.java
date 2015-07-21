@@ -6,7 +6,6 @@
  */
 package lombardia2014.Interface.forms;
 
-import lombardia2014.dataBaseInterface.QueryDB;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -16,11 +15,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseEvent;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -34,7 +30,7 @@ import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
 import static lombardia2014.Interface.MainMMenu.money;
 import lombardia2014.core.SelfCalc;
-import lombardia2014.generators.LombardiaLogger;
+import lombardia2014.dataBaseInterface.MainDBQuierues;
 
 /**
  *
@@ -48,7 +44,7 @@ public class RepaymentCreditForm extends Forms {
     String customerSurname;
     String panelTitle = "Zwrot pozyczki";
     String tablePaneltitle = "Dane klienta";
-    int agreementIdent;
+    String agreementIdent;
     int selectRow = -1;
     JFrame repaymentFrame = new JFrame();
     JPanel tablePanel;
@@ -66,12 +62,9 @@ public class RepaymentCreditForm extends Forms {
     // Fields for searching
     JTextField agreementNumberfield = null;
     JTextField customerNamefield = null;
-    QueryDB setQuerry = null;
-    private ResultSet queryResult = null;
-    Connection conDB = null;
-    Statement stmt = null;
     int iClose = 0;
     double adRemValue = 0.0;
+    MainDBQuierues getQuery = new MainDBQuierues();
 
     @Override
     public void generatePanels(GridBagConstraints c) {
@@ -154,13 +147,14 @@ public class RepaymentCreditForm extends Forms {
         model.addColumn("Nazwisko");
         model.addColumn("Nr umowy");
         model.addColumn("Data zwrotu");
-        model.addTableModelListener(listItems);
+
         getAgreements();
 
         listItems.setAutoCreateRowSorter(true);
-        listItems.addMouseListener(new GetSelectRow());
         scrollPane = new JScrollPane(listItems);
         listItems.setFillsViewportHeight(true);
+        model.addTableModelListener(listItems);
+        listItems.addMouseListener(new GetSelectRow());
 
         c2.gridwidth = 3;
         c2.gridy = 4;
@@ -206,8 +200,7 @@ public class RepaymentCreditForm extends Forms {
         formFrame.setVisible(true);
 
     }
-    
-        
+
     public Double getAddRemoValue() {
         return adRemValue;
     }
@@ -216,71 +209,38 @@ public class RepaymentCreditForm extends Forms {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            try {
-
-                setQuerry = new QueryDB();
-                conDB = setQuerry.getConnDB();
-                stmt = conDB.createStatement();
-
-                //Data validation
-                if (!agreementNumberfield.getText().isEmpty()) {
-                    queryResult = setQuerry.dbSetQuery("SELECT Customers.NAME AS NAME, "
-                            + "Customers.SURNAME AS SURNAME, Customers.ID AS CustomerID, "
-                            + "Agreements.ID_AGREEMENTS AS AGREEMENT_ID, Agreements.ID AS ID,"
-                            + " Agreements.STOP_DATE AS END_DATE"
-                            + " FROM Customers, Agreements WHERE Customers.ID = Agreements.ID_CUSTOMER"
-                            + " AND Agreements.ID_AGREEMENTS Like '%" + agreementNumberfield.getText() + "%';");
-
-                    while (queryResult.next()) {
-
-                        agreementIdent = queryResult.getInt("ID");
-
-                        Object[] data = {
-                            queryResult.getString("NAME"),
-                            queryResult.getString("SURNAME"),
-                            queryResult.getString("AGREEMENT_ID"),
-                            queryResult.getString("END_DATE")
-                        };
-                        model.addRow(data);
-                    }
-
-                } else if (!customerNamefield.getText().isEmpty()) {
-
-                    String[] names = customerNamefield.getText().split(" \\\\s+ ");
-
-                    queryResult = setQuerry.dbSetQuery("SELECT Customers.NAME AS NAME, "
-                            + "Customers.SURNAME AS SURNAME, Customers.ID AS CustomerID, "
-                            + "Agreements.ID_AGREEMENTS AS AGREEMENT_ID, Agreements.ID AS ID,"
-                            + "Agreements.STOP_DATE AS END_DATE"
-                            + "FROM Customers, Agreements WHERE Customers.ID = Agreements.ID_CUSTOMER "
-                            + "AND Customers.Name LIKE '" + names[0] + "' AND "
-                            + "Customers.Surname LIKE '" + names[1] + "';");
-
-                    while (queryResult.next()) {
-
-                        agreementIdent = queryResult.getInt("ID");
-
-                        Object[] data = {queryResult.getString("NAME"),
-                            queryResult.getString("SURNAME"),
-                            queryResult.getString("AGREEMENT_ID"),
-                            queryResult.getString("END_DATE")};
-                        model.addRow(data);
-
-                    }
-
-                } else {
-                    JOptionPane.showMessageDialog(formFrame,
-                            "Wypełnij pole",
-                            "Błąd wyszukiwania",
-                            JOptionPane.ERROR_MESSAGE);
-                }
-
-            } catch (SQLException sqlE) {
-                LombardiaLogger startLogging = new LombardiaLogger();
-                String text = startLogging.preparePattern("Error", sqlE.getMessage()
-                        + "\n" + Arrays.toString(sqlE.getStackTrace()));
-                startLogging.logToFile(text);
+            List<HashMap<String, String>> Settlements = null;
+            model.removeTableModelListener(listItems);
+            if (model.getRowCount() > 0) {
+                model.setRowCount(0);
             }
+            if (!customerNamefield.getText().isEmpty()) {
+                String[] names = customerNamefield.getText().split(" \\\\s+ ");
+                Settlements = getQuery.searchAgrementByIDorCustomerName("", names[0], names[1]);
+                fillSearchEleents(Settlements);
+            } else if (!agreementNumberfield.getText().isEmpty()) {
+                Settlements = getQuery.searchAgrementByIDorCustomerName(agreementNumberfield.getText(), "", "");
+                fillSearchEleents(Settlements);
+            } else {
+                JOptionPane.showMessageDialog(formFrame,
+                        "Wypełnij pole",
+                        "Błąd wyszukiwania",
+                        JOptionPane.ERROR_MESSAGE);
+            }
+            model.addTableModelListener(listItems);
+        }
+
+    }
+
+    public void fillSearchEleents(List<HashMap<String, String>> settlements) {
+        for (HashMap<String, String> agrements : settlements) {
+            Object[] data = {
+                agrements.get("Imie"),
+                agrements.get("Nazwisko"),
+                agrements.get("NR Umowy"),
+                agrements.get("Data zwrotu"),};
+            model.addRow(data);
+            agreementIdent = agrements.get("AgrID");
         }
     }
 
@@ -298,58 +258,17 @@ public class RepaymentCreditForm extends Forms {
     }
 
     public void getAgreements() {
-        try {
-            setQuerry = new QueryDB();
-            conDB = setQuerry.getConnDB();
+        List<HashMap<String, String>> Settlements = getQuery.getAgreementsAndCustomers();
 
-            stmt = conDB.createStatement();
-
-            queryResult = setQuerry.dbSetQuery("SELECT Customers.NAME AS NAME, "
-                    + "Customers.SURNAME AS SURNAME, Customers.ID AS CustomerID, "
-                    + "Agreements.ID_AGREEMENTS AS AGREEMENT_ID, Agreements.ID AS ID,"
-                    + " Agreements.STOP_DATE AS END_DATE"
-                    + " FROM Customers, Agreements WHERE Customers.ID = Agreements.ID_CUSTOMER ;");
-
-            while (queryResult.next()) {
-
-                Object[] data = {queryResult.getString("NAME"),
-                    queryResult.getString("SURNAME"),
-                    queryResult.getString("AGREEMENT_ID"),
-                    queryResult.getString("END_DATE")};
-                model.addRow(data);
-                agreementIdent = queryResult.getInt("ID");
-
-            }
-
-        } catch (SQLException ex) {
-            LombardiaLogger startLogging = new LombardiaLogger();
-            String text = startLogging.preparePattern("Error", ex.getMessage()
-                    + "\n" + Arrays.toString(ex.getStackTrace()));
-            startLogging.logToFile(text);
-        }
+        fillSearchEleents(Settlements);
     }
 
-    public void deleteAgreement(int agreementIdent) {
-        try {
-            setQuerry = new QueryDB();
-            conDB = setQuerry.getConnDB();
+    public void deleteAgreement() {
+        getQuery.removeItems(agreementIdent);
 
-            stmt = conDB.createStatement();
-
-            queryResult = setQuerry.dbSetQuery("DELETE FROM Items WHERE "
-                    + "ID_AGREEMENT =" + agreementIdent + ";");
-
-            queryResult = setQuerry.dbSetQuery("DELETE FROM Agreements WHERE"
-                    + " ID =" + agreementIdent + ";");
-            setQuerry.closeDB();
-
-        } catch (SQLException ex) {
-            LombardiaLogger startLogging = new LombardiaLogger();
-            String text = startLogging.preparePattern("Error", ex.getMessage()
-                    + "\n" + Arrays.toString(ex.getStackTrace()));
-            startLogging.logToFile(text);
-        }
-
+       // add flag in table
+//            queryResult = setQuerry.dbSetQuery("DELETE FROM Agreements WHERE"
+//                    + " ID_AGREEMENTS =" + agreementIdent + ";");
     }
 
     private class BlockInputField implements MouseListener {
@@ -424,44 +343,26 @@ public class RepaymentCreditForm extends Forms {
         public void mouseClicked(java.awt.event.MouseEvent e) {
             JTable table = (JTable) e.getSource();
             Point p = e.getPoint();
-
             if (e.getClickCount() == 2) {
                 selectRow = table.getSelectedRow();
                 int row = table.rowAtPoint(p);
+                agreementIdent = (String) listItems.getModel().getValueAt(
+                        listItems.convertRowIndexToView(selectRow), 2);
                 int decision = JOptionPane.showConfirmDialog(formFrame,
                         "Czy aby napewno ta pozyczka została ukonczona ?",
                         "Ostrzeżenie ",
                         JOptionPane.YES_NO_OPTION);
                 if (decision == JOptionPane.YES_OPTION) {
-                    try {
-                        String agreementValue = null;
-                        setQuerry = new QueryDB();
-                        conDB = setQuerry.getConnDB();
+                    String agreementValue = getQuery.selectRestValue(agreementIdent);
 
-                        stmt = conDB.createStatement();
-                        queryResult = setQuerry.dbSetQuery("SELECT VALUE_REST FROM Agreements"
-                                + " WHERE ID = " + agreementIdent + ";");
-
-                        while (queryResult.next()) {
-                            agreementValue = queryResult.getString("VALUE_REST");
-                        }
-
-                        SelfCalc actualCalc = new SelfCalc();
-                        actualCalc.chackValue(formFrame);
-                        actualCalc.addToSelf(Float.parseFloat(agreementValue));
-                        adRemValue = Double.parseDouble(agreementValue);
-                        money.setText(actualCalc.getValue() + " zł");
-                        deleteAgreement(agreementIdent);
-                        formFrame.dispose();
-                        setQuerry.closeDB();
-                        iClose = 1;
-                    } catch (SQLException ex) {
-                        LombardiaLogger startLogging = new LombardiaLogger();
-                        String text = startLogging.preparePattern("Error", ex.getMessage()
-                                + "\n" + Arrays.toString(ex.getStackTrace()));
-                        startLogging.logToFile(text);
-                    }
-
+                    SelfCalc actualCalc = new SelfCalc();
+                    actualCalc.chackValue(formFrame);
+                    actualCalc.addToSelf(Float.parseFloat(agreementValue));
+                    adRemValue = Double.parseDouble(agreementValue);
+                    money.setText(actualCalc.getValue() + " zł");
+                    deleteAgreement();
+                    formFrame.dispose();
+                    iClose = 1;
                 }
             }
 

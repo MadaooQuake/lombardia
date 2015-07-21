@@ -56,12 +56,6 @@ public class LateClientsForm extends Forms {
     JButton cancel, solve = null;
     MainDBQuierues getQuery = new MainDBQuierues();
 
-    //Database
-    QueryDB setQuerry = null;
-    private ResultSet queryResult = null;
-    Connection conDB = null;
-    Statement stmt = null;
-
     //Converting current date
     SimpleDateFormat ft = new SimpleDateFormat("dd.MM.YYYY HH:mm");
     Date now = new Date();

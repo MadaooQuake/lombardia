@@ -646,6 +646,21 @@ public class MainDBQuierues {
             Logger.getLogger(ListUsers.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
+    
+    public void removeItems(String aggID) {
+        try {
+            setQuerry = new QueryDB();
+            conDB = setQuerry.getConnDB();
+            stmt = conDB.createStatement();
+
+            queryResult = setQuerry.dbSetQuery("DELETE FROM Items WHERE "
+                    + "ID_AGREEMENT ='" + aggID + "';");
+
+            setQuerry.closeDB();
+        } catch (SQLException ex) {
+            Logger.getLogger(ListUsers.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
 
     // 
     //==========================================================================
@@ -672,6 +687,30 @@ public class MainDBQuierues {
         }
 
         return maxID;
+    }
+    
+        public String selectRestValue(String aggID) {
+        String value = null;
+        try {
+            setQuerry = new QueryDB();
+            conDB = setQuerry.getConnDB();
+            stmt = conDB.createStatement();
+
+            queryResult = setQuerry.dbSetQuery("SELECT VALUE_REST, ID_AGREEMENTS FROM Agreements"
+                                + " WHERE ID_AGREEMENTS LIKE '" + aggID + "';");
+
+            while (queryResult.next()) {
+                value = queryResult.getString("VALUE_REST");
+            }
+            setQuerry.closeDB();
+        } catch (SQLException ex) {
+            LombardiaLogger startLogging = new LombardiaLogger();
+            String text = startLogging.preparePattern("Error", ex.getMessage()
+                    + "\n" + Arrays.toString(ex.getStackTrace()));
+            startLogging.logToFile(text);
+        }
+
+        return value;
     }
 
     public void saveAgreements(String idAgreements, Date startDate, Date stopDate,
@@ -767,7 +806,6 @@ public class MainDBQuierues {
     }
 
     //get all settlements
-
     public List<HashMap<String, String>> getSettlementsFromDateRange(String from, String to) {
         List<HashMap<String, String>> Settlements = new ArrayList<>();
         try {
@@ -902,8 +940,7 @@ public class MainDBQuierues {
             setQuerry = new QueryDB();
             conDB = setQuerry.getConnDB();
             stmt = conDB.createStatement();
-            
-            
+
             queryResult = setQuerry.dbSetQuery("SELECT Customers.NAME AS NAME, "
                     + "Customers.SURNAME AS SURNAME, Customers.ID AS CustomerID, "
                     + "Agreements.ID_AGREEMENTS AS AGREEMENT_ID, Agreements.ID AS ID,"
@@ -929,7 +966,48 @@ public class MainDBQuierues {
 
         return Settlements;
     }
-        
+
+    //search agreements by id, user name or surename :)
+    public List<HashMap<String, String>> searchAgrementByIDorCustomerName(String aggID, String name, String surname) {
+        List<HashMap<String, String>> Settlements = new ArrayList<>();
+        try {
+            setQuerry = new QueryDB();
+            conDB = setQuerry.getConnDB();
+            stmt = conDB.createStatement();
+            
+            String query = "SELECT Customers.NAME AS NAME, "
+                            + "Customers.SURNAME AS SURNAME, Customers.ID AS CustomerID, "
+                            + "Agreements.ID_AGREEMENTS AS AGREEMENT_ID, Agreements.ID AS ID,"
+                            + " Agreements.STOP_DATE AS END_DATE"
+                            + " FROM Customers, Agreements WHERE Customers.ID = Agreements.ID_CUSTOMER";
+            
+            if(!aggID.isEmpty()) {
+                query += " AND Agreements.ID_AGREEMENTS Like '%" + aggID + "%';";
+            } else {
+                query +=  "AND Customers.Name LIKE '" + name + "' AND "
+                            + "Customers.Surname LIKE '" + surname + "';";
+            }
+            queryResult = setQuerry.dbSetQuery(query);
+
+            while (queryResult.next()) {
+                Map<String, String> paymentPorperies = new HashMap<>();
+                paymentPorperies.put("NR Umowy", queryResult.getString("AGREEMENT_ID"));
+                paymentPorperies.put("Data zwrotu", new DateTools(queryResult.getString("END_DATE")).GetDateAsString());
+                paymentPorperies.put("Imie", queryResult.getString("NAME"));
+                paymentPorperies.put("Nazwisko", queryResult.getString("SURNAME"));
+                paymentPorperies.put("AgrID", queryResult.getString("ID"));
+                Settlements.add((HashMap<String, String>) paymentPorperies);
+            }
+            setQuerry.closeDB();
+        } catch (SQLException | ParseException ex) {
+            LombardiaLogger startLogging = new LombardiaLogger();
+            String text = startLogging.preparePattern("Error", ex.getMessage()
+                    + "\n" + Arrays.toString(ex.getStackTrace()));
+            startLogging.logToFile(text);
+        }
+
+        return Settlements;
+    }
 
     // delete agreement
     public void deleteAgreement(String ID) {

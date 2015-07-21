@@ -1,19 +1,13 @@
 package lombardia2014.Interface.forms;
 
-import lombardia2014.dataBaseInterface.QueryDB;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseEvent;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -65,10 +59,6 @@ public class ProlongationForm extends Forms {
     int selectRow = -1;
 
     //Database variables
-    QueryDB setQuerry = null;
-    private ResultSet queryResult = null;
-    Connection conDB = null;
-    Statement stmt = null;
     int iClose = 0;
     //creditForm object
     CreditForm newCredit = null;
