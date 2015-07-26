@@ -14,11 +14,14 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.geom.AffineTransform;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.swing.BorderFactory;
@@ -31,6 +34,7 @@ import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
+import lombardia2014.dataBaseInterface.UserDB;
 import lombardia2014.generators.LombardiaLogger;
 
 /**
@@ -53,6 +57,8 @@ public class AddUser extends MenuElementsList {
     Statement stmt = null;
     boolean status = false, edit = false;
     int idUser = -1;
+    UserDB queryUser = new UserDB();
+    Map<String, Integer> auth = queryUser.allAuth();
 
     public AddUser() {
     }
@@ -313,48 +319,31 @@ public class AddUser extends MenuElementsList {
     public boolean addUsertoDB() {
         boolean[] valUser = new boolean[6];
         int IDPosition = 0;
-        try {
 
-            // validation options :D
-            // check name
-            String pattString = "[a-zA-Z-zżźćńółęąśŻŹĆĄŚĘŁÓŃ]{3,20}";
-            valUser[0] = checkValue("Imię", pattString, 0);
-            // check surename
-            valUser[1] = checkValue("Nazwisko", pattString, 1);
-            // check phone
-            pattString = "[0-9]{9}";
-            valUser[2] = checkValue("Telefon", pattString, 3);
-            // select DB
-            valUser[3] = isNotNull("Adres", 2);
-            valUser[4] = isNotNull("Login", 4);
-            valUser[5] = isNotNull("Hasło", 5);
-            setQuerry = new QueryDB();
-            conDB = setQuerry.getConnDB();
+        // validation options :D
+        // check name
+        String pattString = "[a-zA-Z-zżźćńółęąśŻŹĆĄŚĘŁÓŃ]{3,20}";
+        valUser[0] = checkValue("Imię", pattString, 0);
+        // check surename
+        valUser[1] = checkValue("Nazwisko", pattString, 1);
+        // check phone
+        pattString = "[0-9]{9}";
+        valUser[2] = checkValue("Telefon", pattString, 3);
+        // select DB
+        valUser[3] = isNotNull("Adres", 2);
+        valUser[4] = isNotNull("Login", 4);
+        valUser[5] = isNotNull("Hasło", 5);
 
-            stmt = conDB.createStatement();
-            queryResult = setQuerry.dbSetQuery("SELECT ID FROM Auth WHERE NAME like '"
-                    + position.getSelectedItem().toString() + "';");
-            while (queryResult.next()) {
-                IDPosition = queryResult.getInt("ID");
-            }
+        IDPosition = auth.get(position.getSelectedItem().toString());
 
-            // now I add new user to DB
-            if (valUser[0] && valUser[1] && valUser[2] && valUser[3]
-                    && valUser[4] && valUser[5]) {
-                queryResult = setQuerry.dbSetQuery("INSERT INTO Users (NAME, SURNAME,"
-                        + " ADDRESS, PHONE, LOGIN, PASSWORD, ID_auth) VALUES"
-                        + "('" + dataFields[0].getText() + "','" + dataFields[1].getText()
-                        + "','" + dataFields[2].getText() + "','" + dataFields[3].getText()
-                        + "','" + dataFields[4].getText() + "','" + dataFields[5].getText()
-                        + "'," + IDPosition + ");");
-                status = true;
-            }
-        } catch (SQLException ex) {
-            LombardiaLogger startLogging = new LombardiaLogger();
-            String text = startLogging.preparePattern("Error", ex.getMessage()
-                    + "\n" + Arrays.toString(ex.getStackTrace()));
-            startLogging.logToFile(text);
+        // now I add new user to DB
+        if (valUser[0] && valUser[1] && valUser[2] && valUser[3]
+                && valUser[4] && valUser[5]) {
+            queryUser.addUser(dataFields[0].getText(), dataFields[1].getText(), dataFields[2].getText(),
+                    dataFields[3].getText(), dataFields[4].getText(), dataFields[4].getText(), IDPosition);
+            status = true;
         }
+
         return valUser[0] && valUser[1] && valUser[2] && valUser[3]
                 && valUser[4] && valUser[5];
     }
@@ -403,31 +392,13 @@ public class AddUser extends MenuElementsList {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            try {
-                int IDPosition = 0;
-                setQuerry = new QueryDB();
-                conDB = setQuerry.getConnDB();
 
-                stmt = conDB.createStatement();
-                stmt = conDB.createStatement();
-                queryResult = setQuerry.dbSetQuery("SELECT ID FROM Auth WHERE NAME like '"
-                        + position.getSelectedItem().toString() + "';");
-                while (queryResult.next()) {
-                    IDPosition = queryResult.getInt("ID");
-                }
-                queryResult = setQuerry.dbSetQuery("UPDATE Users SET ID_auth = "
-                        + IDPosition + " WHERE ID = " + idUser + ";");
+            int IDPosition = auth.get(position.getSelectedItem().toString());
 
-                setQuerry.closeDB();
-                status = true;
-                formFrame.dispose();
+            queryUser.updateUserPosition(IDPosition, idUser);
 
-            } catch (SQLException ex) {
-                LombardiaLogger startLogging = new LombardiaLogger();
-                String text = startLogging.preparePattern("Error", ex.getMessage()
-                        + "\n" + Arrays.toString(ex.getStackTrace()));
-                startLogging.logToFile(text);
-            }
+            status = true;
+            formFrame.dispose();
         }
 
     }
