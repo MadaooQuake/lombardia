@@ -19,8 +19,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Arrays;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -31,6 +29,7 @@ import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import javax.swing.border.TitledBorder;
+import lombardia2014.dataBaseInterface.UserDB;
 import lombardia2014.generators.LombardiaLogger;
 
 /**
@@ -52,6 +51,7 @@ public class ChangePassword extends MenuElementsList {
     Statement stmt = null;
     boolean status = false;
     int user = 0;
+    UserDB queryUser = new UserDB();
 
     ChangePassword(int usserID) {
         user = usserID;
@@ -156,32 +156,19 @@ public class ChangePassword extends MenuElementsList {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            try {
-                setQuerry = new QueryDB();
-                conDB = setQuerry.getConnDB();
+            if (dataFields[0].getText().isEmpty()) {
+                JOptionPane.showMessageDialog(formFrame,
+                        "Pole jest puste",
+                        "Zmieniono hasło!",
+                        JOptionPane.ERROR_MESSAGE);
+            } else {
+                queryUser.changePassword(dataFields[0].getText(), user);
 
-                stmt = conDB.createStatement();
-                if (dataFields[0].getText().isEmpty()) {
-                    JOptionPane.showMessageDialog(formFrame,
-                            "Pole jest puste",
-                            "Zmieniono hasło!",
-                            JOptionPane.ERROR_MESSAGE);
-                } else {
-                    queryResult = setQuerry.dbSetQuery("UPDATE Users SET "
-                            + "PASSWORD = '" + dataFields[0].getText()
-                            + "' WHERE ID =" + user + ";");
-
-                    JOptionPane.showMessageDialog(formFrame,
-                            "Hasło zostało zmienione",
-                            "Zmieniono hasło!",
-                            JOptionPane.INFORMATION_MESSAGE);
-                    formFrame.dispose();
-                }
-            } catch (SQLException ex) {
-                LombardiaLogger startLogging = new LombardiaLogger();
-                String text = startLogging.preparePattern("Error", ex.getMessage()
-                        + "\n" + Arrays.toString(ex.getStackTrace()));
-                startLogging.logToFile(text);
+                JOptionPane.showMessageDialog(formFrame,
+                        "Hasło zostało zmienione",
+                        "Zmieniono hasło!",
+                        JOptionPane.INFORMATION_MESSAGE);
+                formFrame.dispose();
             }
         }
 

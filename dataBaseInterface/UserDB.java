@@ -86,4 +86,21 @@ public class UserDB {
         }
     }
 
+    //change password
+    public void changePassword(String password, int idUser) {
+        try {
+            setQuerry = new QueryDB();
+            conDB = setQuerry.getConnDB();
+            stmt = conDB.createStatement();
+
+            queryResult = setQuerry.dbSetQuery("UPDATE Users SET "
+                    + "PASSWORD = '" + password
+                    + "' WHERE ID =" + idUser + ";");
+            
+            setQuerry.closeDB();
+        } catch (SQLException ex) {
+            Logger.getLogger(ListUsers.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
 }
