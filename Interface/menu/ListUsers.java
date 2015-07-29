@@ -19,7 +19,10 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.BorderFactory;
@@ -32,6 +35,7 @@ import javax.swing.JTable;
 import javax.swing.SwingWorker;
 import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
+import lombardia2014.dataBaseInterface.UserDB;
 import lombardia2014.generators.LombardiaLogger;
 
 /**
@@ -58,6 +62,7 @@ public final class ListUsers extends MenuElementsList {
     ChangePassword newPassword = null;
     SwingWorker worker = null;
     boolean priv = false;
+    UserDB userQuery = new UserDB();
 
     public ListUsers(boolean priv_) {
         priv = priv_;
@@ -201,29 +206,16 @@ public final class ListUsers extends MenuElementsList {
 
     // get users list from database
     public void getUsers() {
-        try {
-            setQuerry = new QueryDB();
-            conDB = setQuerry.getConnDB();
+        List<HashMap<String, String>> users = userQuery.getAllUsers();
 
-            stmt = conDB.createStatement();
+        for (HashMap<String, String> user : users) {
+            Object[] data = {user.get("NAME"),
+                user.get("SURNAME"),
+                user.get("POSITION")};
+            model.addRow(data);
 
-            queryResult = setQuerry.dbSetQuery("SELECT Users.NAME AS NAME, Users.SURNAME AS SURNAME, "
-                    + "Auth.NAME AS POSITION FROM Users,Auth"
-                    + " WHERE Users.ID_auth = Auth.ID;");
-
-            while (queryResult.next()) {
-                Object[] data = {queryResult.getString("NAME"),
-                    queryResult.getString("SURNAME"),
-                    queryResult.getString("POSITION")};
-                model.addRow(data);
-            }
-
-        } catch (SQLException ex) {
-            LombardiaLogger startLogging = new LombardiaLogger();
-            String text = startLogging.preparePattern("Error", ex.getMessage()
-                    + "\n" + Arrays.toString(ex.getStackTrace()));
-            startLogging.logToFile(text);
         }
+
     }
 
     // actions for selected elements in table
@@ -284,31 +276,18 @@ public final class ListUsers extends MenuElementsList {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            try {
-                if (selectRow >= 0) {
-                    int idUser = -1;
-                    setQuerry = new QueryDB();
-                    conDB = setQuerry.getConnDB();
+            if (selectRow >= 0) {
 
-                    stmt = conDB.createStatement();
-                    queryResult = setQuerry.dbSetQuery("SELECT ID FROM Users WHERE NAME LIKE '"
-                            + (String) model.getValueAt(selectRow, 0)
-                            + "' and SURNAME LIKE '" + (String) model.getValueAt(selectRow, 1) + "';");
+                int idUser = userQuery.getIDUser((String) model.getValueAt(selectRow, 0), (String) model.getValueAt(selectRow, 1));
 
-                    while (queryResult.next()) {
-                        idUser = queryResult.getInt("ID");
-                    }
-                    newPassword = new ChangePassword(idUser);
-                    newPassword.generateGui();
-                    setQuerry.closeDB();
-                } else {
-                    JOptionPane.showMessageDialog(formFrame,
-                            "Nie wybrano użytkownika",
-                            "Nierawidłowa akcja!",
-                            JOptionPane.ERROR_MESSAGE);
-                }
-            } catch (SQLException ex) {
-                Logger.getLogger(ListUsers.class.getName()).log(Level.SEVERE, null, ex);
+                newPassword = new ChangePassword(idUser);
+                newPassword.generateGui();
+                selectRow = -1;
+            } else {
+                JOptionPane.showMessageDialog(formFrame,
+                        "Nie wybrano użytkownika",
+                        "Nierawidłowa akcja!",
+                        JOptionPane.ERROR_MESSAGE);
             }
         }
 
@@ -318,34 +297,23 @@ public final class ListUsers extends MenuElementsList {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            try {
-                String userPosition = (String) model.getValueAt(selectRow, 2);
-                if (userPosition.equals("Administrator")) {
-                    JOptionPane.showMessageDialog(formFrame,
-                            "Adimnstratora nie można usunąć",
-                            "Nierawidłowa akcja!",
-                            JOptionPane.ERROR_MESSAGE);
-                } else {
-                    int selectedOption = JOptionPane.showConfirmDialog(formFrame,
-                            "Czy na pewno cheszu usunąć tego użytkownika ?",
-                            "uwaga unuwanie!",
-                            JOptionPane.YES_NO_OPTION);
-                    if (selectedOption == JOptionPane.YES_OPTION) {
-                        // delete user
-                        setQuerry = new QueryDB();
-                        conDB = setQuerry.getConnDB();
+            String userPosition = (String) model.getValueAt(selectRow, 2);
+            if (userPosition.equals("Administrator")) {
+                JOptionPane.showMessageDialog(formFrame,
+                        "Adimnstratora nie można usunąć",
+                        "Nierawidłowa akcja!",
+                        JOptionPane.ERROR_MESSAGE);
+            } else {
+                int selectedOption = JOptionPane.showConfirmDialog(formFrame,
+                        "Czy na pewno cheszu usunąć tego użytkownika ?",
+                        "uwaga unuwanie!",
+                        JOptionPane.YES_NO_OPTION);
+                if (selectedOption == JOptionPane.YES_OPTION) {
 
-                        stmt = conDB.createStatement();
-
-                        setQuerry.dbSetQuery("DELETE FROM Users WHERE NAME LIKE '"
-                                + (String) model.getValueAt(selectRow, 0)
-                                + "' and SURNAME LIKE '" + (String) model.getValueAt(selectRow, 1) + "';");
-                        model.removeRow(selectRow);
-                    }
+                    userQuery.deleteUser((String) model.getValueAt(selectRow, 0), (String) model.getValueAt(selectRow, 1));
                 }
-            } catch (SQLException ex) {
-                Logger.getLogger(ListUsers.class.getName()).log(Level.SEVERE, null, ex);
             }
+
         }
 
     }
@@ -354,49 +322,34 @@ public final class ListUsers extends MenuElementsList {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            try {
-                String userPosition = (String) model.getValueAt(selectRow, 2);
-                if ((selectRow >= 0) && (!userPosition.equals("Administrator"))) {
+            String userPosition = (String) model.getValueAt(selectRow, 2);
+            if ((selectRow >= 0) && (!userPosition.equals("Administrator"))) {
 
-                    int idUser = -1;
-                    setQuerry = new QueryDB();
-                    conDB = setQuerry.getConnDB();
+                int idUser = userQuery.getIDUser((String) model.getValueAt(selectRow, 0), (String) model.getValueAt(selectRow, 1));
+               
+                newUser = new AddUser(true, idUser);
+                newUser.generateGui();
+                worker = new SwingWorker() {
 
-                    stmt = conDB.createStatement();
-                    queryResult = setQuerry.dbSetQuery("SELECT ID FROM Users WHERE NAME LIKE '"
-                            + (String) model.getValueAt(selectRow, 0)
-                            + "' and SURNAME LIKE '" + (String) model.getValueAt(selectRow, 1) + "';");
-
-                    while (queryResult.next()) {
-                        idUser = queryResult.getInt("ID");
-                    }
-
-                    newUser = new AddUser(true, idUser);
-                    newUser.generateGui();
-                    worker = new SwingWorker() {
-
-                        @Override
-                        protected Object doInBackground() throws Exception {
-                            while (newUser.getStatusNewUser() == false) {
-                                Thread.sleep(300);
-                            }
-                            model.setRowCount(0);
-                            getUsers();
-                            repaint();
-
-                            return null;
+                    @Override
+                    protected Object doInBackground() throws Exception {
+                        while (newUser.getStatusNewUser() == false) {
+                            Thread.sleep(300);
                         }
-                    };
-                    worker.execute();
-                } else {
-                    JOptionPane.showMessageDialog(formFrame,
-                            "Nie wybrano użytkownika lub "
-                            + "tego użytkownika nie można edytować",
-                            "Nierawidłowa akcja!",
-                            JOptionPane.ERROR_MESSAGE);
-                }
-            } catch (SQLException ex) {
-                Logger.getLogger(ListUsers.class.getName()).log(Level.SEVERE, null, ex);
+                        model.setRowCount(0);
+                        getUsers();
+                        repaint();
+
+                        return null;
+                    }
+                };
+                worker.execute();
+            } else {
+                JOptionPane.showMessageDialog(formFrame,
+                        "Nie wybrano użytkownika lub "
+                        + "tego użytkownika nie można edytować",
+                        "Nierawidłowa akcja!",
+                        JOptionPane.ERROR_MESSAGE);
             }
         }
 

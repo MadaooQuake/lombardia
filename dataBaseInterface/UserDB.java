@@ -9,7 +9,9 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -96,11 +98,83 @@ public class UserDB {
             queryResult = setQuerry.dbSetQuery("UPDATE Users SET "
                     + "PASSWORD = '" + password
                     + "' WHERE ID =" + idUser + ";");
-            
+
             setQuerry.closeDB();
         } catch (SQLException ex) {
             Logger.getLogger(ListUsers.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
+    //get all users
+    public List<HashMap<String, String>> getAllUsers() {
+        List<HashMap<String, String>> users = new ArrayList();
+
+        try {
+            setQuerry = new QueryDB();
+            conDB = setQuerry.getConnDB();
+            stmt = conDB.createStatement();
+
+            queryResult = setQuerry.dbSetQuery("SELECT Users.NAME AS NAME, Users.SURNAME AS SURNAME, "
+                    + "Auth.NAME AS POSITION FROM Users,Auth"
+                    + " WHERE Users.ID_auth = Auth.ID;");
+
+            while (queryResult.next()) {
+                Map<String, String> user = new HashMap<>();
+
+                user.put("NAME", queryResult.getString("NAME"));
+                user.put("SURNAME", queryResult.getString("SURNAME"));
+                user.put("POSITION", queryResult.getString("POSITION"));
+                users.add((HashMap<String, String>) user);
+            }
+
+            setQuerry.closeDB();
+        } catch (SQLException ex) {
+            Logger.getLogger(ListUsers.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        return users;
+    }
+
+    //get user id
+    public Integer getIDUser(String Name, String Surename) {
+        int id = 0;
+
+        try {
+            setQuerry = new QueryDB();
+            conDB = setQuerry.getConnDB();
+            stmt = conDB.createStatement();
+
+            setQuerry.dbSetQuery("SELECT * FROM Users WHERE NAME LIKE '"
+                    + Name
+                    + "' and SURNAME LIKE '" + Surename + "';");
+
+            while (queryResult.next()) {
+                id = queryResult.getInt("ID");
+            }
+
+            setQuerry.closeDB();
+        } catch (SQLException ex) {
+            Logger.getLogger(ListUsers.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        return id;
+    }
+
+    public void deleteUser(String Name, String Surename) {
+        try {
+            setQuerry = new QueryDB();
+            conDB = setQuerry.getConnDB();
+            stmt = conDB.createStatement();
+
+            setQuerry.dbSetQuery("DELETE FROM Users WHERE NAME LIKE '"
+                    + Name
+                    + "' and SURNAME LIKE '" + Surename + "';");
+
+            setQuerry.closeDB();
+        } catch (SQLException ex) {
+            Logger.getLogger(ListUsers.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    //delete user
 }
