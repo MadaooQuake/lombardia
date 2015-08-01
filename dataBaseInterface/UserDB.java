@@ -144,11 +144,12 @@ public class UserDB {
             conDB = setQuerry.getConnDB();
             stmt = conDB.createStatement();
 
-            setQuerry.dbSetQuery("SELECT * FROM Users WHERE NAME LIKE '"
+            queryResult = setQuerry.dbSetQuery("SELECT * FROM Users WHERE NAME LIKE '"
                     + Name
                     + "' and SURNAME LIKE '" + Surename + "';");
 
             while (queryResult.next()) {
+                System.out.println(queryResult.getInt("ID"));
                 id = queryResult.getInt("ID");
             }
 
