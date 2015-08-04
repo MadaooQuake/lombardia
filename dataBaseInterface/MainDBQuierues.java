@@ -16,9 +16,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import lombardia2014.Interface.menu.ListUsers;
 import lombardia2014.generators.DateTools;
 import lombardia2014.generators.LombardiaLogger;
 import lombardia2014.core.ValueCalc;
@@ -53,7 +50,10 @@ public class MainDBQuierues {
 
             setQuerry.closeDB();
         } catch (SQLException ex) {
-            Logger.getLogger(ListUsers.class.getName()).log(Level.SEVERE, null, ex);
+            LombardiaLogger startLogging = new LombardiaLogger();
+            String text = startLogging.preparePattern("Error", ex.getMessage()
+                    + "\n" + Arrays.toString(ex.getStackTrace()));
+            startLogging.logToFile(text);
         }
 
     }
@@ -77,7 +77,10 @@ public class MainDBQuierues {
 
             //addToDictionary("bye");//adds a single word
         } catch (SQLException ex) {
-            Logger.getLogger(ListUsers.class.getName()).log(Level.SEVERE, null, ex);
+            LombardiaLogger startLogging = new LombardiaLogger();
+            String text = startLogging.preparePattern("Error", ex.getMessage()
+                    + "\n" + Arrays.toString(ex.getStackTrace()));
+            startLogging.logToFile(text);
         }
 
         return words;
@@ -225,7 +228,10 @@ public class MainDBQuierues {
 
             //addToDictionary("bye");//adds a single word
         } catch (SQLException ex) {
-            Logger.getLogger(ListUsers.class.getName()).log(Level.SEVERE, null, ex);
+            LombardiaLogger startLogging = new LombardiaLogger();
+            String text = startLogging.preparePattern("Error", ex.getMessage()
+                    + "\n" + Arrays.toString(ex.getStackTrace()));
+            startLogging.logToFile(text);
         }
 
         return allItems;
@@ -273,7 +279,10 @@ public class MainDBQuierues {
 
             //addToDictionary("bye");//adds a single word
         } catch (SQLException ex) {
-            Logger.getLogger(ListUsers.class.getName()).log(Level.SEVERE, null, ex);
+            LombardiaLogger startLogging = new LombardiaLogger();
+            String textE = startLogging.preparePattern("Error", ex.getMessage()
+                    + "\n" + Arrays.toString(ex.getStackTrace()));
+            startLogging.logToFile(textE);
         }
 
         return allItems;
@@ -299,7 +308,10 @@ public class MainDBQuierues {
             }
             setQuerry.closeDB();
         } catch (SQLException ex) {
-            Logger.getLogger(ListUsers.class.getName()).log(Level.SEVERE, null, ex);
+            LombardiaLogger startLogging = new LombardiaLogger();
+            String text = startLogging.preparePattern("Error", ex.getMessage()
+                    + "\n" + Arrays.toString(ex.getStackTrace()));
+            startLogging.logToFile(text);
         }
         return item;
     }
@@ -314,7 +326,10 @@ public class MainDBQuierues {
 
             setQuerry.closeDB();
         } catch (SQLException ex) {
-            Logger.getLogger(ListUsers.class.getName()).log(Level.SEVERE, null, ex);
+            LombardiaLogger startLogging = new LombardiaLogger();
+            String text = startLogging.preparePattern("Error", ex.getMessage()
+                    + "\n" + Arrays.toString(ex.getStackTrace()));
+            startLogging.logToFile(text);
         }
     }
 
@@ -334,14 +349,17 @@ public class MainDBQuierues {
                     + " FROM Customers;");
 
             while (queryResult.next()) {
-                words.add(queryResult.getString("NAME") + " "
-                        + queryResult.getString("SURNAME"));
+                words.add(queryResult.getString("SURNAME") + " "
+                        + queryResult.getString("NAME"));
             }
             setQuerry.closeDB();
 
             //addToDictionary("bye");//adds a single word
         } catch (SQLException ex) {
-            Logger.getLogger(ListUsers.class.getName()).log(Level.SEVERE, null, ex);
+            LombardiaLogger startLogging = new LombardiaLogger();
+            String text = startLogging.preparePattern("Error", ex.getMessage()
+                    + "\n" + Arrays.toString(ex.getStackTrace()));
+            startLogging.logToFile(text);
         }
 
         return words;
@@ -374,7 +392,10 @@ public class MainDBQuierues {
 
             //addToDictionary("bye");//adds a single word
         } catch (SQLException ex) {
-            Logger.getLogger(ListUsers.class.getName()).log(Level.SEVERE, null, ex);
+            LombardiaLogger startLogging = new LombardiaLogger();
+            String text = startLogging.preparePattern("Error", ex.getMessage()
+                    + "\n" + Arrays.toString(ex.getStackTrace()));
+            startLogging.logToFile(text);
         }
 
         return user;
@@ -404,7 +425,10 @@ public class MainDBQuierues {
 
             //addToDictionary("bye");//adds a single word
         } catch (SQLException ex) {
-            Logger.getLogger(ListUsers.class.getName()).log(Level.SEVERE, null, ex);
+            LombardiaLogger startLogging = new LombardiaLogger();
+            String text = startLogging.preparePattern("Error", ex.getMessage()
+                    + "\n" + Arrays.toString(ex.getStackTrace()));
+            startLogging.logToFile(text);
         }
 
         return user;
@@ -431,7 +455,10 @@ public class MainDBQuierues {
             setQuerry.closeDB();
 
         } catch (SQLException ex) {
-            Logger.getLogger(ListUsers.class.getName()).log(Level.SEVERE, null, ex);
+            LombardiaLogger startLogging = new LombardiaLogger();
+            String text = startLogging.preparePattern("Error", ex.getMessage()
+                    + "\n" + Arrays.toString(ex.getStackTrace()));
+            startLogging.logToFile(text);
         }
 
         return customer == 0;
@@ -458,7 +485,10 @@ public class MainDBQuierues {
             setQuerry.closeDB();
 
         } catch (SQLException ex) {
-            Logger.getLogger(ListUsers.class.getName()).log(Level.SEVERE, null, ex);
+            LombardiaLogger startLogging = new LombardiaLogger();
+            String text = startLogging.preparePattern("Error", ex.getMessage()
+                    + "\n" + Arrays.toString(ex.getStackTrace()));
+            startLogging.logToFile(text);
         }
 
         return id;
@@ -491,7 +521,10 @@ public class MainDBQuierues {
             setQuerry.closeDB();
 
         } catch (SQLException ex) {
-            Logger.getLogger(ListUsers.class.getName()).log(Level.SEVERE, null, ex);
+            LombardiaLogger startLogging = new LombardiaLogger();
+            String text = startLogging.preparePattern("Error", ex.getMessage()
+                    + "\n" + Arrays.toString(ex.getStackTrace()));
+            startLogging.logToFile(text);
         }
 
         return getAllCustomers;
@@ -525,7 +558,10 @@ public class MainDBQuierues {
             setQuerry.closeDB();
 
         } catch (SQLException ex) {
-            Logger.getLogger(ListUsers.class.getName()).log(Level.SEVERE, null, ex);
+            LombardiaLogger startLogging = new LombardiaLogger();
+            String text = startLogging.preparePattern("Error", ex.getMessage()
+                    + "\n" + Arrays.toString(ex.getStackTrace()));
+            startLogging.logToFile(text);
         }
 
         return getAllCustomers;
@@ -560,7 +596,10 @@ public class MainDBQuierues {
 
             setQuerry.closeDB();
         } catch (SQLException ex) {
-            Logger.getLogger(ListUsers.class.getName()).log(Level.SEVERE, null, ex);
+            LombardiaLogger startLogging = new LombardiaLogger();
+            String text = startLogging.preparePattern("Error", ex.getMessage()
+                    + "\n" + Arrays.toString(ex.getStackTrace()));
+            startLogging.logToFile(text);
         }
     }
 
@@ -594,7 +633,10 @@ public class MainDBQuierues {
 
             setQuerry.closeDB();
         } catch (SQLException ex) {
-            Logger.getLogger(ListUsers.class.getName()).log(Level.SEVERE, null, ex);
+            LombardiaLogger startLogging = new LombardiaLogger();
+            String text = startLogging.preparePattern("Error", ex.getMessage()
+                    + "\n" + Arrays.toString(ex.getStackTrace()));
+            startLogging.logToFile(text);
         }
     }
 
@@ -626,7 +668,10 @@ public class MainDBQuierues {
 
             setQuerry.closeDB();
         } catch (SQLException | ParseException ex) {
-            Logger.getLogger(ListUsers.class.getName()).log(Level.SEVERE, null, ex);
+            LombardiaLogger startLogging = new LombardiaLogger();
+            String text = startLogging.preparePattern("Error", ex.getMessage()
+                    + "\n" + Arrays.toString(ex.getStackTrace()));
+            startLogging.logToFile(text);
         }
 
         return lateClients;
@@ -643,10 +688,13 @@ public class MainDBQuierues {
 
             setQuerry.closeDB();
         } catch (SQLException ex) {
-            Logger.getLogger(ListUsers.class.getName()).log(Level.SEVERE, null, ex);
+            LombardiaLogger startLogging = new LombardiaLogger();
+            String text = startLogging.preparePattern("Error", ex.getMessage()
+                    + "\n" + Arrays.toString(ex.getStackTrace()));
+            startLogging.logToFile(text);
         }
     }
-    
+
     public void removeItems(String aggID) {
         try {
             setQuerry = new QueryDB();
@@ -658,7 +706,10 @@ public class MainDBQuierues {
 
             setQuerry.closeDB();
         } catch (SQLException ex) {
-            Logger.getLogger(ListUsers.class.getName()).log(Level.SEVERE, null, ex);
+            LombardiaLogger startLogging = new LombardiaLogger();
+            String text = startLogging.preparePattern("Error", ex.getMessage()
+                    + "\n" + Arrays.toString(ex.getStackTrace()));
+            startLogging.logToFile(text);
         }
     }
 
@@ -688,8 +739,8 @@ public class MainDBQuierues {
 
         return maxID;
     }
-    
-        public String selectRestValue(String aggID) {
+
+    public String selectRestValue(String aggID) {
         String value = null;
         try {
             setQuerry = new QueryDB();
@@ -697,7 +748,7 @@ public class MainDBQuierues {
             stmt = conDB.createStatement();
 
             queryResult = setQuerry.dbSetQuery("SELECT VALUE_REST, ID_AGREEMENTS FROM Agreements"
-                                + " WHERE ID_AGREEMENTS LIKE '" + aggID + "';");
+                    + " WHERE ID_AGREEMENTS LIKE '" + aggID + "';");
 
             while (queryResult.next()) {
                 value = queryResult.getString("VALUE_REST");
@@ -737,7 +788,10 @@ public class MainDBQuierues {
 
             setQuerry.closeDB();
         } catch (SQLException ex) {
-            Logger.getLogger(ListUsers.class.getName()).log(Level.SEVERE, null, ex);
+            LombardiaLogger startLogging = new LombardiaLogger();
+            String text = startLogging.preparePattern("Error", ex.getMessage()
+                    + "\n" + Arrays.toString(ex.getStackTrace()));
+            startLogging.logToFile(text);
         }
     }
 
@@ -762,7 +816,10 @@ public class MainDBQuierues {
 
             setQuerry.closeDB();
         } catch (SQLException ex) {
-            Logger.getLogger(ListUsers.class.getName()).log(Level.SEVERE, null, ex);
+            LombardiaLogger startLogging = new LombardiaLogger();
+            String text = startLogging.preparePattern("Error", ex.getMessage()
+                    + "\n" + Arrays.toString(ex.getStackTrace()));
+            startLogging.logToFile(text);
         }
     }
 
@@ -799,7 +856,10 @@ public class MainDBQuierues {
             }
             setQuerry.closeDB();
         } catch (SQLException ex) {
-            Logger.getLogger(ListUsers.class.getName()).log(Level.SEVERE, null, ex);
+            LombardiaLogger startLogging = new LombardiaLogger();
+            String text = startLogging.preparePattern("Error", ex.getMessage()
+                    + "\n" + Arrays.toString(ex.getStackTrace()));
+            startLogging.logToFile(text);
         }
 
         return StockTakings;
@@ -856,7 +916,10 @@ public class MainDBQuierues {
 
             setQuerry.closeDB();
         } catch (SQLException ex) {
-            Logger.getLogger(ListUsers.class.getName()).log(Level.SEVERE, null, ex);
+            LombardiaLogger startLogging = new LombardiaLogger();
+            String text = startLogging.preparePattern("Error", ex.getMessage()
+                    + "\n" + Arrays.toString(ex.getStackTrace()));
+            startLogging.logToFile(text);
         }
         return Settlements;
     }
@@ -974,18 +1037,18 @@ public class MainDBQuierues {
             setQuerry = new QueryDB();
             conDB = setQuerry.getConnDB();
             stmt = conDB.createStatement();
-            
+
             String query = "SELECT Customers.NAME AS NAME, "
-                            + "Customers.SURNAME AS SURNAME, Customers.ID AS CustomerID, "
-                            + "Agreements.ID_AGREEMENTS AS AGREEMENT_ID, Agreements.ID AS ID,"
-                            + " Agreements.STOP_DATE AS END_DATE"
-                            + " FROM Customers, Agreements WHERE Customers.ID = Agreements.ID_CUSTOMER";
-            
-            if(!aggID.isEmpty()) {
+                    + "Customers.SURNAME AS SURNAME, Customers.ID AS CustomerID, "
+                    + "Agreements.ID_AGREEMENTS AS AGREEMENT_ID, Agreements.ID AS ID,"
+                    + " Agreements.STOP_DATE AS END_DATE"
+                    + " FROM Customers, Agreements WHERE Customers.ID = Agreements.ID_CUSTOMER";
+
+            if (!aggID.isEmpty()) {
                 query += " AND Agreements.ID_AGREEMENTS Like '%" + aggID + "%';";
             } else {
-                query +=  "AND Customers.Name LIKE '" + name + "' AND "
-                            + "Customers.Surname LIKE '" + surname + "';";
+                query += "AND Customers.Name LIKE '" + name + "' AND "
+                        + "Customers.Surname LIKE '" + surname + "';";
             }
             queryResult = setQuerry.dbSetQuery(query);
 
@@ -1021,7 +1084,10 @@ public class MainDBQuierues {
 
             setQuerry.closeDB();
         } catch (SQLException ex) {
-            Logger.getLogger(ListUsers.class.getName()).log(Level.SEVERE, null, ex);
+            LombardiaLogger startLogging = new LombardiaLogger();
+            String text = startLogging.preparePattern("Error", ex.getMessage()
+                    + "\n" + Arrays.toString(ex.getStackTrace()));
+            startLogging.logToFile(text);
         }
     }
 }
