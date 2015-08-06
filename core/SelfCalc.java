@@ -44,19 +44,8 @@ public class SelfCalc {
         }
     }
 
-    public boolean chackValue(JFrame frameSet, float setValue) {
-        float tmpVal = value - setValue;
-        boolean chioice = false;
-        if (tmpVal >= 0) {
-            chioice = true;
-        } else {
-            JOptionPane.showMessageDialog(frameSet,
-                    "Brak wystarczających środków w kasie "
-                    + "do przeprowadzenia tej transakcji",
-                    "Brak wystarczających środków w kasie",
-                    JOptionPane.ERROR_MESSAGE);
-        }
-        return chioice;
+    public boolean chackValue(JFrame frameSet, float setValue) {      
+        return true;
     }
 // update self in db
 

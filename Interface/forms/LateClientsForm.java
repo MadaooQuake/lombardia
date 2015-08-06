@@ -89,10 +89,10 @@ public class LateClientsForm extends Forms {
         c.gridx = 0;
         c.insets = new Insets(10, 10, 10, 10);
         c.ipadx = 650;
-        c.ipady = 600;
-        listClients.setPreferredSize(new Dimension(650, 600));
+        c.ipady = 500;
+        listClients.setPreferredSize(new Dimension(650, 500));
 
-        scrollPane.setPreferredSize(new Dimension(650, 600));
+        scrollPane.setPreferredSize(new Dimension(650, 500));
         scrollPane.setVisible(true);
 
         tablePanel.add(scrollPane);
@@ -130,20 +130,20 @@ public class LateClientsForm extends Forms {
 
     @Override
     public void generateGui() {
-        formFrame.setSize(800, 800);
+        formFrame.setSize(800, 700);
         formFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         formFrame.setResizable(false);
         formFrame.setTitle(frameTitle);
 
         mainPanel = new JPanel(new GridBagLayout());
-        mainPanel.setPreferredSize(new Dimension(800, 800));
+        mainPanel.setPreferredSize(new Dimension(800, 600));
         titleBorder = BorderFactory.createTitledBorder(blackline, frameTitle);
         titleBorder.setTitleJustification(TitledBorder.RIGHT);
         titleBorder.setBorder(blackline);
         mainPanel.setBorder(titleBorder);
 
         buttonPanel = new JPanel();
-        buttonPanel.setPreferredSize(new Dimension(100, 700));
+        buttonPanel.setPreferredSize(new Dimension(100, 600));
 
         tablePanel = new JPanel();
         tablePanel.setPreferredSize(new Dimension(600, 600));

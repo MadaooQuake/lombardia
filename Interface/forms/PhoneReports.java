@@ -104,9 +104,9 @@ public class PhoneReports extends Forms {
         listPhoneReports.setAutoCreateRowSorter(true);
         scrollPane = new JScrollPane(listPhoneReports);
         listPhoneReports.setFillsViewportHeight(true);
-        listPhoneReports.setPreferredSize(new Dimension(650, 600));
+        listPhoneReports.setPreferredSize(new Dimension(650, 500));
 
-        scrollPane.setPreferredSize(new Dimension(650, 600));
+        scrollPane.setPreferredSize(new Dimension(650, 500));
         scrollPane.setVisible(true);
 
         tablePanel.add(scrollPane);
@@ -161,27 +161,27 @@ public class PhoneReports extends Forms {
 
     @Override
     public void generateGui() {
-        formFrame.setSize(800, 800);
+        formFrame.setSize(800, 700);
         formFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         formFrame.setResizable(false);
         formFrame.setTitle(frameTitle);
 
         mainPanel = new JPanel(new GridBagLayout());
-        mainPanel.setPreferredSize(new Dimension(800, 800));
+        mainPanel.setPreferredSize(new Dimension(800, 700));
         titleBorder = BorderFactory.createTitledBorder(blackline, frameTitle);
         titleBorder.setTitleJustification(TitledBorder.RIGHT);
         titleBorder.setBorder(blackline);
         mainPanel.setBorder(titleBorder);
 
         tablePanel = new JPanel();
-        tablePanel.setPreferredSize(new Dimension(750, 700));
+        tablePanel.setPreferredSize(new Dimension(750, 600));
         titleBorder = BorderFactory.createTitledBorder(blackline, tablePanelTitle);
         titleBorder.setTitleJustification(TitledBorder.RIGHT);
         titleBorder.setBorder(blackline);
         tablePanel.setBorder(titleBorder);
 
         buttonPanel = new JPanel();
-        buttonPanel.setPreferredSize(new Dimension(100, 700));
+        buttonPanel.setPreferredSize(new Dimension(100, 600));
 
         generatePanels(c);
         generatePanels2();

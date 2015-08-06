@@ -82,20 +82,20 @@ public class ProlongationForm extends Forms {
 
     @Override
     public void generateGui() {
-        formFrame.setSize(800, 800);
+        formFrame.setSize(800, 700);
         formFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         formFrame.setResizable(false);
         formFrame.setTitle(frameTitle);
 
         mainPanel = new JPanel(new GridBagLayout());
-        mainPanel.setPreferredSize(new Dimension(800, 800));
+        mainPanel.setPreferredSize(new Dimension(800, 700));
         titleBorder = BorderFactory.createTitledBorder(blackline, frameTitle);
         titleBorder.setTitleJustification(TitledBorder.RIGHT);
         titleBorder.setBorder(blackline);
         mainPanel.setBorder(titleBorder);
 
         buttonPanel = new JPanel(new GridBagLayout());
-        buttonPanel.setPreferredSize(new Dimension(100, 600));
+        buttonPanel.setPreferredSize(new Dimension(100, 500));
 
         tablePanel = new JPanel();
         tablePanel.setPreferredSize(new Dimension(600, 600));
@@ -134,9 +134,9 @@ public class ProlongationForm extends Forms {
         listAgreements.setAutoCreateRowSorter(true);
         scrollPane = new JScrollPane(listAgreements);
         listAgreements.setFillsViewportHeight(true);
-        listAgreements.setPreferredSize(new Dimension(600, 600));
+        listAgreements.setPreferredSize(new Dimension(600, 500));
 
-        scrollPane.setPreferredSize(new Dimension(600, 600));
+        scrollPane.setPreferredSize(new Dimension(600, 500));
         scrollPane.setVisible(true);
 
         tablePanel.add(scrollPane);
@@ -167,7 +167,7 @@ public class ProlongationForm extends Forms {
         c.gridy = 0;
         c.gridx = 0;
         c.ipadx = 600;
-        c.ipady = 600;
+        c.ipady = 500;
 
         mainPanel.add(tablePanel, c);
         c.gridy = 1;
