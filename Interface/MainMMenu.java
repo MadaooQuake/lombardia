@@ -460,7 +460,8 @@ public final class MainMMenu extends javax.swing.JPanel {
                 protected Object doInBackground() throws Exception {
                     while (true) {
                         if (paymanet.getAddRemoValue() > 0) {
-                            sniffOperations.saveOperations(titleForm
+                            sniffOperations.saveOperations(titleForm + ": " +
+                                    paymanet.getDescription()
                                     + ":" + paymanet.getAddRemoValue());
                             break;
                         }

@@ -34,8 +34,8 @@ public class PaymentForms extends Forms {
     String title;
     JButton cancel = null;
     JButton ok = null;
-    JTextField price = null;
-    JLabel fieldName = null;
+    JTextField price, description;
+    JLabel fieldName, descriptionName;
     SelfCalc valueDB = null;
     double adRemValue = 0.0;
 
@@ -90,6 +90,25 @@ public class PaymentForms extends Forms {
         c.gridx = 1;
         c.gridy = 0;
         mainPanel.add(price, c);
+        
+        descriptionName = new JLabel();
+        descriptionName.setText("Podaj Opis");
+        descriptionName.setFont(new Font("Dialog", Font.BOLD, 20));
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.insets = new Insets(0, 10, 40, 0);
+        c.gridx = 0;
+        c.gridy = 1;
+        mainPanel.add(fieldName, c);
+
+        // field
+        description = new JTextField();
+        description.setPreferredSize(new Dimension(120, 30));
+        description.setFont(new Font("Dialog", Font.BOLD, 20));
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.insets = new Insets(0, 10, 40, 10);
+        c.gridx = 1;
+        c.gridy = 1;
+        mainPanel.add(description, c);
 
         // butons
         ok = new JButton();
@@ -118,6 +137,17 @@ public class PaymentForms extends Forms {
 
     public Double getAddRemoValue() {
         return adRemValue;
+    }
+    
+    
+    public String getDescription() {
+        String descriription = "";
+        
+        if(!description.getText().isEmpty()) {
+            descriription = description.getText();
+        }
+        
+        return descriription;
     }
 
     // class to create actions for buttons (polimorfizm)
@@ -173,6 +203,8 @@ public class PaymentForms extends Forms {
         }
 
     }
+    
+    
 
     /**
      * class close this form
@@ -185,5 +217,6 @@ public class PaymentForms extends Forms {
         }
 
     }
+    
 
 }
