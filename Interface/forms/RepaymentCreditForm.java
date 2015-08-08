@@ -265,10 +265,7 @@ public class RepaymentCreditForm extends Forms {
 
     public void deleteAgreement() {
         getQuery.removeItems(agreementIdent);
-
-       // add flag in table
-//            queryResult = setQuerry.dbSetQuery("DELETE FROM Agreements WHERE"
-//                    + " ID_AGREEMENTS =" + agreementIdent + ";");
+        getQuery.updateAgreementStatus(agreementIdent);
     }
 
     private class BlockInputField implements MouseListener {

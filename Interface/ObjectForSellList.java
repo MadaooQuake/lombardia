@@ -5,7 +5,6 @@
  */
 package lombardia2014.Interface;
 
-import lombardia2014.dataBaseInterface.QueryDB;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -33,16 +32,17 @@ import javax.swing.SwingWorker;
 import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
-import lombardia2014.core.ConfigRead;
 import lombardia2014.Interface.forms.ItemForm;
+import lombardia2014.core.ConfigRead;
 import lombardia2014.dataBaseInterface.MainDBQuierues;
+import lombardia2014.dataBaseInterface.QueryDB;
 import lombardia2014.dataBaseInterface.UserOperations;
 
 /**
  *
- * @author marcin
+ * @author Domek
  */
-public final class ObjectList extends javax.swing.JPanel {
+public class ObjectForSellList extends javax.swing.JPanel {
 
     JPanel mainPanel;
     TitledBorder title;
@@ -66,7 +66,7 @@ public final class ObjectList extends javax.swing.JPanel {
     UserOperations sniffOperations = null;
     MainDBQuierues getQuery = new MainDBQuierues();
 
-    public ObjectList(UserOperations sniffOperations_) {
+    public ObjectForSellList(UserOperations sniffOperations_) {
         sniffOperations = sniffOperations_;
         readVat.readFile();
         vat = 1 + readVat.getVat();
@@ -194,23 +194,24 @@ public final class ObjectList extends javax.swing.JPanel {
         List<HashMap<String, String>> IteList = getQuery.getAllItems();
 
         for (Map<String, String> item : IteList) {
-            if (item.get("VALUE") != null) {
-                value = Float.parseFloat(item.get("VALUE"));
+            if (item.get("ID_AGREEMENTS") == null) {
+                if (item.get("VALUE") != null) {
+                    value = Float.parseFloat(item.get("VALUE"));
+                }
+                Object[] data = {
+                    item.get("ID_ITEM"),
+                    item.get("NAME"),
+                    item.get("MODEL") == null ? "" : item.get("MODEL"),
+                    item.get("BAND") == null ? "" : item.get("BAND"),
+                    item.get("TYPE") == null ? "" : item.get("TYPE"),
+                    item.get("WEIGHT") == null ? "" : item.get("WEIGHT"),
+                    item.get("VALUE") == null ? "" : item.get("VALUE"),
+                    calcBrutto(),
+                    item.get("IMEI") == null ? "" : item.get("IMEI"),
+                    item.get("ATENCION") == null ? "" : item.get("ATENCION"),
+                    item.get("ID_AGREEMENTS") == null ? "" : item.get("ID_AGREEMENTS"),};
+                model.addRow(data);
             }
-            Object[] data = {
-                item.get("ID_ITEM"),
-                item.get("NAME"),
-                item.get("MODEL") == null ? "" : item.get("MODEL"),
-                item.get("BAND") == null ? "" : item.get("BAND"),
-                item.get("TYPE") == null ? "" : item.get("TYPE"),
-                item.get("WEIGHT") == null ? "" : item.get("WEIGHT"),
-                item.get("VALUE") == null ? "" : item.get("VALUE"),
-                calcBrutto(),
-                item.get("IMEI") == null ? "" : item.get("IMEI"),
-                item.get("ATENCION") == null ? "" : item.get("ATENCION"),
-                item.get("ID_AGREEMENTS") == null ? "" : item.get("ID_AGREEMENTS"),};
-            model.addRow(data);
-
         }
     }
 

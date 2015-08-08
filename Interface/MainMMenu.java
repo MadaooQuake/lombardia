@@ -591,8 +591,6 @@ public final class MainMMenu extends javax.swing.JPanel {
                 @Override
                 protected Void doInBackground() {
                     try {
-                        boolean updatePol = false, UpdateNewCredit = false;
-                        
                         while (true) {
                             // update operations table for Prolongation form
                             

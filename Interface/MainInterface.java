@@ -306,10 +306,12 @@ public class MainInterface {
         MainMMenu mainPanel = new MainMMenu(sniffOperations);
         CustomersList customers = new CustomersList();
         ObjectList objects = new ObjectList(sniffOperations);
+        ObjectForSellList objectToSell = new ObjectForSellList(sniffOperations);
 
         tabbedPane.addTab("Menu glówne", mainPanel);
         tabbedPane.addTab("Lista Klientów", customers);
         tabbedPane.addTab("Lista Depozytów", objects);
+        tabbedPane.addTab("Przedmioty na sprzedaż", objectToSell);
 
         mainPanel.putObjects(customers, objects, mainFrame);
 

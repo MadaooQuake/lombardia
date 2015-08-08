@@ -84,6 +84,7 @@ public class CreateDB {
                     + "ITEM_WEIGHT REAL NOT NULL,"
                     + "VALUE_REST REAL NOT NULL,"
                     + "SAVEPRICE REAL NOT NULL,"
+                    + "SELL INTEGER NOT NULL,"
                     + "ID_CUSTOMER INTEGER(4) NOT NULL,"
                     + "FOREIGN KEY(ID_CUSTOMER) REFERENCES Customers(ID)"
                     + ")";

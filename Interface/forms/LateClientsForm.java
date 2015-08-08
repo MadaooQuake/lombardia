@@ -232,10 +232,7 @@ public class LateClientsForm extends Forms {
             if (selectRow >= 0) {
                 selectRow = -1;
                 getQuery.removeItemFromAgreement(id);
-                    // add new flag in aggreement 
-                // next i remove agreement :)
-//                    queryResult = setQuerry.dbSetQuery("DELETE FROM Items WHERE "
-//                    + "ID_AGREEMENT =" + id + ";");
+                getQuery.updateAgreementStatus(id);
             }
         }
 

@@ -98,7 +98,7 @@ public class PaymentForms extends Forms {
         c.insets = new Insets(0, 10, 40, 0);
         c.gridx = 0;
         c.gridy = 1;
-        mainPanel.add(fieldName, c);
+        mainPanel.add(descriptionName, c);
 
         // field
         description = new JTextField();

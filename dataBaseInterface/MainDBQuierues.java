@@ -684,7 +684,7 @@ public class MainDBQuierues {
             stmt = conDB.createStatement();
 
             queryResult = setQuerry.dbSetQuery("UPDATE Items SET ID_AGREEMENT = NULL "
-                    + "WHERE ID_AGREEMENT = " + aggID + ";");
+                    + "ID_AGREEMENT = (SELECT ID FROM Agreements WHERE ID_AGREEMENTS = '" + aggID + "');");
 
             setQuerry.closeDB();
         } catch (SQLException ex) {
@@ -702,7 +702,7 @@ public class MainDBQuierues {
             stmt = conDB.createStatement();
 
             queryResult = setQuerry.dbSetQuery("DELETE FROM Items WHERE "
-                    + "ID_AGREEMENT ='" + aggID + "';");
+                    + "ID_AGREEMENT = (SELECT ID FROM Agreements WHERE ID_AGREEMENTS = '" + aggID + "');");
 
             setQuerry.closeDB();
         } catch (SQLException ex) {
@@ -774,7 +774,7 @@ public class MainDBQuierues {
 
             queryResult = setQuerry.dbSetQuery("INSERT INTO Agreements (ID_AGREEMENTS,"
                     + " START_DATE, STOP_DATE, VALUE, COMMISSION, ITEM_VALUE, ITEM_WEIGHT,"
-                    + " VALUE_REST, SAVEPRICE, ID_CUSTOMER)"
+                    + " VALUE_REST, SAVEPRICE, ID_CUSTOMER, SELL)"
                     + " VALUES ('"
                     + idAgreements + "','" + new DateTools(startDate).GetDateForDB() + "','"
                     + new DateTools(stopDate).GetDateForDB() + "','"
@@ -784,7 +784,7 @@ public class MainDBQuierues {
                     + itemWeigth.replaceAll(",", ".") + ","
                     + valueRest.replaceAll(",", ".") + ","
                     + saveprice.replaceAll(",", ".") + ","
-                    + custoerID + ");");
+                    + custoerID + "," + 0 + ");");
 
             setQuerry.closeDB();
         } catch (SQLException ex) {
@@ -1070,6 +1070,25 @@ public class MainDBQuierues {
         }
 
         return Settlements;
+    }
+
+    // update status in agreement
+    public void updateAgreementStatus(String idAgreements) {
+        try {
+            setQuerry = new QueryDB();
+            conDB = setQuerry.getConnDB();
+            stmt = conDB.createStatement();
+            
+            queryResult = setQuerry.dbSetQuery("UPDATE Agreements SET SELL = 1 WHERE ID_AGREEMENTS = '"
+                    + idAgreements + "';");
+
+            setQuerry.closeDB();
+        } catch (SQLException ex) {
+            LombardiaLogger startLogging = new LombardiaLogger();
+            String text = startLogging.preparePattern("Error", ex.getMessage()
+                    + "\n" + Arrays.toString(ex.getStackTrace()));
+            startLogging.logToFile(text);
+        }
     }
 
     // delete agreement

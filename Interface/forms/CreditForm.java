@@ -2363,13 +2363,16 @@ public class CreditForm extends Forms {
             String[] nameSurname = fields[2].getText().split(" ");
             //quer to db
             if (nameSurname.length > 1) {
-                Map<String, String> user = (HashMap<String, String>) getQuery.getUser(nameSurname[0], nameSurname[1]);
-
+                Map<String, String> user = (HashMap<String, String>) getQuery.getUser(nameSurname[1], nameSurname[0]);
+                int tmpTrust = 0;
+                if(user.get("TRUST") != null) {
+                    tmpTrust = Integer.parseInt(user.get("TRUST"));
+                }
                 fields[0].setText(user.get("NAME"));
                 fields[1].setText(user.get("SURNAME"));
                 addresCustomer.setText(user.get("ADDRESS"));
                 fields[3].setText(user.get("PESEL"));
-                boolean trust = Integer.parseInt(user.get("TRUST")) != 0;
+                boolean trust = tmpTrust != 0;
                 goodClient.setSelected(trust);
                 fields[18].setText(user.get("DISCOUNT"));
             }
