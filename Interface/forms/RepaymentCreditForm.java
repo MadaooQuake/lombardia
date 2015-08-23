@@ -234,13 +234,16 @@ public class RepaymentCreditForm extends Forms {
 
     public void fillSearchEleents(List<HashMap<String, String>> settlements) {
         for (HashMap<String, String> agrements : settlements) {
-            Object[] data = {
-                agrements.get("Imie"),
-                agrements.get("Nazwisko"),
-                agrements.get("NR Umowy"),
-                agrements.get("Data zwrotu"),};
-            model.addRow(data);
-            agreementIdent = agrements.get("AgrID");
+            int checkSell = Integer.parseInt(agrements.get("Rozwiazana"));
+            if (checkSell == 0) {
+                Object[] data = {
+                    agrements.get("Imie"),
+                    agrements.get("Nazwisko"),
+                    agrements.get("NR Umowy"),
+                    agrements.get("Data zwrotu"),};
+                model.addRow(data);
+                agreementIdent = agrements.get("AgrID");
+            }
         }
     }
 
@@ -339,10 +342,8 @@ public class RepaymentCreditForm extends Forms {
         @Override
         public void mouseClicked(java.awt.event.MouseEvent e) {
             JTable table = (JTable) e.getSource();
-            Point p = e.getPoint();
             if (e.getClickCount() == 2) {
                 selectRow = table.getSelectedRow();
-                int row = table.rowAtPoint(p);
                 agreementIdent = (String) listItems.getModel().getValueAt(
                         listItems.convertRowIndexToView(selectRow), 2);
                 int decision = JOptionPane.showConfirmDialog(formFrame,

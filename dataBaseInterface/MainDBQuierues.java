@@ -654,7 +654,7 @@ public class MainDBQuierues {
                     + "Agreements.ID_AGREEMENTS AS AGREEMENT_ID,"
                     + "Agreements.STOP_DATE AS END_DATE FROM Customers, Agreements"
                     + " WHERE Agreements.ID_CUSTOMER = Customers.ID AND END_DATE < '"
-                    + new DateTools(new Date()).GetDateForDB() + "';");
+                    + new DateTools(new Date()).GetDateForDB() + "' AND Agreements.SELL = 0;");
 
             while (queryResult.next()) {
                 Map<String, String> user = new HashMap<>();
@@ -1007,7 +1007,7 @@ public class MainDBQuierues {
             queryResult = setQuerry.dbSetQuery("SELECT Customers.NAME AS NAME, "
                     + "Customers.SURNAME AS SURNAME, Customers.ID AS CustomerID, "
                     + "Agreements.ID_AGREEMENTS AS AGREEMENT_ID, Agreements.ID AS ID,"
-                    + " Agreements.STOP_DATE AS END_DATE"
+                    + " Agreements.STOP_DATE AS END_DATE, Agreements.SELL AS SELL"
                     + " FROM Customers, Agreements WHERE Customers.ID = Agreements.ID_CUSTOMER ;");
 
             while (queryResult.next()) {
@@ -1017,6 +1017,7 @@ public class MainDBQuierues {
                 paymentPorperies.put("Imie", queryResult.getString("NAME"));
                 paymentPorperies.put("Nazwisko", queryResult.getString("SURNAME"));
                 paymentPorperies.put("AgrID", queryResult.getString("ID"));
+                paymentPorperies.put("Rozwiazana", queryResult.getString("SELL"));
                 Settlements.add((HashMap<String, String>) paymentPorperies);
             }
             setQuerry.closeDB();

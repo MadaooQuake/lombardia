@@ -5,7 +5,6 @@
  */
 package lombardia2014.Interface.forms;
 
-import lombardia2014.dataBaseInterface.QueryDB;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -14,13 +13,8 @@ import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseListener;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import javax.swing.BorderFactory;
@@ -33,7 +27,6 @@ import javax.swing.JTable;
 import javax.swing.SwingWorker;
 import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
-import lombardia2014.generators.LombardiaLogger;
 import static lombardia2014.Interface.MainInterface.userSurename;
 import lombardia2014.dataBaseInterface.NoticesDBQueries;
 
@@ -67,12 +60,6 @@ public class PhoneReports extends Forms {
     JButton cancel = null;
     JButton add = null;
     JButton delete = null;
-
-    //Database
-    QueryDB setQuerry = null;
-    private ResultSet queryResult = null;
-    Connection conDB = null;
-    Statement stmt = null;
     SwingWorker worker = null;
     NoticesDBQueries getNOticesQuery = new NoticesDBQueries();
 
@@ -115,7 +102,7 @@ public class PhoneReports extends Forms {
         c.gridx = 0;
         c.gridy = 0;
         c.ipadx = 650;
-        c.ipady = 600;
+        c.ipady = 500;
         mainPanel.add(tablePanel, c);
     }
 
@@ -167,7 +154,7 @@ public class PhoneReports extends Forms {
         formFrame.setTitle(frameTitle);
 
         mainPanel = new JPanel(new GridBagLayout());
-        mainPanel.setPreferredSize(new Dimension(800, 700));
+        mainPanel.setPreferredSize(new Dimension(800, 600));
         titleBorder = BorderFactory.createTitledBorder(blackline, frameTitle);
         titleBorder.setTitleJustification(TitledBorder.RIGHT);
         titleBorder.setBorder(blackline);

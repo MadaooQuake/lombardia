@@ -65,7 +65,6 @@ public class ProlongationForm extends Forms {
     double adRemValue = 0.0;
     MainDBQuierues getQuery = new MainDBQuierues();
 
-
     //maps
     Map<String, String> paymentPorperies = new HashMap<>();
     Map<Integer, HashMap> itemsList = new HashMap<>();
@@ -204,7 +203,7 @@ public class ProlongationForm extends Forms {
         // get ids
         ids.put("CustID", Integer.parseInt(paymentPorperies.get("CustID")));
         ids.put("AgrID", Integer.parseInt(paymentPorperies.get("AgrID")));
-        
+
         return ids;
     }
 
@@ -213,7 +212,7 @@ public class ProlongationForm extends Forms {
      *
      */
     private void getUserInfo(int id) {
-          userInfo = getQuery.getUserByID(id);
+        userInfo = getQuery.getUserByID(id);
     }
 
     /**
@@ -227,15 +226,17 @@ public class ProlongationForm extends Forms {
     public void getAgreements() {
         List<HashMap<String, String>> Settlements = getQuery.getAgreementsAndCustomers();
 
-        for(HashMap<String, String> agreement : Settlements) {
-            Object[] data = {
-                agreement.get("Imie"),
-                agreement.get("Nazwisko"),
-                agreement.get("NR Umowy"),
-                agreement.get("Data zwrotu"),
-            };
-            model.addRow(data);
-            agreementIdent = Integer.parseInt(agreement.get("AgrID"));
+        for (HashMap<String, String> agreement : Settlements) {
+            int checkSell = Integer.parseInt(agreement.get("Rozwiazana"));
+            if (checkSell == 0) {
+                Object[] data = {
+                    agreement.get("Imie"),
+                    agreement.get("Nazwisko"),
+                    agreement.get("NR Umowy"),
+                    agreement.get("Data zwrotu"),};
+                model.addRow(data);
+                agreementIdent = Integer.parseInt(agreement.get("AgrID"));
+            }
         }
     }
 

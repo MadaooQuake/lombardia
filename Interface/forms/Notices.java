@@ -60,10 +60,6 @@ public class Notices extends Forms {
     JButton add = null;
     JButton delete = null;
 
-    //Database
-    QueryDB setQuerry = null;
-    Connection conDB = null;
-    Statement stmt = null;
     SwingWorker worker = null;
     NoticesDBQueries getNOticesQuery = new NoticesDBQueries();
 
@@ -99,7 +95,7 @@ public class Notices extends Forms {
         c.gridx = 2;
         c.insets = new Insets(10, 10, 10, 10);
         c.ipadx = 650;
-        c.ipady = 600;
+        c.ipady = 500;
         listNotices.setPreferredSize(new Dimension(650, 500));
 
         scrollPane.setPreferredSize(new Dimension(650, 500));
@@ -153,7 +149,7 @@ public class Notices extends Forms {
         formFrame.setTitle(frameTitle);
 
         mainPanel = new JPanel(new GridBagLayout());
-        mainPanel.setPreferredSize(new Dimension(800, 700));
+        mainPanel.setPreferredSize(new Dimension(800, 600));
         titleBorder = BorderFactory.createTitledBorder(blackline, frameTitle);
         titleBorder.setTitleJustification(TitledBorder.RIGHT);
         titleBorder.setBorder(blackline);
