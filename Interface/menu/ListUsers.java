@@ -17,14 +17,9 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseListener;
 import java.sql.Connection;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -36,7 +31,6 @@ import javax.swing.SwingWorker;
 import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
 import lombardia2014.dataBaseInterface.UserDB;
-import lombardia2014.generators.LombardiaLogger;
 
 /**
  *

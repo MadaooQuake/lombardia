@@ -32,6 +32,7 @@ import lombardia2014.Interface.menu.Help;
 import lombardia2014.Interface.menu.StatisticsForm;
 import lombardia2014.Interface.menu.ListUsers;
 import lombardia2014.Interface.menu.OperationList;
+import lombardia2014.Interface.menu.Settings;
 import lombardia2014.Interface.menu.SettlementForm;
 import lombardia2014.Interface.menu.StocktakingForm;
 import lombardia2014.dataBaseInterface.UserOperations;
@@ -171,7 +172,7 @@ public class MainInterface {
         menuItem.getAccessibleContext().setAccessibleDescription(
                 "Czyści bazę danych");
         menuItem.addActionListener(new RemoveDatabase());
-        menu.add(menuItem);        
+        menu.add(menuItem);
         menu.addSeparator();
 
         menuItem = new JMenuItem("Wyjdz z aplikacji");
@@ -215,6 +216,12 @@ public class MainInterface {
         menuItem.addActionListener(new OperationsList());
         menu.add(menuItem);
 
+        menuItem = new JMenuItem("Ustawienia");
+        menuItem.getAccessibleContext().setAccessibleDescription(
+                "Zmiana uprawnień użytkowników");
+        menuItem.addActionListener(new SettingsOption());
+        menu.add(menuItem);
+
         mainFrame.add(menuBar);
     }
 
@@ -252,7 +259,7 @@ public class MainInterface {
                 "Tworzy liste przedmiotów na zadany dzień");
         menuItem.addActionListener(new Stocktaking());
         menu.add(menuItem);
-        
+
         menu.addSeparator();
 
         menuItem = new JMenuItem("Statystyki miesięczne");
@@ -446,7 +453,16 @@ public class MainInterface {
         }
 
     }
-    
+
+    public class SettingsOption implements ActionListener {
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            Settings settings = new Settings();
+            settings.generateGui();
+        }
+
+    }
 
     // class to exit application
     public class ExitApplication implements ActionListener {
@@ -488,7 +504,7 @@ public class MainInterface {
         }
 
     }
-    
+
     // stocktaking
     public class Stocktaking implements ActionListener {
 
@@ -497,7 +513,7 @@ public class MainInterface {
             StocktakingForm newStockTaking = new StocktakingForm("");
             newStockTaking.generateGui();
         }
-        
+
     }
 
     // settlements
@@ -510,6 +526,7 @@ public class MainInterface {
         }
 
     }
+
     public class YearlySettlements implements ActionListener {
 
         @Override
