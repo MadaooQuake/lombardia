@@ -11,12 +11,18 @@ import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+
+import lombardia2014.core.ConfigRead;
+import lombardia2014.core.SaveConfig;
 
 /**
  *
@@ -31,6 +37,8 @@ public class Settings extends MenuElementsList {
     JTextField[] fields = null;
     int fontSize = 12;
     int heightTextL = 20;
+    ConfigRead readXML = null;
+    SaveConfig saveConfig = null;
 
     @Override
     public void generateGui() {
@@ -46,6 +54,8 @@ public class Settings extends MenuElementsList {
 
         formFrame.add(mainPanel);
         formFrame.setVisible(true);
+        
+        readConfig();
     }
 
     @Override
@@ -193,6 +203,7 @@ public class Settings extends MenuElementsList {
         save.setText("Zapisz");
         save.setPreferredSize(new Dimension(150, heightTextL));
         save.setFont(new Font("Dialog", Font.BOLD, 18));
+        save.addActionListener(new SaveButton());
         cTab[1].fill = GridBagConstraints.HORIZONTAL;
         cTab[1].gridx = 0;
         cTab[1].gridy = 0;
@@ -202,10 +213,49 @@ public class Settings extends MenuElementsList {
         cancel.setText("Anuluj");
         cancel.setPreferredSize(new Dimension(150, heightTextL));
         cancel.setFont(new Font("Dialog", Font.BOLD, 18));
+        cancel.addActionListener(new CancelButton());
         cTab[1].fill = GridBagConstraints.HORIZONTAL;
         cTab[1].gridx = 1;
         cTab[1].gridy = 0;
         formPanels[1].add(cancel, cTab[1]);
     }
+    
     // read config to elements
+    public void readConfig() {
+        readXML = new ConfigRead();
+        readXML.readFile();
+        
+        fields[0].setText(Float.toString(readXML.getVat()));
+        fields[1].setText(Float.toString(readXML.getMinFee()));
+        fields[2].setText(Float.toString(readXML.getManFee()));
+        fields[3].setText(Float.toString(readXML.getDailyProfit()));
+        fields[4].setText(Float.toString(readXML.getLombardRate()));
+        fields[5].setText(Float.toString(readXML.getRSO()));
+        fields[6].setText(Float.toString(readXML.getPrematureDevotion()));
+    }
+    
+    // actions 
+    
+    public class SaveButton implements ActionListener {
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            saveConfig = new SaveConfig();
+            saveConfig.readFile();
+            saveConfig.changeElement("vat", fields[0].getText());
+        }
+        
+    }
+    
+    public class CancelButton implements ActionListener {
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+             formFrame.dispose();
+        }
+        
+    }
+    
+    
+    
 }
