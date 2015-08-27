@@ -243,6 +243,14 @@ public class Settings extends MenuElementsList {
             saveConfig = new SaveConfig();
             saveConfig.readFile();
             saveConfig.changeElement("vat", fields[0].getText());
+            saveConfig.changeElement("oplataMinimalna", fields[1].getText());
+            saveConfig.changeElement("oplataManipulacyjna", fields[2].getText());
+            saveConfig.changeElement("zyskNaDzien", fields[3].getText());
+            saveConfig.changeElement("stopa", fields[4].getText());
+            saveConfig.changeElement("rso", fields[5].getText());
+            saveConfig.changeElement("kwotzaPrzedterminowa", fields[6].getText());
+            saveConfig.closeSession();
+            formFrame.dispose();
         }
         
     }
