@@ -221,6 +221,13 @@ public class MainInterface {
                 "Zmiana uprawnień użytkowników");
         menuItem.addActionListener(new SettingsOption());
         menu.add(menuItem);
+        menu.addSeparator();
+        
+        menuItem = new JMenuItem("Uwuwanie wielu");
+        menuItem.getAccessibleContext().setAccessibleDescription(
+                "Zmiana uprawnień użytkowników");
+        menuItem.addActionListener(new GroupDelete());
+        menu.add(menuItem);
 
         mainFrame.add(menuBar);
     }
@@ -462,6 +469,15 @@ public class MainInterface {
             settings.generateGui();
         }
 
+    }
+    
+    public class GroupDelete implements ActionListener {
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        }
+        
     }
 
     // class to exit application
