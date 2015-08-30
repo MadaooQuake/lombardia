@@ -28,6 +28,7 @@ import javax.swing.JTabbedPane;
 import javax.swing.KeyStroke;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import lombardia2014.Interface.menu.AppInfo;
+import lombardia2014.Interface.menu.GroupDelete;
 import lombardia2014.Interface.menu.Help;
 import lombardia2014.Interface.menu.StatisticsForm;
 import lombardia2014.Interface.menu.ListUsers;
@@ -226,7 +227,7 @@ public class MainInterface {
         menuItem = new JMenuItem("Uwuwanie wielu");
         menuItem.getAccessibleContext().setAccessibleDescription(
                 "Zmiana uprawnień użytkowników");
-        menuItem.addActionListener(new GroupDelete());
+        menuItem.addActionListener(new DeleteElemnts());
         menu.add(menuItem);
 
         mainFrame.add(menuBar);
@@ -471,11 +472,12 @@ public class MainInterface {
 
     }
     
-    public class GroupDelete implements ActionListener {
+    public class DeleteElemnts implements ActionListener {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            GroupDelete delteteElements = new GroupDelete();
+            delteteElements.generateGui();
         }
         
     }

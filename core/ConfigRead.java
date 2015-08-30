@@ -98,7 +98,9 @@ public class ConfigRead {
         String vat = eElement.getElementsByTagName("vat")
                 .item(0).getTextContent();
         vat = vat.replace(",", ".");
-        vat = "0." + vat;
+        if(!vat.contains(".")) {
+            vat = "0." + vat;
+        }
         return Float.parseFloat(vat);
     }
 
