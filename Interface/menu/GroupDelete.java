@@ -11,6 +11,10 @@ import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -33,6 +37,8 @@ public class GroupDelete extends MenuElementsList {
     JTextField searchField = new JTextField();
     JTable objectList = null;
     DefaultTableModel model;
+    int fontSize = 12;
+    int heightTextL = 20;
 
     @Override
     public void generateGui() {
@@ -70,8 +76,9 @@ public class GroupDelete extends MenuElementsList {
 
         createTable();
         c.gridx = 0;
-        c.gridy = 0;
+        c.gridy = 1;
         c.ipadx = 400;
+        c.ipady = 400;
         mainPanel.add(formPanels[1], c);
 
         formFrame.add(mainPanel);
@@ -116,6 +123,10 @@ public class GroupDelete extends MenuElementsList {
             }
         };
 
+        model.addColumn("ID");
+        model.addColumn("Numer Umowy");
+        model.addColumn("Przedmiot");
+
         objectList = new JTable(model);
         objectList.setAutoCreateRowSorter(true);
         JScrollPane scrollPane = new JScrollPane(objectList);
@@ -126,6 +137,81 @@ public class GroupDelete extends MenuElementsList {
         cTab[0].ipadx = 400;
         cTab[0].ipady = 400;
         formPanels[1].add(scrollPane, cTab[1]);
+    }
+
+    public void createButtns() {
+        formPanels[2] = new JPanel(new GridBagLayout());
+        cTab[2] = new GridBagConstraints();
+        cTab[2].insets = new Insets(10, 10, 10, 10);
+
+        delete = new JButton();
+        delete.setText("Usuń");
+        delete.setPreferredSize(new Dimension(150, heightTextL));
+        delete.setFont(new Font("Dialog", Font.BOLD, 18));
+        
+        cTab[2].fill = GridBagConstraints.HORIZONTAL;
+        cTab[2].gridx = 0;
+        cTab[2].gridy = 0;
+        formPanels[2].add(delete, cTab[2]);
+
+        cancel = new JButton();
+        cancel.setText("Anuluj");
+        cancel.setPreferredSize(new Dimension(150, heightTextL));
+        cancel.setFont(new Font("Dialog", Font.BOLD, 18));
+        cancel.addActionListener(new CancelButton());
+        cTab[2].fill = GridBagConstraints.HORIZONTAL;
+        cTab[2].gridx = 1;
+        cTab[2].gridy = 0;
+        formPanels[2].add(cancel, cTab[2]);
+    }
+    
+    // actions
+    public class CancelButton implements ActionListener {
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+             formFrame.dispose();
+        }
+        
+    }
+    
+    public class DeleteButton implements ActionListener {
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            
+             formFrame.dispose();
+        }
+        
+    }
+    
+    private class GetSelectRow implements MouseListener {
+
+        @Override
+        public void mouseClicked(MouseEvent e) {
+            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        }
+
+        @Override
+        public void mousePressed(MouseEvent e) {
+            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        }
+
+        @Override
+        public void mouseReleased(MouseEvent e) {
+            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        }
+
+        @Override
+        public void mouseEntered(MouseEvent e) {
+            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        }
+
+        @Override
+        public void mouseExited(MouseEvent e) {
+            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        }
+        
     }
 
 }
