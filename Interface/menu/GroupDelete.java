@@ -19,10 +19,12 @@ import java.awt.event.MouseListener;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.ListSelectionModel;
 import javax.swing.table.DefaultTableModel;
 
 /**
@@ -39,6 +41,9 @@ public class GroupDelete extends MenuElementsList {
     DefaultTableModel model;
     int fontSize = 12;
     int heightTextL = 20;
+    // we can change to items ot agreements list
+    JList<Object> rangeOption = null;
+    Object[] elementList = {"Umowy", "Przedmioty"};
 
     @Override
     public void generateGui() {
@@ -90,10 +95,21 @@ public class GroupDelete extends MenuElementsList {
         cTab[0] = new GridBagConstraints();
         cTab[0].insets = new Insets(10, 10, 10, 10);
 
+        rangeOption = new JList<>(elementList);
+        rangeOption.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
+        rangeOption.setLayoutOrientation(JList.HORIZONTAL_WRAP);
+        rangeOption.setVisibleRowCount(1);
+        rangeOption.setSelectedIndex(0);
+        rangeOption.setPreferredSize(new Dimension(80, 30));
+        cTab[0].fill = GridBagConstraints.HORIZONTAL;
+        cTab[0].gridx = 0;
+        cTab[0].gridy = 0;
+        formPanels[0].add(rangeOption, cTab[0]);
+
         searchField.setToolTipText("Wyszukaj przedtmiot");
         searchField.setPreferredSize(new Dimension(250, 40));
         cTab[0].fill = GridBagConstraints.HORIZONTAL;
-        cTab[0].gridx = 0;
+        cTab[0].gridx = 1;
         cTab[0].gridy = 0;
         cTab[0].ipadx = 150;
         cTab[0].ipady = 20;
@@ -103,8 +119,9 @@ public class GroupDelete extends MenuElementsList {
         search.setText("Szukaj");
         search.setFont(new Font("Dialog", Font.BOLD, 20));
         search.setPreferredSize(new Dimension(150, 30));
+        search.addActionListener(new SearchButton());
         cTab[0].fill = GridBagConstraints.HORIZONTAL;
-        cTab[0].gridx = 1;
+        cTab[0].gridx = 2;
         cTab[0].gridy = 0;
         cTab[0].ipadx = 0;
         cTab[0].ipady = 0;
@@ -148,7 +165,7 @@ public class GroupDelete extends MenuElementsList {
         delete.setText("Usuń");
         delete.setPreferredSize(new Dimension(150, heightTextL));
         delete.setFont(new Font("Dialog", Font.BOLD, 18));
-        
+
         cTab[2].fill = GridBagConstraints.HORIZONTAL;
         cTab[2].gridx = 0;
         cTab[2].gridy = 0;
@@ -164,54 +181,68 @@ public class GroupDelete extends MenuElementsList {
         cTab[2].gridy = 0;
         formPanels[2].add(cancel, cTab[2]);
     }
-    
+
     // actions
+    public class SearchButton implements ActionListener {
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            if(rangeOption.getSelectedValue().equals("Umowy")) {
+                // to do...
+            } else {
+                // to do...
+            }
+        }
+        
+    }
+    
     public class CancelButton implements ActionListener {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-             formFrame.dispose();
+            // search now
+            formFrame.dispose();
         }
-        
+
     }
-    
+
     public class DeleteButton implements ActionListener {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            
-             formFrame.dispose();
+
+            formFrame.dispose();
         }
-        
+
     }
-    
+
     private class GetSelectRow implements MouseListener {
 
         @Override
         public void mouseClicked(MouseEvent e) {
-            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            // do nothing
         }
 
         @Override
         public void mousePressed(MouseEvent e) {
-            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            // do nothing
         }
 
         @Override
         public void mouseReleased(MouseEvent e) {
-            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            // do nothing
         }
 
         @Override
         public void mouseEntered(MouseEvent e) {
-            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            // do nothing
         }
 
         @Override
         public void mouseExited(MouseEvent e) {
-            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            // do nothing
         }
-        
+
     }
 
 }
