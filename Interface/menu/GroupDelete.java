@@ -15,6 +15,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -26,6 +29,7 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.table.DefaultTableModel;
+import lombardia2014.dataBaseInterface.MainDBQuierues;
 
 /**
  *
@@ -44,6 +48,8 @@ public class GroupDelete extends MenuElementsList {
     // we can change to items ot agreements list
     JList<Object> rangeOption = null;
     Object[] elementList = {"Umowy", "Przedmioty"};
+
+    MainDBQuierues getQuery = new MainDBQuierues();
 
     @Override
     public void generateGui() {
@@ -140,6 +146,7 @@ public class GroupDelete extends MenuElementsList {
             }
         };
 
+        model.addColumn("Zaznacz");
         model.addColumn("ID");
         model.addColumn("Numer Umowy");
         model.addColumn("Przedmiot");
@@ -182,20 +189,35 @@ public class GroupDelete extends MenuElementsList {
         formPanels[2].add(cancel, cTab[2]);
     }
 
+    public void itemResult(List<HashMap<String, String>> IteList) {
+        for (Map<String, String> item : IteList) {
+            Object[] data = {
+                new Boolean(false),
+                item.get("ID_ITEM"),
+                item.get("ID_AGREEMENTS") == null ? "" : item.get("ID_AGREEMENTS"),
+                item.get("NAME")
+            };
+            model.addRow(data);
+        }
+    }
+
     // actions
     public class SearchButton implements ActionListener {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            if(rangeOption.getSelectedValue().equals("Umowy")) {
+            model.setRowCount(0);
+            if (rangeOption.getSelectedValue().equals("Umowy")) {
                 // to do...
             } else {
-                // to do...
+                List<HashMap<String, String>> IteList = getQuery.searchItem(searchField.getText());
+                itemResult(IteList);
+                repaint();
             }
         }
-        
+
     }
-    
+
     public class CancelButton implements ActionListener {
 
         @Override
