@@ -18,6 +18,7 @@ import java.awt.event.MouseListener;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Vector;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -42,7 +43,7 @@ public class GroupDelete extends MenuElementsList {
     JPanel[] formPanels = new JPanel[3];
     JTextField searchField = new JTextField();
     JTable objectList = null;
-    DefaultTableModel model;
+    MyTableModel model;
     int fontSize = 12;
     int heightTextL = 20;
     // we can change to items ot agreements list
@@ -92,6 +93,13 @@ public class GroupDelete extends MenuElementsList {
         c.ipady = 400;
         mainPanel.add(formPanels[1], c);
 
+        createButtns();
+        c.gridx = 0;
+        c.gridy = 2;
+        c.ipadx = 0;
+        c.ipady = 0;
+        mainPanel.add(formPanels[2], c);
+
         formFrame.add(mainPanel);
         formFrame.setVisible(true);
     }
@@ -99,7 +107,7 @@ public class GroupDelete extends MenuElementsList {
     public void generateSearch() {
         formPanels[0] = new JPanel(new GridBagLayout());
         cTab[0] = new GridBagConstraints();
-        cTab[0].insets = new Insets(10, 10, 10, 10);
+        cTab[0].insets = new Insets(10, 10, 0, 10);
 
         rangeOption = new JList<>(elementList);
         rangeOption.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
@@ -118,7 +126,7 @@ public class GroupDelete extends MenuElementsList {
         cTab[0].gridx = 1;
         cTab[0].gridy = 0;
         cTab[0].ipadx = 150;
-        cTab[0].ipady = 20;
+        cTab[0].ipady = 10;
         formPanels[0].add(searchField, cTab[0]);
 
         search = new JButton();
@@ -138,18 +146,8 @@ public class GroupDelete extends MenuElementsList {
     public void createTable() {
         formPanels[1] = new JPanel(new GridBagLayout());
         cTab[1] = new GridBagConstraints();
-        cTab[1].insets = new Insets(10, 10, 10, 10);
-        model = new DefaultTableModel() {
-            @Override
-            public boolean isCellEditable(int row, int column) {
-                return false;  //This causes all cells to be not editable
-            }
-        };
-
-        model.addColumn("Zaznacz");
-        model.addColumn("ID");
-        model.addColumn("Numer Umowy");
-        model.addColumn("Przedmiot");
+        cTab[1].insets = new Insets(10, 10, 0, 10);
+        model = new MyTableModel();
 
         objectList = new JTable(model);
         objectList.setAutoCreateRowSorter(true);
@@ -159,7 +157,7 @@ public class GroupDelete extends MenuElementsList {
         cTab[1].gridx = 0;
         cTab[1].gridy = 0;
         cTab[0].ipadx = 400;
-        cTab[0].ipady = 400;
+        cTab[0].ipady = 350;
         formPanels[1].add(scrollPane, cTab[1]);
     }
 
@@ -171,6 +169,7 @@ public class GroupDelete extends MenuElementsList {
         delete = new JButton();
         delete.setText("Usuń");
         delete.setPreferredSize(new Dimension(150, heightTextL));
+        delete.addActionListener(new DeleteButton());
         delete.setFont(new Font("Dialog", Font.BOLD, 18));
 
         cTab[2].fill = GridBagConstraints.HORIZONTAL;
@@ -192,7 +191,7 @@ public class GroupDelete extends MenuElementsList {
     public void itemResult(List<HashMap<String, String>> IteList) {
         for (Map<String, String> item : IteList) {
             Object[] data = {
-                new Boolean(false),
+                false,
                 item.get("ID_ITEM"),
                 item.get("ID_AGREEMENTS") == null ? "" : item.get("ID_AGREEMENTS"),
                 item.get("NAME")
@@ -232,37 +231,44 @@ public class GroupDelete extends MenuElementsList {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-
+            // delete elements
+            for(int i = 0; i < model.getRowCount(); i++) {
+                System.out.println(model.getValueAt(i, 0).toString());
+            }
             formFrame.dispose();
         }
 
     }
 
-    private class GetSelectRow implements MouseListener {
+    public class MyTableModel extends DefaultTableModel {
 
-        @Override
-        public void mouseClicked(MouseEvent e) {
-            // do nothing
+        public MyTableModel() {
+            super(new String[]{"Zaznacz", "ID", "Numer", "Przedmiot"}, 0);
         }
 
         @Override
-        public void mousePressed(MouseEvent e) {
-            // do nothing
+        public Class<?> getColumnClass(int columnIndex) {
+            Class clazz = String.class;
+            switch (columnIndex) {
+                case 0:
+                    clazz = Boolean.class;
+                    break;
+            }
+            return clazz;
         }
 
         @Override
-        public void mouseReleased(MouseEvent e) {
-            // do nothing
+        public boolean isCellEditable(int row, int column) {
+            return column == 0;
         }
 
         @Override
-        public void mouseEntered(MouseEvent e) {
-            // do nothing
-        }
-
-        @Override
-        public void mouseExited(MouseEvent e) {
-            // do nothing
+        public void setValueAt(Object aValue, int row, int column) {
+            if (aValue instanceof Boolean && column == 0) {
+                Vector rowData = (Vector) getDataVector().get(row);
+                rowData.set(0, (boolean) aValue);
+                fireTableCellUpdated(row, column);
+            }
         }
 
     }
