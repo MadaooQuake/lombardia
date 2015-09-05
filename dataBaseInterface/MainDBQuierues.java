@@ -322,7 +322,7 @@ public class MainDBQuierues {
             conDB = setQuerry.getConnDB();
             stmt = conDB.createStatement();
 
-            queryResult = setQuerry.dbSetQuery("DELETE FROM Items  WHERE ID = " + id + "");
+            queryResult = setQuerry.dbSetQuery("DELETE FROM Items  WHERE ID = " + id + ";");
 
             setQuerry.closeDB();
         } catch (SQLException ex) {
@@ -683,7 +683,7 @@ public class MainDBQuierues {
             conDB = setQuerry.getConnDB();
             stmt = conDB.createStatement();
 
-            queryResult = setQuerry.dbSetQuery("UPDATE Items SET ID_AGREEMENT = NULL "
+            queryResult = setQuerry.dbSetQuery("UPDATE Items SET ID_AGREEMENT = NULL WHERE "
                     + "ID_AGREEMENT = (SELECT ID FROM Agreements WHERE ID_AGREEMENTS = '" + aggID + "');");
 
             setQuerry.closeDB();
@@ -996,6 +996,44 @@ public class MainDBQuierues {
         return paymentPorperies;
     }
 
+    // get agreement by agreements id copy paste method :( - next time i do good
+    public List<HashMap<String, String>> getAgreementsByID(String ID) {
+        List<HashMap<String, String>> Settlements = new ArrayList<>();
+
+        try {
+            setQuerry = new QueryDB();
+            conDB = setQuerry.getConnDB();
+            stmt = conDB.createStatement();
+
+            queryResult = setQuerry.dbSetQuery("SELECT * FROM Agreements "
+                    + "WHERE ID_AGREEMENTS LIKE '%" + ID + "%';");
+
+            while (queryResult.next()) {
+                Map<String, String> paymentPorperies = new HashMap<>();
+                paymentPorperies.put("NR Umowy", queryResult.getString("ID_AGREEMENTS"));
+                paymentPorperies.put("Data rozpoczecia", new DateTools(queryResult.getString("START_DATE")).GetDateAsString());
+                paymentPorperies.put("Data zwrotu", new DateTools(queryResult.getString("STOP_DATE")).GetDateAsString());
+                paymentPorperies.put("Kwota", queryResult.getString("VALUE"));
+                paymentPorperies.put("Opłata magayznowania", queryResult.getString("SAVEPRICE"));
+                paymentPorperies.put("Opłata manipulacyjna", queryResult.getString("COMMISSION"));
+                paymentPorperies.put("Razem do zapłaty", queryResult.getString("VALUE_REST"));
+                paymentPorperies.put("Łączna waga", queryResult.getString("ITEM_WEIGHT"));
+                paymentPorperies.put("Łączna wartosc", queryResult.getString("ITEM_VALUE"));
+                paymentPorperies.put("CustID", queryResult.getString("ID_CUSTOMER"));
+                paymentPorperies.put("AgrID", queryResult.getString("ID"));
+                Settlements.add((HashMap<String, String>) paymentPorperies);
+            }
+            setQuerry.closeDB();
+        } catch (SQLException | ParseException ex) {
+            LombardiaLogger startLogging = new LombardiaLogger();
+            String text = startLogging.preparePattern("Error", ex.getMessage()
+                    + "\n" + Arrays.toString(ex.getStackTrace()));
+            startLogging.logToFile(text);
+        }
+
+        return Settlements;
+    }
+
     public List<HashMap<String, String>> getAgreementsAndCustomers() {
         List<HashMap<String, String>> Settlements = new ArrayList<>();
 
@@ -1079,7 +1117,7 @@ public class MainDBQuierues {
             setQuerry = new QueryDB();
             conDB = setQuerry.getConnDB();
             stmt = conDB.createStatement();
-            
+
             queryResult = setQuerry.dbSetQuery("UPDATE Agreements SET SELL = 1 WHERE ID_AGREEMENTS = '"
                     + idAgreements + "';");
 

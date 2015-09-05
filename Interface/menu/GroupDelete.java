@@ -200,6 +200,18 @@ public class GroupDelete extends MenuElementsList {
         }
     }
 
+    public void agrementResult(List<HashMap<String, String>> agreements) {
+        for (Map<String, String> agremment : agreements) {
+            Object[] data = {
+                false,
+                agremment.get("AgrID"),
+                agremment.get("NR Umowy"),
+                ""
+            };
+            model.addRow(data);
+        }
+    }
+
     // actions
     public class SearchButton implements ActionListener {
 
@@ -207,14 +219,26 @@ public class GroupDelete extends MenuElementsList {
         public void actionPerformed(ActionEvent e) {
             model.setRowCount(0);
             if (rangeOption.getSelectedValue().equals("Umowy")) {
-                // to do...
+                List<HashMap<String, String>> agrrementsList = getQuery.getAgreementsByID(searchField.getText());
+                agrementResult(agrrementsList);
+                repaint();
             } else {
                 List<HashMap<String, String>> IteList = getQuery.searchItem(searchField.getText());
                 itemResult(IteList);
                 repaint();
             }
         }
-
+    }
+    
+    // public class delete elements
+    public void deleteElements(int id, String agreement) {
+        if(rangeOption.getSelectedValue().equals("Umowy")) {
+            getQuery.removeItems(agreement);
+            getQuery.deleteAgreement(agreement);
+        } else {
+            getQuery.removeItemFromAgreement(agreement);
+            getQuery.deleteObject(id);
+        }
     }
 
     public class CancelButton implements ActionListener {
@@ -232,8 +256,11 @@ public class GroupDelete extends MenuElementsList {
         @Override
         public void actionPerformed(ActionEvent e) {
             // delete elements
-            for(int i = 0; i < model.getRowCount(); i++) {
-                System.out.println(model.getValueAt(i, 0).toString());
+            for (int i = 0; i < model.getRowCount(); i++) {
+                if ((Boolean) model.getValueAt(i, 0) == true) {
+                    deleteElements(Integer.parseInt(model.getValueAt(i, 1).toString()),
+                            model.getValueAt(i, 2).toString()); 
+                }
             }
             formFrame.dispose();
         }
