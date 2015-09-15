@@ -161,6 +161,30 @@ public class UserDB {
         return id;
     }
 
+    // get user
+    public Map<String, String> getNameSurnemeByID(int userID) {
+        Map<String, String> user = new HashMap<>();
+
+        try {
+            setQuerry = new QueryDB();
+            conDB = setQuerry.getConnDB();
+            stmt = conDB.createStatement();
+
+            queryResult = setQuerry.dbSetQuery("SELECT ID, NAME, SURNAME"
+                    + " FROM Users WHERE ID = " + userID + ";");
+
+            while (queryResult.next()) {
+                user.put("NAME", queryResult.getString("NAME"));
+                user.put("SURNAME", queryResult.getString("SURNAME"));
+            }
+
+            setQuerry.closeDB();
+        } catch (SQLException ex) {
+            Logger.getLogger(ListUsers.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return user;
+    }
+
     public void deleteUser(String Name, String Surename) {
         try {
             setQuerry = new QueryDB();

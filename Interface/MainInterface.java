@@ -16,6 +16,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -42,6 +44,7 @@ import lombardia2014.dataBaseInterface.JoinDB;
 import lombardia2014.dataBaseInterface.LoadDB;
 import lombardia2014.dataBaseInterface.QueryDB;
 import lombardia2014.dataBaseInterface.SaveDB;
+import lombardia2014.dataBaseInterface.UserDB;
 import lombardia2014.generators.LombardiaLogger;
 
 /**
@@ -68,6 +71,7 @@ public class MainInterface {
     Connection conDB = null;
     Statement stmt = null;
     UserOperations sniffOperations = null;
+    UserDB queryUser = new UserDB();
 
     /**
      * @param authID_
@@ -223,7 +227,7 @@ public class MainInterface {
         menuItem.addActionListener(new SettingsOption());
         menu.add(menuItem);
         menu.addSeparator();
-        
+
         menuItem = new JMenuItem("Uwuwanie wielu");
         menuItem.getAccessibleContext().setAccessibleDescription(
                 "Zmiana uprawnień użytkowników");
@@ -322,11 +326,13 @@ public class MainInterface {
         CustomersList customers = new CustomersList();
         ObjectList objects = new ObjectList(sniffOperations);
         ObjectForSellList objectToSell = new ObjectForSellList(sniffOperations);
+        AgreementsList listOfAgrr = new AgreementsList();
 
         tabbedPane.addTab("Menu glówne", mainPanel);
         tabbedPane.addTab("Lista Klientów", customers);
         tabbedPane.addTab("Lista Depozytów", objects);
         tabbedPane.addTab("Przedmioty na sprzedaż", objectToSell);
+        tabbedPane.addTab("Umowy", listOfAgrr);
 
         mainPanel.putObjects(customers, objects, mainFrame);
 
@@ -351,26 +357,9 @@ public class MainInterface {
 
     // method get name and surname of user
     public void setUserNames() {
-        try {
-            setQuerry = new QueryDB();
-            conDB = setQuerry.getConnDB();
-            stmt = conDB.createStatement();
-
-            queryResult = setQuerry.dbSetQuery("SELECT ID, NAME, SURNAME"
-                    + " FROM Users WHERE ID = " + userID + ";");
-
-            while (queryResult.next()) {
-                userName = queryResult.getString("NAME");
-                userSurename = queryResult.getString("SURNAME");
-            }
-
-            setQuerry.closeDB();
-        } catch (SQLException ex) {
-            LombardiaLogger startLogging = new LombardiaLogger();
-            String text = startLogging.preparePattern("Error", ex.getMessage()
-                    + "\n" + Arrays.toString(ex.getStackTrace()));
-            startLogging.logToFile(text);
-        }
+        HashMap<String, String> user = (HashMap<String, String>) queryUser.getNameSurnemeByID(userID);
+        userName = user.get("NAME");
+        userSurename = user.get("SURNAME");
     }
 
     /**
@@ -471,7 +460,7 @@ public class MainInterface {
         }
 
     }
-    
+
     public class DeleteElemnts implements ActionListener {
 
         @Override
@@ -479,7 +468,6 @@ public class MainInterface {
             GroupDelete delteteElements = new GroupDelete();
             delteteElements.generateGui();
         }
-        
     }
 
     // class to exit application
@@ -489,7 +477,6 @@ public class MainInterface {
         public void actionPerformed(ActionEvent e) {
             System.exit(0);
         }
-
     }
 
     /**

@@ -11,6 +11,9 @@ import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JPanel;
@@ -78,7 +81,7 @@ public class AgreementsList extends javax.swing.JPanel {
         title.setBorder(blackline);
         buttonPanels[1].setBorder(title);
         
-        //createTable(c);
+        createTable(c);
         
         c.gridheight = 1;
         c.insets = new Insets(10, 10, 10, 10);
@@ -129,19 +132,12 @@ public class AgreementsList extends javax.swing.JPanel {
                 return false;  //This causes all cells to be not editable
             }
         };
-        model.addColumn("ID");
-        model.addColumn("Kategoria");
-        model.addColumn("Model");
-        model.addColumn("Marka");
-        model.addColumn("Typ");
-        model.addColumn("Waga");
-        model.addColumn("Wartość (Netto)");
-        model.addColumn("Wartość (Brutto)");
-        model.addColumn("IMEI");
-        model.addColumn("Uwagi");
-        model.addColumn("Umowa");
+        model.addColumn("Numer Umowy");
+        model.addColumn("Data zwrotu");
+        model.addColumn("Imie");
+        model.addColumn("Nazwisko");
 
-        //itemsTable();
+        itemsTable();
 
         agreementsList = new JTable(model);
         agreementsList.setAutoCreateRowSorter(true);
@@ -155,7 +151,21 @@ public class AgreementsList extends javax.swing.JPanel {
         c.gridx = 1;
         c.gridy = 0;
         buttonPanels[1].add(scrollPane, c);
-
     }
+     
+     public void itemsTable() {
+        List<HashMap<String, String>> agrrements = getQuery.searchAgrementByIDorCustomerName("", "", "");
+
+        for (Map<String, String> agrrement : agrrements) {
+            Object[] data = {
+                agrrement.get("NR Umowy"),
+                agrrement.get("Data zwrotu"),
+                agrrement.get("Imie"),
+                agrrement.get("Nazwisko")
+            };
+            model.addRow(data);
+
+        }
+     }
 
 }

@@ -1085,9 +1085,11 @@ public class MainDBQuierues {
 
             if (!aggID.isEmpty()) {
                 query += " AND Agreements.ID_AGREEMENTS Like '%" + aggID + "%';";
-            } else {
+            } else if (!name.isEmpty() && !surname.isEmpty()) {
                 query += "AND Customers.Name LIKE '" + name + "' AND "
                         + "Customers.Surname LIKE '" + surname + "';";
+            } else {
+                query += ";";
             }
             queryResult = setQuerry.dbSetQuery(query);
 
