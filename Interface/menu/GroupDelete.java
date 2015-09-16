@@ -13,8 +13,6 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -46,6 +44,7 @@ public class GroupDelete extends MenuElementsList {
     MyTableModel model;
     int fontSize = 12;
     int heightTextL = 20;
+    int iClose = 0;
     // we can change to items ot agreements list
     JList<Object> rangeOption = null;
     Object[] elementList = {"Umowy", "Przedmioty"};
@@ -246,10 +245,18 @@ public class GroupDelete extends MenuElementsList {
         @Override
         public void actionPerformed(ActionEvent e) {
             // search now
+            iClose = 1;
             formFrame.dispose();
         }
 
     }
+    
+    public boolean isClose() {
+        return iClose == 1;
+    }
+    
+    
+    //======================================================
 
     public class DeleteButton implements ActionListener {
 
@@ -262,6 +269,7 @@ public class GroupDelete extends MenuElementsList {
                             model.getValueAt(i, 2).toString()); 
                 }
             }
+            iClose = 1;
             formFrame.dispose();
         }
 

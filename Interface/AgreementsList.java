@@ -11,6 +11,8 @@ import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -64,7 +66,7 @@ public class AgreementsList extends javax.swing.JPanel {
         title.setTitleJustification(TitledBorder.RIGHT);
         title.setBorder(blackline);
         buttonPanels[0].setBorder(title);
-        
+
         createSearch(c);
 
         c.gridheight = 1;
@@ -74,15 +76,15 @@ public class AgreementsList extends javax.swing.JPanel {
         c.ipadx = 0;
         c.ipady = 0;
         mainPanel.add(buttonPanels[0], c);
-        
+
         buttonPanels[1] = new JPanel(new GridBagLayout());
         title = BorderFactory.createTitledBorder(blackline, "Lista umów");
         title.setTitleJustification(TitledBorder.RIGHT);
         title.setBorder(blackline);
         buttonPanels[1].setBorder(title);
-        
+
         createTable(c);
-        
+
         c.gridheight = 1;
         c.insets = new Insets(10, 10, 10, 10);
         c.gridx = 0;
@@ -95,13 +97,13 @@ public class AgreementsList extends javax.swing.JPanel {
         setVisible(true);
 
     }
-    
-     public void createSearch(GridBagConstraints c) {
+
+    public void createSearch(GridBagConstraints c) {
         searchText = new JTextField();
         searchText.setToolTipText("Wyszukaj depozyt");
         searchText.setPreferredSize(new Dimension(250, 40));
         searchText.setFont(new Font("Dialog", Font.BOLD, 20));
-        //searchText.addActionListener();
+        searchText.addActionListener(new AgreemntSearch());
         c.fill = GridBagConstraints.HORIZONTAL;
         c.insets = new Insets(10, 230, 10, 0);
         c.gridx = 0;
@@ -111,19 +113,17 @@ public class AgreementsList extends javax.swing.JPanel {
         buttonSearch = new JButton();
         buttonSearch.setText("Szukaj");
         buttonSearch.setPreferredSize(new Dimension(150, 40));
-        //buttonSearch.addActionListener();
+        buttonSearch.addActionListener(new AgreemntSearch());
 
         c.fill = GridBagConstraints.HORIZONTAL;
         c.insets = new Insets(10, 0, 10, 230);
         c.gridx = 1;
         c.gridy = 0;
         buttonPanels[0].add(buttonSearch, c);
-        
-        
 
     }
-     
-     public void createTable(GridBagConstraints c) {
+
+    public void createTable(GridBagConstraints c) {
 
         // create table
         model = new DefaultTableModel() {
@@ -143,7 +143,7 @@ public class AgreementsList extends javax.swing.JPanel {
         agreementsList.setAutoCreateRowSorter(true);
         JScrollPane scrollPane = new JScrollPane(agreementsList);
         agreementsList.setFillsViewportHeight(true);
-        
+
         scrollPane.setPreferredSize(new Dimension(780, 450));
 
         c.fill = GridBagConstraints.HORIZONTAL;
@@ -152,8 +152,8 @@ public class AgreementsList extends javax.swing.JPanel {
         c.gridy = 0;
         buttonPanels[1].add(scrollPane, c);
     }
-     
-     public void itemsTable() {
+
+    public void itemsTable() {
         List<HashMap<String, String>> agrrements = getQuery.searchAgrementByIDorCustomerName("", "", "");
 
         for (Map<String, String> agrrement : agrrements) {
@@ -166,6 +166,45 @@ public class AgreementsList extends javax.swing.JPanel {
             model.addRow(data);
 
         }
-     }
+    }
+
+    public void updateItemTable() {
+        // clear model 
+        model.setRowCount(0);
+        itemsTable();
+        repaint();
+    }
+
+    private class AgreemntSearch implements ActionListener {
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            if (searchText.getText().length() > 1) {
+                // method
+                searchAgrrement();
+            } else {
+                updateItemTable();
+            }
+        }
+
+        public void searchAgrrement() {
+            model.setRowCount(0);
+
+            List<HashMap<String, String>> agrrements = getQuery.searchAgrementByIDorCustomerName(searchText.getText(), "", "");
+
+            for (Map<String, String> agrrement : agrrements) {
+                Object[] data = {
+                    agrrement.get("NR Umowy"),
+                    agrrement.get("Data zwrotu"),
+                    agrrement.get("Imie"),
+                    agrrement.get("Nazwisko")
+                };
+                model.addRow(data);
+
+            }
+
+        }
+
+    }
 
 }

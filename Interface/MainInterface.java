@@ -11,13 +11,9 @@ import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.Arrays;
+
 import java.util.HashMap;
-import java.util.Map;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -28,7 +24,9 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JTabbedPane;
 import javax.swing.KeyStroke;
+import javax.swing.SwingWorker;
 import javax.swing.filechooser.FileNameExtensionFilter;
+
 import lombardia2014.Interface.menu.AppInfo;
 import lombardia2014.Interface.menu.GroupDelete;
 import lombardia2014.Interface.menu.Help;
@@ -66,12 +64,11 @@ public class MainInterface {
     JFileChooser chooser;
     int authID = 0, userID = 0;
     public static String userName, userSurename;
-    QueryDB setQuerry = null;
-    ResultSet queryResult = null;
-    Connection conDB = null;
-    Statement stmt = null;
     UserOperations sniffOperations = null;
     UserDB queryUser = new UserDB();
+    SwingWorker<Void, Void> worker = null;
+    ObjectList objects = null;
+    AgreementsList listOfAgrr = null;
 
     /**
      * @param authID_
@@ -324,9 +321,9 @@ public class MainInterface {
         sniffOperations = new UserOperations(userName, userSurename);
         MainMMenu mainPanel = new MainMMenu(sniffOperations);
         CustomersList customers = new CustomersList();
-        ObjectList objects = new ObjectList(sniffOperations);
+        objects = new ObjectList(sniffOperations);
         ObjectForSellList objectToSell = new ObjectForSellList(sniffOperations);
-        AgreementsList listOfAgrr = new AgreementsList();
+        listOfAgrr = new AgreementsList();
 
         tabbedPane.addTab("Menu glówne", mainPanel);
         tabbedPane.addTab("Lista Klientów", customers);
@@ -465,8 +462,33 @@ public class MainInterface {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            GroupDelete delteteElements = new GroupDelete();
+            final GroupDelete delteteElements = new GroupDelete();
             delteteElements.generateGui();
+
+            worker = new SwingWorker<Void, Void>() {
+
+                @Override
+                protected Void doInBackground() {
+                    try {
+                        while (true) {
+                            if(delteteElements.isClose() == true) {
+                                objects.updateItemTable();
+                                listOfAgrr.updateItemTable();
+                            }
+                            Thread.sleep(100);
+                        }
+
+                    } catch (Exception ex) {
+                        LombardiaLogger startLogging = new LombardiaLogger();
+                        String text = startLogging.preparePattern("Error", ex.getMessage()
+                                + "\n" + Arrays.toString(ex.getStackTrace()));
+                        startLogging.logToFile(text);
+                    }
+                    return null;
+                }
+
+            };
+            worker.execute();
         }
     }
 
