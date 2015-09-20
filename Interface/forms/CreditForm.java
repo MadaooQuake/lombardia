@@ -19,6 +19,7 @@ import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.lang.reflect.InvocationTargetException;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
@@ -30,6 +31,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -44,11 +47,15 @@ import javax.swing.JSpinner;
 import javax.swing.JTextField;
 import javax.swing.SpinnerModel;
 import javax.swing.SpinnerNumberModel;
+import javax.swing.SwingUtilities;
+import javax.swing.SwingWorker;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import lombardia2014.Interface.ProgressBar;
+import lombardia2014.Interface.ProgressBarThread;
 import lombardia2014.core.ConfigRead;
 import lombardia2014.core.SelfCalc;
 import lombardia2014.core.SetLocatnion;
@@ -1444,6 +1451,10 @@ public class CreditForm extends Forms {
                 if (checkElement == true) {
                     ok.setEnabled(false);
                     cancel.setEnabled(false);
+
+                    Thread stepper = new ProgressBarThread(itemsList.size());
+                    stepper.start();
+
                     adRemValue = Double.parseDouble(fields[4].getText().replaceAll(",", "."));
                     moneySafe = new SelfCalc();
                     if (checkItem.checkPesel(
@@ -1579,7 +1590,9 @@ public class CreditForm extends Forms {
             // analyze cat id :D
             int catID = 0;
             howMany = fillPayID();
+
             for (int i = 0; i < itemsList.size(); i++) {
+
                 tmpItem.putAll(itemsList.get(i));
                 catID = getQuery.getCatID(tmpItem.get("Kategoria"));
 
@@ -2275,7 +2288,6 @@ public class CreditForm extends Forms {
     }
 
     //never ending story in this form... 
-
     public class calculatePaymentsOfForm implements DocumentListener, ActionListener {
 
         @Override
@@ -2365,7 +2377,7 @@ public class CreditForm extends Forms {
             if (nameSurname.length > 1) {
                 Map<String, String> user = (HashMap<String, String>) getQuery.getUser(nameSurname[1], nameSurname[0]);
                 int tmpTrust = 0;
-                if(user.get("TRUST") != null) {
+                if (user.get("TRUST") != null) {
                     tmpTrust = Integer.parseInt(user.get("TRUST"));
                 }
                 fields[0].setText(user.get("NAME"));

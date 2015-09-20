@@ -13,6 +13,7 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,8 +28,12 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
+import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableModel;
+import lombardia2014.Interface.ProgressBar;
+import lombardia2014.Interface.ProgressBarThread;
 import lombardia2014.dataBaseInterface.MainDBQuierues;
+import lombardia2014.generators.LombardiaLogger;
 
 /**
  *
@@ -53,6 +58,7 @@ public class GroupDelete extends MenuElementsList {
 
     @Override
     public void generateGui() {
+
         formFrame.setSize(new Dimension(600, 600));
         formFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         formFrame.setResizable(false);
@@ -228,10 +234,11 @@ public class GroupDelete extends MenuElementsList {
             }
         }
     }
-    
+
     // public class delete elements
     public void deleteElements(int id, String agreement) {
-        if(rangeOption.getSelectedValue().equals("Umowy")) {
+        
+        if (rangeOption.getSelectedValue().equals("Umowy")) {
             getQuery.removeItems(agreement);
             getQuery.deleteAgreement(agreement);
         } else {
@@ -239,6 +246,8 @@ public class GroupDelete extends MenuElementsList {
             getQuery.deleteObject(id);
         }
     }
+
+
 
     public class CancelButton implements ActionListener {
 
@@ -250,25 +259,27 @@ public class GroupDelete extends MenuElementsList {
         }
 
     }
-    
+
     public boolean isClose() {
         return iClose == 1;
     }
-    
-    
-    //======================================================
 
+    //======================================================
     public class DeleteButton implements ActionListener {
 
         @Override
         public void actionPerformed(ActionEvent e) {
+            Thread stepper = new ProgressBarThread();
+            stepper.start();
             // delete elements
             for (int i = 0; i < model.getRowCount(); i++) {
                 if ((Boolean) model.getValueAt(i, 0) == true) {
+
                     deleteElements(Integer.parseInt(model.getValueAt(i, 1).toString()),
-                            model.getValueAt(i, 2).toString()); 
+                            model.getValueAt(i, 2).toString());
                 }
             }
+            
             iClose = 1;
             formFrame.dispose();
         }
