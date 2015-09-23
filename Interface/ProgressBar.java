@@ -7,11 +7,15 @@ package lombardia2014.Interface;
 
 import java.awt.BorderLayout;
 import java.awt.Container;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import javax.swing.BorderFactory;
+import javax.swing.JButton;
 import javax.swing.JFrame;
 
 import javax.swing.JProgressBar;
 import javax.swing.border.Border;
+import javax.swing.plaf.basic.BasicInternalFrameTitlePane;
 
 /**
  *
@@ -20,6 +24,7 @@ import javax.swing.border.Border;
 public class ProgressBar {
     JFrame frame = null;
     JProgressBar pbar;
+    JButton ok = null;
     final int MY_MINIMUM = 0;
     int MY_MAXIMUM = 00; // dafault value
     int value =0;
@@ -38,8 +43,16 @@ public class ProgressBar {
         Border border = BorderFactory.createTitledBorder("Wykonywanie operacji, prosze czekać...");
         pbar.setBorder(border);
         content.add(pbar, BorderLayout.NORTH);
+        ok = new JButton("OK");
+        ok.addActionListener(new CloseProgress());
+        ok.setEnabled(false);
+        content.add(ok, BorderLayout.AFTER_LINE_ENDS);
         frame.setSize(300, 100);
         frame.setVisible(true);
+    }
+    
+    public void activeButton() {
+        ok.setEnabled(true);
     }
     
 
@@ -49,6 +62,15 @@ public class ProgressBar {
     
     public void closePbar() {
         frame.dispose();
+    }
+    
+    private class CloseProgress implements ActionListener {
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+             closePbar();
+        }
+        
     }
 
 }

@@ -19,7 +19,6 @@ import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
-import java.lang.reflect.InvocationTargetException;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
@@ -31,8 +30,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -47,14 +44,12 @@ import javax.swing.JSpinner;
 import javax.swing.JTextField;
 import javax.swing.SpinnerModel;
 import javax.swing.SpinnerNumberModel;
-import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-import lombardia2014.Interface.ProgressBar;
 import lombardia2014.Interface.ProgressBarThread;
 import lombardia2014.core.ConfigRead;
 import lombardia2014.core.SelfCalc;
@@ -136,6 +131,7 @@ public class CreditForm extends Forms {
     ItemChecker creatItemtoDB = new ItemChecker();
     SetLocatnion polishSign = new SetLocatnion();
     MainDBQuierues getQuery = new MainDBQuierues();
+    SwingWorker<Void, Void> worker = null;
 
     public CreditForm(Map itemsList_, Map paymentPorperies_,
             Map userInfo_, boolean update_) {
@@ -1421,6 +1417,7 @@ public class CreditForm extends Forms {
 
         @Override
         public void actionPerformed(ActionEvent e) {
+
             // popup witch informate about save payment to DB
             int selectedOption = JOptionPane.showConfirmDialog(formFrame,
                     "Czy na pewno wszystkie dane są poprawne ?",
@@ -1451,10 +1448,6 @@ public class CreditForm extends Forms {
                 if (checkElement == true) {
                     ok.setEnabled(false);
                     cancel.setEnabled(false);
-
-                    Thread stepper = new ProgressBarThread(itemsList.size());
-                    stepper.start();
-
                     adRemValue = Double.parseDouble(fields[4].getText().replaceAll(",", "."));
                     moneySafe = new SelfCalc();
                     if (checkItem.checkPesel(
@@ -1586,22 +1579,33 @@ public class CreditForm extends Forms {
 
             // i must know id last agreement
             // finnaly i save items in loop :(
-            Map<String, String> tmpItem = new HashMap<>();
             // analyze cat id :D
-            int catID = 0;
             howMany = fillPayID();
+            worker = new SwingWorker<Void, Void>() {
 
-            for (int i = 0; i < itemsList.size(); i++) {
+                @Override
+                protected Void doInBackground() throws Exception {
+                    Map<String, String> tmpItem = new HashMap<>();
+                    int catID = 0;
+                    for (int i = 0; i < itemsList.size(); i++) {
 
-                tmpItem.putAll(itemsList.get(i));
-                catID = getQuery.getCatID(tmpItem.get("Kategoria"));
+                        tmpItem.putAll(itemsList.get(i));
+                        catID = getQuery.getCatID(tmpItem.get("Kategoria"));
 
-                creatItemtoDB.setValues(tmpItem.get("Model"), tmpItem.get("Marka"),
-                        tmpItem.get("Typ"), tmpItem.get("Waga"),
-                        tmpItem.get("IMEI"), tmpItem.get("Wartość"),
-                        tmpItem.get("Uwagi"), catID, howMany);
-                getQuery.insertItem(creatItemtoDB.getInsertItem());
-            }
+                        creatItemtoDB.setValues(tmpItem.get("Model"), tmpItem.get("Marka"),
+                                tmpItem.get("Typ"), tmpItem.get("Waga"),
+                                tmpItem.get("IMEI"), tmpItem.get("Wartość"),
+                                tmpItem.get("Uwagi"), catID, howMany);
+                        getQuery.insertItem(creatItemtoDB.getInsertItem());
+                    }
+                    return null;
+                }
+
+            };
+            worker.execute();
+            ProgressBarThread progress = new ProgressBarThread(itemsList.size());
+            progress.execute();
+
         }
 
         private void updateDB() {

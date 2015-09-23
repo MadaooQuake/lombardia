@@ -28,12 +28,10 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
-import javax.swing.SwingUtilities;
+import javax.swing.SwingWorker;
 import javax.swing.table.DefaultTableModel;
-import lombardia2014.Interface.ProgressBar;
 import lombardia2014.Interface.ProgressBarThread;
 import lombardia2014.dataBaseInterface.MainDBQuierues;
-import lombardia2014.generators.LombardiaLogger;
 
 /**
  *
@@ -53,6 +51,7 @@ public class GroupDelete extends MenuElementsList {
     // we can change to items ot agreements list
     JList<Object> rangeOption = null;
     Object[] elementList = {"Umowy", "Przedmioty"};
+    SwingWorker<Void, Void> worker = null;
 
     MainDBQuierues getQuery = new MainDBQuierues();
 
@@ -237,7 +236,7 @@ public class GroupDelete extends MenuElementsList {
 
     // public class delete elements
     public void deleteElements(int id, String agreement) {
-        
+
         if (rangeOption.getSelectedValue().equals("Umowy")) {
             getQuery.removeItems(agreement);
             getQuery.deleteAgreement(agreement);
@@ -246,8 +245,6 @@ public class GroupDelete extends MenuElementsList {
             getQuery.deleteObject(id);
         }
     }
-
-
 
     public class CancelButton implements ActionListener {
 
@@ -269,17 +266,24 @@ public class GroupDelete extends MenuElementsList {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            Thread stepper = new ProgressBarThread();
-            stepper.start();
+            worker = new SwingWorker<Void, Void>() {
             // delete elements
-            for (int i = 0; i < model.getRowCount(); i++) {
-                if ((Boolean) model.getValueAt(i, 0) == true) {
 
-                    deleteElements(Integer.parseInt(model.getValueAt(i, 1).toString()),
-                            model.getValueAt(i, 2).toString());
+                @Override
+                protected Void doInBackground() throws Exception {
+                    for (int i = 0; i < model.getRowCount(); i++) {
+                        if ((Boolean) model.getValueAt(i, 0) == true) {
+
+                            deleteElements(Integer.parseInt(model.getValueAt(i, 1).toString()),
+                                    model.getValueAt(i, 2).toString());
+                        }
+                    }
+                    return null;
                 }
-            }
-            
+            };
+            worker.execute();
+            ProgressBarThread progress = new ProgressBarThread();
+            progress.execute();
             iClose = 1;
             formFrame.dispose();
         }

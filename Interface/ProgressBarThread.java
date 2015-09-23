@@ -5,18 +5,15 @@
  */
 package lombardia2014.Interface;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.swing.SwingUtilities;
+import javax.swing.SwingWorker;
 import lombardia2014.generators.LombardiaLogger;
 
 /**
  *
  * @author Domek
  */
-public class ProgressBarThread extends Thread {
+public class ProgressBarThread extends SwingWorker<Void, Void> {
 
     ProgressBar progress = null;
     int max = 10;
@@ -31,27 +28,20 @@ public class ProgressBarThread extends Thread {
     }
 
     @Override
-    public void run() {
-        Runnable runner = new Runnable() {
-
-            @Override
-            public void run() {
-                try {
-                    for (int i = 0; i < max; i++) {
-                        progress.updateBar();
-                        Thread.sleep(50);
-                    }
-                } catch (InterruptedException ex) {
-                    LombardiaLogger startLogging = new LombardiaLogger();
-                    String text = startLogging.preparePattern("Error", ex.getMessage()
-                            + "\n" + Arrays.toString(ex.getStackTrace()));
-                    startLogging.logToFile(text);
-                }
+    protected Void doInBackground() throws Exception {
+        try {
+            for (int i = 0; i < max; i++) {
+                progress.updateBar();
+                Thread.sleep(50);
             }
-
-        };
-
-        progress.closePbar();
+            progress.activeButton();
+        } catch (InterruptedException ex) {
+            LombardiaLogger startLogging = new LombardiaLogger();
+            String text = startLogging.preparePattern("Error", ex.getMessage()
+                    + "\n" + Arrays.toString(ex.getStackTrace()));
+            startLogging.logToFile(text);
+        }
+        return null;
     }
 
 }

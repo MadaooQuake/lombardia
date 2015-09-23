@@ -40,7 +40,6 @@ import lombardia2014.dataBaseInterface.UserOperations;
 import lombardia2014.dataBaseInterface.DeleteDB;
 import lombardia2014.dataBaseInterface.JoinDB;
 import lombardia2014.dataBaseInterface.LoadDB;
-import lombardia2014.dataBaseInterface.QueryDB;
 import lombardia2014.dataBaseInterface.SaveDB;
 import lombardia2014.dataBaseInterface.UserDB;
 import lombardia2014.generators.LombardiaLogger;
@@ -474,6 +473,7 @@ public class MainInterface {
                             if(delteteElements.isClose() == true) {
                                 objects.updateItemTable();
                                 listOfAgrr.updateItemTable();
+                                break;
                             }
                             Thread.sleep(100);
                         }
