@@ -32,7 +32,7 @@ import javax.swing.SwingWorker;
 import javax.swing.border.Border;
 import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
-import lombardia2014.Interface.forms.ItemForm;
+import lombardia2014.Interface.forms.ItemSellForm;
 import lombardia2014.core.ConfigRead;
 import lombardia2014.dataBaseInterface.MainDBQuierues;
 import lombardia2014.dataBaseInterface.QueryDB;
@@ -60,7 +60,7 @@ public class ObjectForSellList extends javax.swing.JPanel {
     int id = 0;
     int selectRow = -1;
     SwingWorker worker = null;
-    ItemForm sellForm = null;
+    ItemSellForm sellForm = null;
     ConfigRead readVat = new ConfigRead();
     float vat = 0, value = 0;
     UserOperations sniffOperations = null;
@@ -96,7 +96,8 @@ public class ObjectForSellList extends javax.swing.JPanel {
 
         // secound panel
         buttonPanels[1] = new JPanel(new GridBagLayout());
-        title = BorderFactory.createTitledBorder(blackline, "Lista depozytów");
+        title = BorderFactory.createTitledBorder(blackline, "Lista depozytów"
+                + "na sprzedaż");
         title.setTitleJustification(TitledBorder.RIGHT);
         title.setBorder(blackline);
         buttonPanels[1].setBorder(title);
@@ -260,7 +261,7 @@ public class ObjectForSellList extends javax.swing.JPanel {
                 id = Integer.parseInt((String) objectList.getModel().getValueAt(
                         objectList.convertRowIndexToView(selectRow), 0));
 
-                sellForm = new ItemForm(id, agreement);
+                sellForm = new ItemSellForm(id, agreement);
                 sellForm.generateGui();
 
                 worker = new SwingWorker<Void, Void>() {
