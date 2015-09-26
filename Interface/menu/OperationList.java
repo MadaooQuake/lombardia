@@ -5,7 +5,9 @@
  */
 package lombardia2014.Interface.menu;
 
+import com.itextpdf.text.DocumentException;
 import java.awt.Color;
+import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
@@ -14,8 +16,11 @@ import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseListener;
+import java.io.File;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import javax.swing.BorderFactory;
@@ -33,6 +38,8 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 import lombardia2014.dataBaseInterface.UserOperations;
+import lombardia2014.generators.LombardiaLogger;
+import lombardia2014.generators.PDFCreator;
 
 /**
  *
@@ -43,7 +50,7 @@ public class OperationList extends MenuElementsList {
     JPanel[] buttonPanels = null;
     JLabel dateRange = null;
     JList<Object> rangeOption = null;
-    JButton deleteOperation = null;
+    JButton deleteOperation = null, printOperations = null;
     TitledBorder title = null;
     GridBagConstraints[] cTab = new GridBagConstraints[2];
     JTable litsOperations = null;
@@ -54,6 +61,14 @@ public class OperationList extends MenuElementsList {
     List<String[]> operations = new ArrayList<>();
     Date curretDate = null;
     SimpleDateFormat ft = new SimpleDateFormat("dd.MM.YYYY HH:mm");
+    String[] headers = {"Użytkownik", "Data", "Operacja"};
+    float[] headersWidth = {3.0f, 5.0f, 5.0f};
+    String formname = "Operacje";
+    String outputFileName = "Operacje.pdf";
+    PDFCreator pdf = null;
+    int windowWidth = 860;
+    int windowHeigth = 500;
+    int rowsPerPage = 40;
 
     public OperationList() {
         operationList = new UserOperations();
@@ -75,7 +90,6 @@ public class OperationList extends MenuElementsList {
 
         formFrame.add(mainPanel);
         formFrame.setVisible(true);
-                
 
     }
 
@@ -122,10 +136,21 @@ public class OperationList extends MenuElementsList {
         rangeOption.setVisibleRowCount(1);
         rangeOption.setPreferredSize(new Dimension(100, 30));
 
-
         cTab[0].ipadx = 1;
         cTab[0].ipady = 0;
         buttonPanels[0].add(rangeOption, cTab[0]);
+
+        cTab[0].insets = new Insets(5, 15, 5, 5);
+        printOperations = new JButton();
+        printOperations.setText("Drukuj");
+        printOperations.addActionListener(new GenerateDocument());
+        printOperations.setFont(new Font("Dialog", Font.BOLD, 20));
+        printOperations.setPreferredSize(new Dimension(200, 30));
+
+        cTab[0].fill = GridBagConstraints.HORIZONTAL;
+        cTab[0].gridx = 2;
+        cTab[0].gridy = 0;
+        buttonPanels[0].add(printOperations, cTab[0]);
 
         cTab[0].insets = new Insets(5, 15, 5, 5);
         deleteOperation = new JButton();
@@ -135,7 +160,7 @@ public class OperationList extends MenuElementsList {
         deleteOperation.setPreferredSize(new Dimension(200, 30));
 
         cTab[0].fill = GridBagConstraints.HORIZONTAL;
-        cTab[0].gridx = 2;
+        cTab[0].gridx = 3;
         cTab[0].gridy = 0;
         buttonPanels[0].add(deleteOperation, cTab[0]);
     }
@@ -250,6 +275,45 @@ public class OperationList extends MenuElementsList {
         @Override
         public void mouseExited(java.awt.event.MouseEvent e) {
             //nothing to do, but i must create this method :(
+        }
+
+    }
+
+    private class GenerateDocument implements ActionListener {
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            try {
+                pdf = new PDFCreator(outputFileName, formname);
+                pdf.SetLandscapeView();
+                pdf.SetRowsPerPage(rowsPerPage);
+                pdf.CreatePDF(model, headers, headersWidth);
+                
+                JOptionPane.showMessageDialog(null, "Operacje PDF został wygenerowany.",
+                        "Generowanie PDF", JOptionPane.INFORMATION_MESSAGE);
+            } catch (IOException | DocumentException ex) {
+                LombardiaLogger startLogging = new LombardiaLogger();
+                String text = startLogging.preparePattern("Error", ex.getMessage()
+                    + "\n" + Arrays.toString(ex.getStackTrace()));
+                startLogging.logToFile(text);
+                JOptionPane.showMessageDialog(null, "Błąd podczas generowania operacji.", 
+                        "Generowanie PDF", JOptionPane.ERROR_MESSAGE);
+            }
+            
+             try {
+                String dir = System.getProperty("user.dir");
+                
+                File dirAgre = new File(dir);
+
+                if (Desktop.isDesktopSupported()) {
+                    Desktop.getDesktop().open(dirAgre);
+                }
+            } catch (Exception ex) {
+                LombardiaLogger startLogging = new LombardiaLogger();
+                String text = startLogging.preparePattern("Error", ex.getMessage()
+                    + "\n" + Arrays.toString(ex.getStackTrace()));
+                startLogging.logToFile(text);
+           }
         }
 
     }

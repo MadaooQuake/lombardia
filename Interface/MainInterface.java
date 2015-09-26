@@ -89,7 +89,6 @@ public class MainInterface {
         mainFrame.add(panel);
         mainFrame.setVisible(true);
         sniffOperations = new UserOperations(userName, userSurename);
-        sniffOperations.saveOperations("logowanie");
     }
 
     /**

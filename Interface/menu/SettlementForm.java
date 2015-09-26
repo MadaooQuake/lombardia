@@ -43,7 +43,6 @@ import java.util.Calendar;
 //to open output dir
 import java.io.File;
 import java.awt.Desktop;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -76,7 +75,7 @@ public class SettlementForm extends MenuElementsList {
             from = String.format("%04d%02d%02d", year, month, 1);
             to = String.format("%04d%02d%02d", year, month, days);
         }
-        output_file_name = formname+"_"+range+".pdf";
+        output_file_name = formname + "_" + range + ".pdf";
         listSettlement = new JTable(new DefaultTableModel());
     }
 

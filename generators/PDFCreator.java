@@ -1,21 +1,18 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package lombardia2014.generators;
 
 import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.Paragraph;
 import com.itextpdf.text.pdf.PdfWriter;
-import java.io.FileOutputStream;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.PageSize;
 import com.itextpdf.text.pdf.BaseFont;
 import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.Phrase;
+
+import java.io.FileOutputStream;
 import java.io.IOException;
+
 import com.itextpdf.text.Chunk;
 import javax.swing.table.DefaultTableModel;
 
@@ -25,10 +22,11 @@ import javax.swing.table.DefaultTableModel;
  */
 public class PDFCreator {
 
-    int rows_per_page = 20;
+    int rows_per_page = 20; // max rows in page
     int rotate = 0;
-    String output_file_name = "";
-    String title = "";
+    String output_file_name = null;
+    String title = null;
+    Document document = null;
 
     public PDFCreator(String file_name, String report_title) {
         output_file_name = file_name;
@@ -52,7 +50,6 @@ public class PDFCreator {
             float[] headers_widths
     ) throws DocumentException, IOException {
         String[][][] convertedData = ConvertData(data, rows_per_page);
-        Document document = null;
         if (rotate == 1) {
             document = new Document(PageSize.LETTER.rotate());
         } else {
