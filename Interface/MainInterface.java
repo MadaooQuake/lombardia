@@ -284,6 +284,14 @@ public class MainInterface {
                 "Tworzy wykres statystyk w ciagu miesiaca");
         menuItem.addActionListener(new YearlyStatistics());
         menu.add(menuItem);
+        
+        menuItem = new JMenuItem("Raport dzienny");
+        menuItem.setAccelerator(KeyStroke.getKeyStroke(
+                KeyEvent.VK_0, ActionEvent.ALT_MASK));
+        menuItem.getAccessibleContext().setAccessibleDescription(
+                "Tworzy wykres statystyk w ciagu miesiaca");
+        menuItem.addActionListener(new DailyRaport());
+        menu.add(menuItem);
     }
 
     public void menuHelp() {
@@ -582,6 +590,16 @@ public class MainInterface {
             newStatistic.generateGui();
         }
 
+    }
+    
+
+    public class DailyRaport implements ActionListener {
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+             System.out.println("to do....");
+        }
+        
     }
 
     // help menu
