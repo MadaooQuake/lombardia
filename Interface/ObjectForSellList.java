@@ -254,9 +254,9 @@ public class ObjectForSellList extends javax.swing.JPanel {
             if (e.getClickCount() == 2) {
                 selectRow = table.getSelectedRow();
                 int row = table.rowAtPoint(p);
-                boolean agreement = objectList.getModel().getValueAt(
+                boolean agreement = !objectList.getModel().getValueAt(
                         objectList.convertRowIndexToView(selectRow), 10
-                ) != null;
+                ).equals("");
 
                 id = Integer.parseInt((String) objectList.getModel().getValueAt(
                         objectList.convertRowIndexToView(selectRow), 0));

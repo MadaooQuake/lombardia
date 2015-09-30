@@ -12,12 +12,6 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Map;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -33,7 +27,6 @@ import lombardia2014.Interface.ObjectList;
 import lombardia2014.dataBaseInterface.MainDBQuierues;
 import lombardia2014.dataBaseInterface.QueryDB;
 import lombardia2014.generators.ItemChecker;
-import lombardia2014.generators.LombardiaLogger;
 
 /**
  *
@@ -50,10 +43,6 @@ public class ItemSellForm extends Forms {
     JButton sell = null;
     boolean iclose = false, valdiate = false;
     FormValidator checkItem = new FormValidator();
-    QueryDB setQuerry = null;
-    ResultSet queryResult = null;
-    Connection conDB = null;
-    Statement stmt = null;
     Double value = 0.0;
 
     int iClose = 0;

@@ -246,7 +246,7 @@ public final class ObjectList extends javax.swing.JPanel {
                 int row = table.rowAtPoint(p);
                 boolean agreement = objectList.getModel().getValueAt(
                         objectList.convertRowIndexToView(selectRow), 10
-                ) != null;
+                ).equals("");
 
                 id = Integer.parseInt((String) objectList.getModel().getValueAt(
                         objectList.convertRowIndexToView(selectRow), 0));

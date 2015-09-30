@@ -10,6 +10,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -1149,5 +1150,37 @@ public class MainDBQuierues {
                     + "\n" + Arrays.toString(ex.getStackTrace()));
             startLogging.logToFile(text);
         }
+    }
+
+    // query about safa agreements and items :o
+    public List<HashMap<String, String>> getOperationList() {
+        List<HashMap<String, String>> operations = new ArrayList<>();
+        Date curretDate = new Date();
+
+        try {
+            setQuerry = new QueryDB();
+            conDB = setQuerry.getConnDB();
+            stmt = conDB.createStatement();
+
+            queryResult = setQuerry.dbSetQuery("SELECT Agreements.ID_AGREEMENTS, Agreements.START_DATE, Agreements.VALUE, "
+                    + "OPerations.DATE, OPerations.OPERATIONS"
+                    + " FROM Agreements "
+                    + "FULL OUTER JOIN OPerations "
+                    + "WHERE Agreements.START_DATE LIKE '" + new DateTools(curretDate).GetDateForDB() + "' OR "
+                    + "OPerations.DATE LIKE '" + new DateTools(curretDate).GetDateForDB() + "';");
+            
+            while (queryResult.next()) {
+                // to do 
+            }
+
+            setQuerry.closeDB();
+        } catch (SQLException ex) {
+            LombardiaLogger startLogging = new LombardiaLogger();
+            String text = startLogging.preparePattern("Error", ex.getMessage()
+                    + "\n" + Arrays.toString(ex.getStackTrace()));
+            startLogging.logToFile(text);
+        }
+
+        return operations;
     }
 }
