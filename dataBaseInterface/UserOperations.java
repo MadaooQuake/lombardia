@@ -13,7 +13,10 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import lombardia2014.generators.DateTools;
 import lombardia2014.generators.LombardiaLogger;
 
 /**
@@ -147,6 +150,36 @@ public class UserOperations {
                     + "\n" + Arrays.toString(ex.getStackTrace()));
             startLogging.logToFile(text);
         }
+    }
+
+    public List<HashMap<String, String>> getDailyOperations() {
+        List<HashMap<String, String>> operations = new ArrayList<>();
+
+        try {
+            curretDate = new Date();
+            setQuerry = new QueryDB();
+            conDB = setQuerry.getConnDB();
+            stmt = conDB.createStatement();
+
+            queryResult = setQuerry.dbSetQuery("SELECT DATE, OPERATIONS FROM OPerations"
+                    + " WHERE DATE LIKE '" + new DateTools(curretDate).GetDateAsString() + "%';");
+            
+            while (queryResult.next()) {
+                Map<String, String> operation = new HashMap<>();
+                operation.put("Data", queryResult.getString("DATE"));
+                operation.put("Operacjas", queryResult.getString("OPERATIONS"));
+                operations.add((HashMap<String, String>) operation);
+            }
+
+            setQuerry.closeDB();
+        } catch (SQLException ex) {
+            LombardiaLogger startLogging = new LombardiaLogger();
+            String text = startLogging.preparePattern("Error", ex.getMessage()
+                    + "\n" + Arrays.toString(ex.getStackTrace()));
+            startLogging.logToFile(text);
+        }
+
+        return operations;
     }
 
 }

@@ -36,12 +36,14 @@ import lombardia2014.Interface.menu.OperationList;
 import lombardia2014.Interface.menu.Settings;
 import lombardia2014.Interface.menu.SettlementForm;
 import lombardia2014.Interface.menu.StocktakingForm;
+
 import lombardia2014.dataBaseInterface.UserOperations;
 import lombardia2014.dataBaseInterface.DeleteDB;
 import lombardia2014.dataBaseInterface.JoinDB;
 import lombardia2014.dataBaseInterface.LoadDB;
 import lombardia2014.dataBaseInterface.SaveDB;
 import lombardia2014.dataBaseInterface.UserDB;
+import lombardia2014.generators.DailyReport;
 import lombardia2014.generators.LombardiaLogger;
 
 /**
@@ -68,6 +70,7 @@ public class MainInterface {
     SwingWorker<Void, Void> worker = null;
     ObjectList objects = null;
     AgreementsList listOfAgrr = null;
+    DailyReport generateReport = null;
 
     /**
      * @param authID_
@@ -284,13 +287,13 @@ public class MainInterface {
                 "Tworzy wykres statystyk w ciagu miesiaca");
         menuItem.addActionListener(new YearlyStatistics());
         menu.add(menuItem);
-        
+
         menuItem = new JMenuItem("Raport dzienny");
         menuItem.setAccelerator(KeyStroke.getKeyStroke(
                 KeyEvent.VK_0, ActionEvent.ALT_MASK));
         menuItem.getAccessibleContext().setAccessibleDescription(
                 "Tworzy wykres statystyk w ciagu miesiaca");
-        menuItem.addActionListener(new DailyRaport());
+        menuItem.addActionListener(new ActionDailyRaport());
         menu.add(menuItem);
     }
 
@@ -477,7 +480,7 @@ public class MainInterface {
                 protected Void doInBackground() {
                     try {
                         while (true) {
-                            if(delteteElements.isClose() == true) {
+                            if (delteteElements.isClose() == true) {
                                 objects.updateItemTable();
                                 listOfAgrr.updateItemTable();
                                 break;
@@ -591,15 +594,14 @@ public class MainInterface {
         }
 
     }
-    
 
-    public class DailyRaport implements ActionListener {
+    public class ActionDailyRaport implements ActionListener {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-             System.out.println("to do....");
+            generateReport = new DailyReport();
         }
-        
+
     }
 
     // help menu

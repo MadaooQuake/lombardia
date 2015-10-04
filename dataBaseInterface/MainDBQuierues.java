@@ -1153,24 +1153,27 @@ public class MainDBQuierues {
     }
 
     // query about safa agreements and items :o
-    public List<HashMap<String, String>> getOperationList() {
+    public List<HashMap<String, String>> getDailyAgreements() {
         List<HashMap<String, String>> operations = new ArrayList<>();
         Date curretDate = new Date();
-
         try {
             setQuerry = new QueryDB();
             conDB = setQuerry.getConnDB();
             stmt = conDB.createStatement();
 
-            queryResult = setQuerry.dbSetQuery("SELECT Agreements.ID_AGREEMENTS, Agreements.START_DATE, Agreements.VALUE, "
-                    + "OPerations.DATE, OPerations.OPERATIONS"
-                    + " FROM Agreements "
-                    + "FULL OUTER JOIN OPerations "
-                    + "WHERE Agreements.START_DATE LIKE '" + new DateTools(curretDate).GetDateForDB() + "' OR "
-                    + "OPerations.DATE LIKE '" + new DateTools(curretDate).GetDateForDB() + "';");
+            queryResult = setQuerry.dbSetQuery("SELECT ID_AGREEMENTS, START_DATE, VALUE, "
+                    + "SAVEPRICE,SELL "
+                    + "FROM Agreements "
+                    + "WHERE START_DATE LIKE '" + new DateTools(curretDate).GetDateForDB() + "';");
             
             while (queryResult.next()) {
-                // to do 
+                Map<String, String> paymentPorperies = new HashMap<>();
+                paymentPorperies.put("NR Umowy", queryResult.getString("ID_AGREEMENTS"));
+                paymentPorperies.put("Data Zawarcia", queryResult.getString("START_DATE"));
+                paymentPorperies.put("Wartosc", queryResult.getString("VALUE"));
+                paymentPorperies.put("Do zwrotu", queryResult.getString("SAVEPRICE"));
+                paymentPorperies.put("Splacona", queryResult.getString("SELL"));
+                operations.add((HashMap<String, String>) paymentPorperies);
             }
 
             setQuerry.closeDB();

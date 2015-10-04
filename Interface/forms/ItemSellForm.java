@@ -25,7 +25,6 @@ import static lombardia2014.Interface.MainMMenu.money;
 import lombardia2014.core.SelfCalc;
 import lombardia2014.Interface.ObjectList;
 import lombardia2014.dataBaseInterface.MainDBQuierues;
-import lombardia2014.dataBaseInterface.QueryDB;
 import lombardia2014.generators.ItemChecker;
 
 /**
