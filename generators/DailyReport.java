@@ -1,5 +1,9 @@
 package lombardia2014.generators;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import javax.swing.table.DefaultTableModel;
 import lombardia2014.dataBaseInterface.MainDBQuierues;
 import lombardia2014.dataBaseInterface.UserOperations;
 
@@ -19,15 +23,42 @@ public class DailyReport {
     int windowWidth = 860;
     int windowHeigth = 500;
     int rowsPerPage = 40;
+    DefaultTableModel model = new DefaultTableModel();
+    
+    List<HashMap<String, String>> operations = new ArrayList<>();
+    List<HashMap<String, String>> agrrements = new ArrayList<>();
 
     public DailyReport() {
         System.out.println(getQuery.getDailyAgreements());
-        System.out.println(operationList.getDailyOperations());
+        operations = operationList.getDailyOperations();
+        prepareOperations();
     }
     
     //check agreements
     
     
     // check operations
-
+    public void prepareOperations() {        
+        for(HashMap<String, String> operation : operations) {
+            String[] dataTable = new String[8];
+            
+            dataTable[0] = operation.get("Data");
+            
+            String data = operation.get("Operacje");
+            String[] elements = data.split(":");
+            dataTable[1] = elements[0];
+            dataTable[2] = elements[1];
+            if(elements[0].equals("Wpłata")) {
+                dataTable[3] = elements[2];
+            } else {
+                dataTable[3] = "-" + elements[2];
+            }
+            dataTable[4] = "";
+            dataTable[5] = "";
+            dataTable[6] = "";
+            dataTable[7] = "";
+            model.addRow(dataTable);
+        }
+        
+    }
 }

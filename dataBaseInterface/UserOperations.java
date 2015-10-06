@@ -167,7 +167,7 @@ public class UserOperations {
             while (queryResult.next()) {
                 Map<String, String> operation = new HashMap<>();
                 operation.put("Data", queryResult.getString("DATE"));
-                operation.put("Operacjas", queryResult.getString("OPERATIONS"));
+                operation.put("Operacje", queryResult.getString("OPERATIONS"));
                 operations.add((HashMap<String, String>) operation);
             }
 
