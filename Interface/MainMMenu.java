@@ -529,9 +529,10 @@ public final class MainMMenu extends javax.swing.JPanel {
                     try {
                         while (true) {
                             if (newRepayment.isClose() == true) {
+                                Double[] values = newRepayment.getAddRemoValue();
                                 objects.updateItemTable();
-                                sniffOperations.saveOperations("Spłacono umowe kredytu za:"
-                                        + newRepayment.getAddRemoValue());
+                                sniffOperations.saveOperations("Zwrot pożyczki:" + newRepayment.getAggID()
+                                        + " Kwota:" + values[0] + ":" + values[1]);
                                 break;
                             }
                             Thread.sleep(100);
@@ -639,7 +640,7 @@ public final class MainMMenu extends javax.swing.JPanel {
                                 checkValue = null;
                                 checkValue = new SelfCalc();
                                 money.setText(checkValue.getValue() + " zł");
-                                sniffOperations.saveOperations("Zakupiono przedmiot za:"
+                                sniffOperations.saveOperations("Skup przedmiotów: Kupno:"
                                         + newItem.getAddRemoValue());
                                 break;
                             }

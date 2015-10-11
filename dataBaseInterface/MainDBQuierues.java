@@ -741,18 +741,19 @@ public class MainDBQuierues {
         return maxID;
     }
 
-    public String selectRestValue(String aggID) {
-        String value = null;
+    public String[] selectRestValue(String aggID) {
+        String[] value = new String[2];
         try {
             setQuerry = new QueryDB();
             conDB = setQuerry.getConnDB();
             stmt = conDB.createStatement();
 
-            queryResult = setQuerry.dbSetQuery("SELECT VALUE_REST, ID_AGREEMENTS FROM Agreements"
+            queryResult = setQuerry.dbSetQuery("SELECT VALUE_REST, VALUE, ID_AGREEMENTS FROM Agreements"
                     + " WHERE ID_AGREEMENTS LIKE '" + aggID + "';");
 
             while (queryResult.next()) {
-                value = queryResult.getString("VALUE_REST");
+                value[0] = queryResult.getString("VALUE_REST");
+                value[1] = queryResult.getString("VALUE");
             }
             setQuerry.closeDB();
         } catch (SQLException ex) {
@@ -1162,7 +1163,7 @@ public class MainDBQuierues {
             stmt = conDB.createStatement();
 
             queryResult = setQuerry.dbSetQuery("SELECT ID_AGREEMENTS, START_DATE, VALUE, "
-                    + "SAVEPRICE,SELL "
+                    + "VALUE_REST, SELL "
                     + "FROM Agreements "
                     + "WHERE START_DATE LIKE '" + new DateTools(curretDate).GetDateForDB() + "';");
             
@@ -1171,7 +1172,7 @@ public class MainDBQuierues {
                 paymentPorperies.put("NR Umowy", queryResult.getString("ID_AGREEMENTS"));
                 paymentPorperies.put("Data Zawarcia", queryResult.getString("START_DATE"));
                 paymentPorperies.put("Wartosc", queryResult.getString("VALUE"));
-                paymentPorperies.put("Do zwrotu", queryResult.getString("SAVEPRICE"));
+                paymentPorperies.put("Do zwrotu", queryResult.getString("VALUE_REST"));
                 paymentPorperies.put("Splacona", queryResult.getString("SELL"));
                 operations.add((HashMap<String, String>) paymentPorperies);
             }

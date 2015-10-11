@@ -63,7 +63,7 @@ public class RepaymentCreditForm extends Forms {
     JTextField agreementNumberfield = null;
     JTextField customerNamefield = null;
     int iClose = 0;
-    double adRemValue = 0.0;
+    Double[] adRemValue = new Double[2];
     MainDBQuierues getQuery = new MainDBQuierues();
 
     @Override
@@ -201,7 +201,7 @@ public class RepaymentCreditForm extends Forms {
 
     }
 
-    public Double getAddRemoValue() {
+    public Double[] getAddRemoValue() {
         return adRemValue;
     }
 
@@ -269,6 +269,10 @@ public class RepaymentCreditForm extends Forms {
     public void deleteAgreement() {
         getQuery.removeItems(agreementIdent);
         getQuery.updateAgreementStatus(agreementIdent);
+    }
+    
+    public String getAggID() {
+        return agreementIdent;
     }
 
     private class BlockInputField implements MouseListener {
@@ -351,12 +355,13 @@ public class RepaymentCreditForm extends Forms {
                         "Ostrzeżenie ",
                         JOptionPane.YES_NO_OPTION);
                 if (decision == JOptionPane.YES_OPTION) {
-                    String agreementValue = getQuery.selectRestValue(agreementIdent);
+                    String[] agreementValue = getQuery.selectRestValue(agreementIdent);
 
                     SelfCalc actualCalc = new SelfCalc();
                     actualCalc.chackValue(formFrame);
-                    actualCalc.addToSelf(Float.parseFloat(agreementValue));
-                    adRemValue = Double.parseDouble(agreementValue);
+                    actualCalc.addToSelf(Float.parseFloat(agreementValue[0]));
+                    adRemValue[0] = Double.parseDouble(agreementValue[0]);
+                    adRemValue[1] = Double.parseDouble(agreementValue[1]);
                     money.setText(actualCalc.getValue() + " zł");
                     deleteAgreement();
                     formFrame.dispose();
