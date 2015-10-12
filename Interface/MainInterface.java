@@ -436,8 +436,6 @@ public class MainInterface {
                 JoinDB join = new JoinDB(
                         chooser.getSelectedFile().toString());
                 join.insertDB();
-
-                // method create 
             } else {
                 //log.append("Open command cancelled by user." + newline);
             }

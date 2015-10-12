@@ -280,7 +280,7 @@ public class ProlongationForm extends Forms {
                             try {
                                 while (true) {
                                     if (newCredit.isClose() == true) {
-                                        sniffOperations.saveOperations("Wystawiono umowe kredytu na:"
+                                        sniffOperations.saveOperations("Wystawiono umowe kredytu:"
                                                 + newCredit.getAddRemoValue());
                                         deleteAgreement(ID);
                                         break;

@@ -593,11 +593,6 @@ public final class MainMMenu extends javax.swing.JPanel {
                 protected Void doInBackground() {
                     try {
                         while (true) {
-                            // update operations table for Prolongation form
-                            
-                            // update operations table for new credit form
-                            
-                            // last form
                             if (newProlongation.isClose() == true) {
                                 objects.updateItemTable();
                                 break;

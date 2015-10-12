@@ -132,6 +132,7 @@ public class CreditForm extends Forms {
     SetLocatnion polishSign = new SetLocatnion();
     MainDBQuierues getQuery = new MainDBQuierues();
     SwingWorker<Void, Void> worker = null;
+    String aggID = null;
 
     public CreditForm(Map itemsList_, Map paymentPorperies_,
             Map userInfo_, boolean update_) {
@@ -728,23 +729,25 @@ public class CreditForm extends Forms {
      * @return
      */
     public String createIndex() {
-        String pattern;
+        if (aggID == null) {
+            String pattern;
 
-        String IDPayment = fields[0].getText().substring(0, 1);
-        IDPayment += fields[1].getText().substring(0, 1);
+            String IDPayment = fields[0].getText().substring(0, 1);
+            IDPayment += fields[1].getText().substring(0, 1);
 
-        pattern = IDPayment;
-        //Generate id
-        Random randomNum = new Random();
+            pattern = IDPayment;
+            //Generate id
+            Random randomNum = new Random();
 
-        int id = randomNum.nextInt(999999 - 100000) + 100000;
+            int id = randomNum.nextInt(999999 - 100000) + 100000;
 
-        pattern += id;
+            pattern += id;
+            aggID = pattern;
+        }
 
-        return pattern;
-
+        return aggID;
     }
-
+    
     public Double getAddRemoValue() {
         return adRemValue;
     }
