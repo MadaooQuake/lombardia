@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import javax.swing.table.DefaultTableModel;
+import lombardia2014.core.ConfigRead;
 import lombardia2014.dataBaseInterface.MainDBQuierues;
 import lombardia2014.dataBaseInterface.UserOperations;
 
@@ -24,6 +25,7 @@ public class DailyReport {
     int windowHeigth = 500;
     int rowsPerPage = 40;
     DefaultTableModel model = new DefaultTableModel();
+    ConfigRead config = new ConfigRead();
 
     List<HashMap<String, String>> operations = new ArrayList<>();
     List<HashMap<String, String>> agrrements = new ArrayList<>();
@@ -47,32 +49,34 @@ public class DailyReport {
     public void prepareOperations() {
         for (HashMap<String, String> operation : operations) {
             String[] dataTable = new String[8];
-
             dataTable[0] = operation.get("Data");
-
             String data = operation.get("Operacje");
             String[] elements = data.split(":");
             if (elements.length > 2) {
                 dataTable[1] = elements[0];
                 dataTable[2] = elements[1];
-                if (elements[0].equals("Wpłata")) {
-                    dataTable[3] = elements[2];
-                    dataTable[4] = "";
-                    dataTable[5] = "";
-                    dataTable[6] = "";
-                    dataTable[7] = dataTable[3];
-                } else if (elements[0].equals("Wypłata")){
-                    dataTable[3] = "-" + elements[2];
-                    dataTable[4] = "";
-                    dataTable[5] = "";
-                    dataTable[6] = "";
-                    dataTable[7] = dataTable[3];
-                } else {
-                    dataTable[3] = "";
-                    dataTable[4] = "";
-                    dataTable[5] = elements[2];
-                    dataTable[6] = "";
-                    dataTable[7] = dataTable[5];
+                switch (elements[0]) {
+                    case "Wpłata":
+                        dataTable[3] = elements[2];
+                        dataTable[4] = "";
+                        dataTable[5] = "";
+                        dataTable[6] = "";
+                        dataTable[7] = dataTable[3];
+                        break;
+                    case "Wypłata":
+                        dataTable[3] = "-" + elements[2];
+                        dataTable[4] = "";
+                        dataTable[5] = "";
+                        dataTable[6] = "";
+                        dataTable[7] = dataTable[3];
+                        break;
+                    default:
+                        dataTable[3] = "";
+                        dataTable[4] = "";
+                        dataTable[5] = elements[2];
+                        dataTable[6] = "";
+                        dataTable[7] = dataTable[5];
+                        break;
                 }
 
                 if (elements.length == 4) {
@@ -83,8 +87,12 @@ public class DailyReport {
                     dataTable[6] = Double.toString(commission);
                     dataTable[7] = elements[2];
                 }
-
                 model.addRow(dataTable);
+            } else if (elements[0].equals("Sprzedano")) {
+                dataTable[1] = "Sprzedano";
+                dataTable[1] = elements[0];
+                config.readFile();
+                
             }
 
         }

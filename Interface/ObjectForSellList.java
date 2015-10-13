@@ -272,7 +272,7 @@ public class ObjectForSellList extends javax.swing.JPanel {
                             if (sellForm.isClose() == true) {
                                 Thread.sleep(100);
                                 sniffOperations.saveOperations(
-                                        "Produkt sprzedano za:"
+                                        "Sprzedano za:"
                                         + sellForm.getAddRemoValue());
                                 updateItemTable();
                                 break;
