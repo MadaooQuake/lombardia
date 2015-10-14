@@ -6,8 +6,6 @@
 package lombardia2014.Interface.forms;
 
 import lombardia2014.dataBaseInterface.QueryDB;
-import lombardia2014.generators.AutoSuggestor;
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
@@ -18,14 +16,13 @@ import java.awt.event.ActionListener;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -63,7 +60,7 @@ public class BuyItem extends Forms implements ItemFormGenerator {
     JTextField[] fields = null;
     JCheckBox[] jewelleryItem = null;
     JTextField[] jewelleryField = null;
-    AutoSuggestor selectCategory = null;
+    JComboBox selectCategory = null;
     QueryDB setQuerry = null;
     ResultSet queryResult = null;
     Connection conDB = null;
@@ -75,7 +72,7 @@ public class BuyItem extends Forms implements ItemFormGenerator {
     SpinnerModel modelSpinner = null;
     JSpinner spinner = null;
     JScrollPane scrollPane = null;
-    MainDBQuierues getQuery = null;
+    MainDBQuierues getQuery = new MainDBQuierues();
 
     int iClose = 0;
     int fontSize = 16;
@@ -124,27 +121,12 @@ public class BuyItem extends Forms implements ItemFormGenerator {
         c.gridy = 1;
         mainPanel.add(namedField[0], c);
 
-        // First i create jfield panel 
-        fields[0] = new JTextField();
-        fields[0].setPreferredSize(new Dimension(150, heightTextL));
-        fields[0].setFont(new Font("Dialog", Font.BOLD, fontSize));
-        fields[0].getDocument().addDocumentListener(new RestItemForm());
-        // Create selector;
-        selectCategory = new AutoSuggestor(
-                fields[0], formFrame, null, Color.WHITE.brighter(),
-                Color.BLUE, Color.RED, 0.75f, 2, 28) {
-                    @Override
-                    public boolean wordTyped(String typedWord) {
-                        getQuery = new MainDBQuierues();
-                        List<String> words = (ArrayList) getQuery.getCategories();
-                        setDictionary((ArrayList<String>) words);
-                        //addToDictionary("bye");//adds a single word
-                        return super.wordTyped(typedWord);//now call super to check for any matches against newest dictionary
-                    }
-                };
+        selectCategory = new JComboBox(getQuery.getCategories().toArray());
+        selectCategory.setSelectedIndex(0);
+        selectCategory.addActionListener(new RestItemForm());
         c.gridx = 1;
         c.gridy = 1;
-        mainPanel.add(fields[0], c);
+        mainPanel.add(selectCategory, c);
 
         newItemPanel = new JPanel(new GridBagLayout());
         scrollPane = new JScrollPane(newItemPanel);
@@ -1360,22 +1342,12 @@ public class BuyItem extends Forms implements ItemFormGenerator {
     /**
      * @see event to generate jewelery form
      */
-    public class RestItemForm implements DocumentListener {
+    public class RestItemForm implements ActionListener {
 
         @Override
-        public void insertUpdate(DocumentEvent e) {
-            changedUpdate(e);
-        }
-
-        @Override
-        public void removeUpdate(DocumentEvent e) {
-            // do nothing 
-        }
-
-        @Override
-        public void changedUpdate(DocumentEvent e) {
+        public void actionPerformed(ActionEvent e) {
             newItemGrid.fill = GridBagConstraints.HORIZONTAL;
-            text = fields[0].getText();
+            text = selectCategory.getSelectedItem().toString();
             newItemPanel.removeAll();
             newItemPanel.repaint();
 
@@ -1415,7 +1387,6 @@ public class BuyItem extends Forms implements ItemFormGenerator {
     }
 
     private void saveToDB() {
-        getQuery = new MainDBQuierues();
         Map<String, String> tmpItem = new HashMap<>();
         // analyze cat id :D
         Date curretDate = new Date();

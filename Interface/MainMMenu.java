@@ -49,6 +49,7 @@ public final class MainMMenu extends javax.swing.JPanel {
     public static JLabel money;
     CustomersList customers = null;
     ObjectList objects = null;
+    ObjectForSellList objectToSell = null;
     SwingWorker<Void, Void> worker = null;
     SelfCalc checkValue = null;
     JFrame mainFrame = null;
@@ -356,15 +357,16 @@ public final class MainMMenu extends javax.swing.JPanel {
 
     /**
      * @param customers_
+     * @param objectToSell_
      * @param objects_
      * @param mfr
      * @see method wo get information about customers list and items list
      */
-    public void putObjects(CustomersList customers_, ObjectList objects_, JFrame mfr) {
+    public void putObjects(CustomersList customers_, ObjectForSellList objectToSell_ , ObjectList objects_, JFrame mfr) {
         mainFrame = mfr;
         customers = customers_;
         objects = objects_;
-
+        objectToSell = objectToSell_;
     }
 
     // time for actions:D
@@ -632,6 +634,7 @@ public final class MainMMenu extends javax.swing.JPanel {
                         while (true) {
                             if (newItem.isClose() == true) {
                                 objects.updateItemTable();
+                                objectToSell.updateItemTable();
                                 checkValue = null;
                                 checkValue = new SelfCalc();
                                 money.setText(checkValue.getValue() + " zł");

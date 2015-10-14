@@ -340,7 +340,7 @@ public class MainInterface {
         tabbedPane.addTab("Przedmioty na sprzedaż", objectToSell);
         tabbedPane.addTab("Umowy", listOfAgrr);
 
-        mainPanel.putObjects(customers, objects, mainFrame);
+        mainPanel.putObjects(customers, objectToSell, objects, mainFrame);
 
         //tabbedPane.addTab("Ogólne", panel1);
         c.fill = GridBagConstraints.HORIZONTAL;

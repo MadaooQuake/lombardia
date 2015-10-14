@@ -92,6 +92,7 @@ public class DailyReport {
                 dataTable[1] = "Sprzedano";
                 dataTable[1] = elements[0];
                 config.readFile();
+                float vat = config.getVat();
                 
             }
 
