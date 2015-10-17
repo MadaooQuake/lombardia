@@ -36,8 +36,6 @@ import javax.swing.SpinnerNumberModel;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
 import lombardia2014.core.SelfCalc;
 import lombardia2014.dataBaseInterface.MainDBQuierues;
 import lombardia2014.generators.DateTools;
@@ -47,8 +45,6 @@ import lombardia2014.generators.ItemChecker;
  *
  * @author Domek
  */
-
-
 public class BuyItem extends Forms implements ItemFormGenerator {
 
     GridBagConstraints newItemGrid = new GridBagConstraints();
@@ -803,6 +799,7 @@ public class BuyItem extends Forms implements ItemFormGenerator {
 
         @Override
         public void actionPerformed(ActionEvent e) {
+            text = selectCategory.getSelectedItem().toString();
             // add item to container
             // save to DB, but before save i add notyfication
             int selectedOption = JOptionPane.showConfirmDialog(formFrame,
@@ -810,59 +807,57 @@ public class BuyItem extends Forms implements ItemFormGenerator {
                     "Potwierdzenie wygenerowania formularza!",
                     JOptionPane.YES_NO_OPTION);
             if (selectedOption == JOptionPane.YES_OPTION) {
-                if (fields[0].getText().length() > 0) {
-                    // selec some category :D
-                    switch (fields[0].getText().toLowerCase()) {
-                        case "wyroby jubilerskie":
-                            generateJaweryForm();
-                            break;
-                        case "laptop":
-                            generateLaptopForm();
-                            break;
-                        case "komputer":
-                            generatePCForm();
-                            break;
-                        case "monitor":
-                            generateMonitorForm();
-                            break;
-                        case "telewizor":
-                            generateTVForm();
-                            break;
-                        case "telefon":
-                            generatePhoneForm();
-                            break;
-                        case "tablet":
-                            generateTabletForm();
-                            break;
-                        case "gry":
-                            generateGamesForm();
-                            break;
-                        default:
-                            generateDefault();
-                            break;
-                    }
-
-                    if (checkItem.checkPrice(fields[9].getText().length(),
-                            fields[9].getText())) {
-                        adRemValue = Double.parseDouble(fields[9].getText());
-                        moneySafe = new SelfCalc();
-                        checkElement = moneySafe.chackValue(formFrame,
-                                Float.parseFloat(fields[9].getText()))
-                                && validator.checkValue(fields[9].getText().length(),
-                                        fields[9].getText());
-                        moneySafe.delFtomSelf(formFrame,
-                                Float.parseFloat(fields[9].getText()));
-
-                        if (checkElement == true) {
-                            ok.setEnabled(false);
-                            cancel.setEnabled(false);
-                            moneySafe.updateValue();
-                            saveToDB();
-                            formFrame.dispose();
-                        }
-                    }
-
+                // selec some category :D
+                switch (text.toLowerCase()) {
+                    case "wyroby jubilerskie":
+                        generateJaweryForm();
+                        break;
+                    case "laptop":
+                        generateLaptopForm();
+                        break;
+                    case "komputer":
+                        generatePCForm();
+                        break;
+                    case "monitor":
+                        generateMonitorForm();
+                        break;
+                    case "telewizor":
+                        generateTVForm();
+                        break;
+                    case "telefon":
+                        generatePhoneForm();
+                        break;
+                    case "tablet":
+                        generateTabletForm();
+                        break;
+                    case "gry":
+                        generateGamesForm();
+                        break;
+                    default:
+                        generateDefault();
+                        break;
                 }
+
+                if (checkItem.checkPrice(fields[9].getText().length(),
+                        fields[9].getText())) {
+                    adRemValue = Double.parseDouble(fields[9].getText());
+                    moneySafe = new SelfCalc();
+                    checkElement = moneySafe.chackValue(formFrame,
+                            Float.parseFloat(fields[9].getText()))
+                            && validator.checkValue(fields[9].getText().length(),
+                                    fields[9].getText());
+                    moneySafe.delFtomSelf(formFrame,
+                            Float.parseFloat(fields[9].getText()));
+
+                    if (checkElement == true) {
+                        ok.setEnabled(false);
+                        cancel.setEnabled(false);
+                        moneySafe.updateValue();
+                        saveToDB();
+                        formFrame.dispose();
+                    }
+                }
+
             }
         }
 
@@ -1394,7 +1389,7 @@ public class BuyItem extends Forms implements ItemFormGenerator {
         int catID = 0;
         for (int i = 0; i < itemsList.size(); i++) {
             tmpItem.putAll(itemsList.get(i));
-            catID = getQuery.getCatID(fields[0].getText());
+            catID = getQuery.getCatID(text);
             creatItemtoDB.setValues(tmpItem.get("Model"), tmpItem.get("Marka"),
                     tmpItem.get("Typ"), tmpItem.get("Waga"),
                     tmpItem.get("IMEI"), tmpItem.get("Wartość"),
