@@ -202,7 +202,7 @@ public class MainDBQuierues {
             stmt = conDB.createStatement();
 
             queryResult = setQuerry.dbSetQuery("SELECT Items.ID AS ID_ITEM, NAME, MODEL, BAND, TYPE, "
-                    + "WEIGHT, Items.VALUE AS VALUE, IMEI, ATENCION, Agreements.ID_AGREEMENTS AS ID_AGREEMENTS"
+                    + "WEIGHT, Items.VALUE AS VALUE, IMEI, ATENCION, Agreements.ID_AGREEMENTS AS ID_AGREEMENTS, Buy_Date"
                     + " FROM Items"
                     + " INNER JOIN Category"
                     + " ON Items.ID_CATEGORY = Category.ID"
@@ -220,6 +220,7 @@ public class MainDBQuierues {
                 item.put("WEIGHT", queryResult.getString("WEIGHT"));
                 item.put("VALUE", queryResult.getString("VALUE"));
                 item.put("IMEI", queryResult.getString("IMEI"));
+                item.put("Buy_Date", queryResult.getString("Buy_Date"));
                 item.put("ID_AGREEMENTS", queryResult.getString("ID_AGREEMENTS"));
 
                 allItems.add((HashMap<String, String>) item);
@@ -683,8 +684,9 @@ public class MainDBQuierues {
             setQuerry = new QueryDB();
             conDB = setQuerry.getConnDB();
             stmt = conDB.createStatement();
+            Date today = new Date();
 
-            queryResult = setQuerry.dbSetQuery("UPDATE Items SET ID_AGREEMENT = NULL WHERE "
+            queryResult = setQuerry.dbSetQuery("UPDATE Items SET Buy_Date = '" + new DateTools(today).GetDateForDB() + "', ID_AGREEMENT = NULL WHERE "
                     + "ID_AGREEMENT = (SELECT ID FROM Agreements WHERE ID_AGREEMENTS = '" + aggID + "');");
 
             setQuerry.closeDB();
@@ -828,13 +830,8 @@ public class MainDBQuierues {
     //get all stocktakings
     public List<HashMap<String, String>> getStockTakingsFromDateRange(String point_of_time) {
         List<HashMap<String, String>> StockTakings = new ArrayList<>();
-        String query = "SELECT Items.Model, Items.Band, Items.ID, Items.Value, Agreements.Stop_date as Buy_date "
-                + "FROM Items, Agreements WHERE Items.ID_AGREEMENT = Agreements.ID "
-                + "AND Agreements.Stop_date < '" + point_of_time + "' "
-                + "AND ( Items.Sold_date is null or Items.Sold_date > '" + point_of_time + "') "
-                + "union all "
-                + "SELECT Model, Band, ID, Value, Buy_Date "
-                + " FROM Items WHERE Buy_Date is not null AND Buy_Date < '" + point_of_time + "' "
+        String query = "SELECT Model, Band, ID, Value, Buy_Date "
+                + " FROM Items WHERE Buy_Date is not null AND Buy_Date <= '" + point_of_time + "' "
                 + "AND ( Sold_date is null or Sold_date > '" + point_of_time + "');";
 
         try {
@@ -849,7 +846,13 @@ public class MainDBQuierues {
                 lp++;
                 Map<String, String> st = new HashMap<>();
                 st.put("L.p.", Integer.toString(lp));
-                st.put("Opis towaru", queryResult.getString("Model") + '(' + queryResult.getString("Band") + ')');
+                String desc = queryResult.getString("Model");
+                String Brand = queryResult.getString("Band");
+                if (!queryResult.wasNull()) {
+                    desc = desc + '(' + Brand + ')';
+                }
+                 
+                st.put("Opis towaru", desc);
                 st.put("Identyfikator", queryResult.getString("ID"));
                 st.put("Cena netto", queryResult.getString("Value"));
                 st.put("Wartość netto", queryResult.getString("Value"));
@@ -875,35 +878,46 @@ public class MainDBQuierues {
             conDB = setQuerry.getConnDB();
             stmt = conDB.createStatement();
 
-            String query = "SELECT Name, Surname, Address, Start_Date, Agreements.Value as avalue, Model, Band, Items.Value as ivalue, Stop_Date "
+            String query = "SELECT Name, Surname, Address, Start_Date, Agreements.Value as avalue, Model, Band, Items.Value as ivalue, Stop_Date, Agreements.ID as Agreement_ID "
                     + "FROM Customers, Items, Agreements WHERE "
                     //join conditions
                     + "Items.ID_AGREEMENT = Agreements.ID "
                     + "AND Agreements.ID_CUSTOMER = Customers.ID "
                     //date filter
                     + "AND Agreements.Stop_date BETWEEN '"
-                    + from + "' AND '" + to + "' "
+                    + from + "' AND '" + to + "' ";
                     //finish him
-                    + "GROUP BY Agreements.ID;";
+                    //+ "GROUP BY Agreements.ID;";
 
             queryResult = setQuerry.dbSetQuery(query);
 
             int lp = 0;
 
+            Map<String, Map> alldata = new HashMap<>();
+            
             while (queryResult.next()) {
                 lp++;
                 Map<String, String> agreement = new HashMap<>();
+                String agreement_id = queryResult.getString("Agreement_ID");
+                System.out.print(agreement_id + "\n");
+                Map<String, String> currentObj = alldata.get(agreement_id);
+                
                 agreement.put("L.p.", Integer.toString(lp));
                 agreement.put("Imię", queryResult.getString("Name"));
                 agreement.put("Nazwisko", queryResult.getString("Surname"));
                 agreement.put("Adres", queryResult.getString("Address"));
                 agreement.put("Data pożyczki", queryResult.getString("Start_Date"));
                 agreement.put("Kwota pożyczki", queryResult.getString("avalue"));
-                String desc = queryResult.getString("Model");
+                String currentDesc = "";
+                if (currentObj != null) {
+                        currentDesc = currentObj.get("Opis zastawu") + ", ";
+                }
+                String desc = currentDesc + queryResult.getString("Model");
                 String Brand = queryResult.getString("Band");
                 if (!queryResult.wasNull()) {
                     desc = desc + '(' + Brand + ')';
                 }
+                
                 agreement.put("Opis zastawu", desc);
                 float value = queryResult.getFloat("ivalue");
 
@@ -912,8 +926,12 @@ public class MainDBQuierues {
 
                 ValueCalc rate = new ValueCalc();
                 agreement.put("Odsetki", Float.toString(rate.lombardRate(value)));
-
-                Settlements.add((HashMap<String, String>) agreement);
+                alldata.put(agreement_id, agreement);
+                //Settlements.add((HashMap<String, String>) agreement);
+            }
+            
+            for(String id : alldata.keySet()) {
+                Settlements.add((HashMap<String, String>) alldata.get(id) );
             }
 
             setQuerry.closeDB();

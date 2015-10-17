@@ -5,7 +5,6 @@
  */
 package lombardia2014.Interface.forms;
 
-import lombardia2014.dataBaseInterface.QueryDB;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -14,12 +13,7 @@ import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseListener;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -33,7 +27,6 @@ import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
 import lombardia2014.core.CalcDays;
 import lombardia2014.dataBaseInterface.MainDBQuierues;
-import lombardia2014.generators.LombardiaLogger;
 
 /**
  *
@@ -177,7 +170,7 @@ public class LateClientsForm extends Forms {
             Object[] data = {
                 lateClient.get("NAME"),
                 lateClient.get("SURNAME"),
-                lateClient.get("SURNAME"),
+                lateClient.get("AGREEMENT_ID"),
                 lateClient.get("END_DATE")
             };
             model.addRow(data);

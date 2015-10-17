@@ -1160,36 +1160,22 @@ public class CreditForm extends Forms {
             if (fields[6].getText().isEmpty() && fields[7].getText().isEmpty()) {
                 errorMessage("Model i Marka");
             } else {
-                //fields[10]
-                checkElement = checkItem.checkValue(fields[10].getText().length(),
-                        fields[10].getText());
-                if (checkElement == false) {
+                Integer[] fieldsToCheck = { 6, 7, 8, 9, 10, 17, 11 };
 
-                    if (checkElement == true) {
-                        addItemtoList(1, fields[6].getText(), fields[7].getText(),
-                                fields[8].getText(), fields[9].getText(),
-                                fields[10].getText(), fields[17].getText(),
-                                fields[11].getText(), selectCategory.getSelectedItem().toString());
-                    } else {
-                        addItemtoList(1, fields[6].getText(), fields[7].getText(),
-                                fields[8].getText(), fields[9].getText(),
-                                fields[10].getText(), fields[17].getText(),
-                                fields[11].getText(), selectCategory.getSelectedItem().toString());
+                for (Integer f : fieldsToCheck) {
+                    
+                    if (fields[f] == null) {
+                        fields[f] = new JTextField();
                     }
-                } else {
-
-                    if (checkElement == true) {
-                        addItemtoList(1, fields[6].getText(), fields[7].getText(),
-                                fields[8].getText(), fields[9].getText(),
-                                fields[10].getText(), fields[17].getText(),
-                                fields[11].getText(), selectCategory.getSelectedItem().toString());
-                    } else {
-                        addItemtoList(1, fields[6].getText(), fields[7].getText(),
-                                fields[8].getText(), fields[9].getText(),
-                                fields[10].getText(), fields[17].getText(),
-                                fields[11].getText(), selectCategory.getSelectedItem().toString());
-                    }
+//                    if (fields[f].getText().isEmpty()) {
+//                        fields[f].setText("");
+//                    }
                 }
+
+                addItemtoList(1, fields[6].getText(), fields[7].getText(),
+                        fields[8].getText(), fields[9].getText(),
+                        fields[10].getText(), fields[17].getText(),
+                        fields[11].getText(), selectCategory.getSelectedItem().toString());
             }
         }
 
