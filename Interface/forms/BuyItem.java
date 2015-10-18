@@ -117,9 +117,10 @@ public class BuyItem extends Forms implements ItemFormGenerator {
         c.gridy = 1;
         mainPanel.add(namedField[0], c);
 
+        RestItemForm itemForm = new RestItemForm();
         selectCategory = new JComboBox(getQuery.getCategories().toArray());
         selectCategory.setSelectedIndex(0);
-        selectCategory.addActionListener(new RestItemForm());
+        selectCategory.addActionListener(itemForm);
         c.gridx = 1;
         c.gridy = 1;
         mainPanel.add(selectCategory, c);
@@ -172,7 +173,7 @@ public class BuyItem extends Forms implements ItemFormGenerator {
         c.gridx = 1;
         c.gridy = 4;
         mainPanel.add(cancel, c);
-
+        generateJaweryForm();
     }
 
     // category 
@@ -329,7 +330,7 @@ public class BuyItem extends Forms implements ItemFormGenerator {
     }
 
     @Override
-    public void generatePhoneForm() {
+    public void defaultItemForm() {
         newItemGrid.insets = new Insets(5, 5, 5, 5);
         namedField[1] = new JLabel();
         namedField[1].setText("Model:");
@@ -416,17 +417,14 @@ public class BuyItem extends Forms implements ItemFormGenerator {
         newItemPanel.add(fields[7], newItemGrid);
     }
 
-    @Override
     public void generateTabletForm() {
         generateLaptopForm();
     }
 
-    @Override
     public void generateTVForm() {
         generateLaptopForm();
     }
 
-    @Override
     public void generateLaptopForm() {
         newItemGrid.insets = new Insets(5, 5, 5, 5);
         namedField[1] = new JLabel();
@@ -500,12 +498,10 @@ public class BuyItem extends Forms implements ItemFormGenerator {
         newItemPanel.add(fields[5], newItemGrid);
     }
 
-    @Override
     public void generatePCForm() {
         generateLaptopForm();
     }
 
-    @Override
     public void generateMonitorForm() {
         generateLaptopForm();
     }
@@ -812,29 +808,11 @@ public class BuyItem extends Forms implements ItemFormGenerator {
                     case "wyroby jubilerskie":
                         generateJaweryForm();
                         break;
-                    case "laptop":
-                        generateLaptopForm();
-                        break;
-                    case "komputer":
-                        generatePCForm();
-                        break;
-                    case "monitor":
-                        generateMonitorForm();
-                        break;
-                    case "telewizor":
-                        generateTVForm();
-                        break;
-                    case "telefon":
-                        generatePhoneForm();
-                        break;
-                    case "tablet":
-                        generateTabletForm();
-                        break;
                     case "gry":
                         generateGamesForm();
                         break;
                     default:
-                        generateDefault();
+                        defaultItemForm();
                         break;
                 }
 
@@ -1125,168 +1103,16 @@ public class BuyItem extends Forms implements ItemFormGenerator {
          *
          */
         @Override
-        public void generatePhoneForm() {
+        public void defaultItemForm() {
             //fields[6]
             if (fields[1].getText().isEmpty() && fields[2].getText().isEmpty()) {
                 errorMessage("Model i Marka");
             } else {
-                //fields[10]
-                checkElement = checkItem.checkValue(fields[5].getText().length(),
-                        fields[5].getText());
-                if (checkElement == false) {
-                    checkElement = checkItem.checkJaweryElements(fields[6].getText());
-
-                    if (checkElement == true) {
-                        addItemtoList(1, fields[1].getText(), fields[2].getText(),
-                                fields[3].getText(), fields[4].getText(),
-                                fields[5].getText(), fields[6].getText(),
-                                fields[7].getText(), fields[0].getText());
-                    } else {
-                        addItemtoList(1, fields[1].getText(), fields[2].getText(),
-                                fields[3].getText(), fields[4].getText(),
-                                fields[5].getText(), fields[6].getText(),
-                                fields[7].getText(), fields[0].getText());
-                    }
-                } else {
-                    checkElement = checkItem.checkJaweryElements(fields[6].getText());
-
-                    if (checkElement == true) {
-                        addItemtoList(1, fields[1].getText(), fields[2].getText(),
-                                fields[3].getText(), fields[4].getText(),
-                                fields[5].getText(), fields[6].getText(),
-                                fields[7].getText(), fields[0].getText());
-                    } else {
-                        addItemtoList(1, fields[1].getText(), fields[2].getText(),
-                                fields[3].getText(), fields[4].getText(),
-                                fields[5].getText(), fields[6].getText(),
-                                fields[7].getText(), fields[0].getText());
-                    }
-                }
+                addItemtoList(1, fields[1].getText(), fields[2].getText(),
+                        fields[3].getText(), fields[4].getText(),
+                        fields[5].getText(), fields[6].getText(),
+                        fields[7].getText(), selectCategory.getSelectedItem().toString());
             }
-        }
-
-        @Override
-        public void generateTabletForm() {
-            //fields[10]
-            checkElement = checkItem.checkValue(fields[4].getText().length(),
-                    fields[4].getText());
-            if (checkElement == false) {
-                addItemtoList(1, fields[1].getText(), fields[2].getText(),
-                        fields[3].getText(), "",
-                        fields[4].getText(), "",
-                        fields[5].getText(), fields[0].getText());
-            } else {
-                addItemtoList(1, fields[1].getText(), fields[2].getText(),
-                        fields[3].getText(), "",
-                        fields[4].getText(), "",
-                        fields[5].getText(), fields[0].getText());
-            }
-        }
-
-        @Override
-        public void generateTVForm() {
-            checkElement = checkItem.checkValue(fields[4].getText().length(),
-                    fields[4].getText());
-            if (checkElement == false) {
-                addItemtoList(1, fields[1].getText(), fields[2].getText(),
-                        fields[3].getText(), "",
-                        fields[4].getText(), "",
-                        fields[5].getText(), fields[0].getText());
-            } else {
-                addItemtoList(1, fields[1].getText(), fields[2].getText(),
-                        fields[3].getText(), "",
-                        fields[4].getText(), "",
-                        fields[5].getText(), fields[0].getText());
-            }
-        }
-
-        @Override
-        public void generateLaptopForm() {
-            checkElement = checkItem.checkValue(fields[4].getText().length(),
-                    fields[4].getText());
-            if (checkElement == false) {
-                addItemtoList(1, fields[1].getText(), fields[2].getText(),
-                        fields[3].getText(), "",
-                        fields[4].getText(), "",
-                        fields[5].getText(), fields[0].getText());
-            } else {
-                addItemtoList(1, fields[1].getText(), fields[2].getText(),
-                        fields[3].getText(), "",
-                        fields[4].getText(), "",
-                        fields[5].getText(), fields[0].getText());
-            }
-        }
-
-        /**
-         *
-         */
-        @Override
-        public void generatePCForm() {
-            checkElement = checkItem.checkValue(fields[4].getText().length(),
-                    fields[4].getText());
-            if (checkElement == false) {
-                addItemtoList(1, fields[1].getText(), fields[2].getText(),
-                        fields[3].getText(), "",
-                        fields[4].getText(), "",
-                        fields[5].getText(), fields[0].getText());
-            } else {
-                addItemtoList(1, fields[1].getText(), fields[2].getText(),
-                        fields[3].getText(), "",
-                        fields[4].getText(), "",
-                        fields[5].getText(), fields[0].getText());
-            }
-        }
-
-        @Override
-        public void generateMonitorForm() {
-            checkElement = checkItem.checkValue(fields[4].getText().length(),
-                    fields[4].getText());
-            if (checkElement == false) {
-                addItemtoList(1, fields[1].getText(), fields[2].getText(),
-                        fields[3].getText(), "",
-                        fields[4].getText(), "",
-                        fields[5].getText(), fields[0].getText());
-            } else {
-                addItemtoList(1, fields[1].getText(), fields[2].getText(),
-                        fields[3].getText(), "",
-                        fields[4].getText(), "",
-                        fields[5].getText(), fields[0].getText());
-            }
-        }
-
-        public void generateDefault() {
-            checkElement = checkItem.checkValue(fields[5].getText().length(),
-                    fields[5].getText());
-            if (checkElement == false) {
-                checkElement = checkItem.checkWeight(fields[4].getText().length(),
-                        fields[4].getText());
-                if (checkElement = true) {
-                    addItemtoList(1, fields[1].getText(), fields[2].getText(),
-                            fields[3].getText(), "",
-                            fields[4].getText(), fields[5].getText(),
-                            fields[7].getText(), fields[0].getText());
-                } else {
-                    addItemtoList(1, fields[1].getText(), fields[2].getText(),
-                            fields[3].getText(), fields[4].getText(),
-                            fields[5].getText(), fields[6].getText(),
-                            fields[7].getText(), fields[0].getText());
-                }
-            } else {
-                checkElement = checkItem.checkWeight(fields[4].getText().length(),
-                        fields[4].getText());
-                if (checkElement = true) {
-                    addItemtoList(1, fields[1].getText(), fields[2].getText(),
-                            fields[3].getText(), fields[4].getText(),
-                            fields[5].getText(), fields[6].getText(),
-                            fields[7].getText(), fields[0].getText());
-                } else {
-                    addItemtoList(1, fields[1].getText(), fields[2].getText(),
-                            fields[3].getText(), fields[4].getText(),
-                            fields[5].getText(), fields[6].getText(),
-                            fields[7].getText(), fields[0].getText());
-                }
-            }
-
         }
 
         @Override
@@ -1300,7 +1126,7 @@ public class BuyItem extends Forms implements ItemFormGenerator {
                 if (checkElement == true) {
                     addItemtoList(1, gameFields[0].getText(), gameFields[1].getText(),
                             "", "", gameFields[2].getText(), "", gameFields[3].getText(),
-                            fields[0].getText());
+                            selectCategory.getSelectedItem().toString());
                 }
             } else {
                 // loop :(
@@ -1312,7 +1138,7 @@ public class BuyItem extends Forms implements ItemFormGenerator {
                     if (checkElement == true) {
                         addItemtoList(1, gameFields[z].getText(), gameFields[++z].getText(),
                                 "", "", gameFields[++z].getText(), "", gameFields[++z].getText(),
-                                fields[0].getText());
+                                selectCategory.getSelectedItem().toString());
                     }
                 }
             }
@@ -1341,6 +1167,7 @@ public class BuyItem extends Forms implements ItemFormGenerator {
 
         @Override
         public void actionPerformed(ActionEvent e) {
+            generateDefaultItemForm();
             newItemGrid.fill = GridBagConstraints.HORIZONTAL;
             text = selectCategory.getSelectedItem().toString();
             newItemPanel.removeAll();
@@ -1363,7 +1190,7 @@ public class BuyItem extends Forms implements ItemFormGenerator {
                     generateTVForm();
                     break;
                 case "telefon":
-                    generatePhoneForm();
+                    defaultItemForm();
                     break;
                 case "tablet":
                     generateTabletForm();

@@ -9,11 +9,6 @@ package lombardia2014.Interface.forms;
 
 public interface ItemFormGenerator {
     public void generateJaweryForm();
-    public void generatePhoneForm();
-    public void generateTabletForm();
-    public void generateTVForm();
-    public void generateLaptopForm();
-    public void generatePCForm();
-    public void generateMonitorForm();
+    public void defaultItemForm();
     public void generateGamesForm();
 }
