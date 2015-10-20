@@ -65,6 +65,7 @@ public class ObjectForSellList extends javax.swing.JPanel {
     float vat = 0, value = 0;
     UserOperations sniffOperations = null;
     MainDBQuierues getQuery = new MainDBQuierues();
+    ObjectList objects = null;
 
     public ObjectForSellList(UserOperations sniffOperations_) {
         sniffOperations = sniffOperations_;
@@ -215,6 +216,10 @@ public class ObjectForSellList extends javax.swing.JPanel {
             }
         }
     }
+    
+    public void getObjects(ObjectList objects_) {
+        objects = objects_;
+    }
 
     /**
      * @see calc brutto
@@ -275,6 +280,7 @@ public class ObjectForSellList extends javax.swing.JPanel {
                                         "Sprzedano za:"
                                         + sellForm.getAddRemoValue());
                                 updateItemTable();
+                                objects.updateItemTable();
                                 break;
                             }
                             Thread.sleep(100);

@@ -275,6 +275,8 @@ public class MainInterface {
         menuItem = new JMenuItem("Statystyki miesięczne");
         menuItem.setAccelerator(KeyStroke.getKeyStroke(
                 KeyEvent.VK_9, ActionEvent.ALT_MASK));
+        // now i disable this function - when the rest of functions is implement i enable that function again
+        menuItem.setEnabled(false);
         menuItem.getAccessibleContext().setAccessibleDescription(
                 "Tworzy wykres statystyk w ciagu miesiaca");
         menuItem.addActionListener(new MonthlyStatistics());
@@ -283,6 +285,7 @@ public class MainInterface {
         menuItem = new JMenuItem("Statystyki roczne");
         menuItem.setAccelerator(KeyStroke.getKeyStroke(
                 KeyEvent.VK_0, ActionEvent.ALT_MASK));
+        menuItem.setEnabled(false);
         menuItem.getAccessibleContext().setAccessibleDescription(
                 "Tworzy wykres statystyk w ciagu miesiaca");
         menuItem.addActionListener(new YearlyStatistics());
@@ -332,6 +335,8 @@ public class MainInterface {
         CustomersList customers = new CustomersList();
         objects = new ObjectList(sniffOperations);
         ObjectForSellList objectToSell = new ObjectForSellList(sniffOperations);
+        objects.getObjectToSell(objectToSell);
+        objectToSell.getObjects(objects);
         listOfAgrr = new AgreementsList();
 
         tabbedPane.addTab("Menu glówne", mainPanel);

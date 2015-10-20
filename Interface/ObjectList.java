@@ -57,6 +57,7 @@ public final class ObjectList extends javax.swing.JPanel {
     float vat = 0, value = 0;
     UserOperations sniffOperations = null;
     MainDBQuierues getQuery = new MainDBQuierues();
+    ObjectForSellList objectToSell = null;
 
     public ObjectList(UserOperations sniffOperations_) {
         sniffOperations = sniffOperations_;
@@ -205,6 +206,10 @@ public final class ObjectList extends javax.swing.JPanel {
 
         }
     }
+    
+    public void getObjectToSell(ObjectForSellList objectToSell_) {
+        objectToSell = objectToSell_;
+    }
 
     /**
      * @see calc brutto
@@ -244,10 +249,10 @@ public final class ObjectList extends javax.swing.JPanel {
             if (e.getClickCount() == 2) {
                 selectRow = table.getSelectedRow();
                 int row = table.rowAtPoint(p);
-                boolean agreement = objectList.getModel().getValueAt(
+                boolean agreement = !objectList.getModel().getValueAt(
                         objectList.convertRowIndexToView(selectRow), 10
                 ).equals("");
-
+                
                 id = Integer.parseInt((String) objectList.getModel().getValueAt(
                         objectList.convertRowIndexToView(selectRow), 0));
 
@@ -265,6 +270,7 @@ public final class ObjectList extends javax.swing.JPanel {
                                         "Sprzedano za:"
                                         + sellForm.getAddRemoValue());
                                 updateItemTable();
+                                objectToSell.updateItemTable();
                                 break;
                             }
                             Thread.sleep(100);
