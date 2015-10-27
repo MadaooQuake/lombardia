@@ -1,6 +1,7 @@
 package lombardia2014.generators;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import javax.swing.table.DefaultTableModel;
@@ -26,7 +27,7 @@ public class DailyReport {
     int rowsPerPage = 40;
     DefaultTableModel model = new DefaultTableModel();
     ConfigRead config = new ConfigRead();
-
+    
     List<HashMap<String, String>> operations = new ArrayList<>();
     List<HashMap<String, String>> agrrements = new ArrayList<>();
 
@@ -48,7 +49,7 @@ public class DailyReport {
     // check operations
     public void prepareOperations() {
         for (HashMap<String, String> operation : operations) {
-            String[] dataTable = new String[8];
+            String[] dataTable = {"","","","","","","",""};
             dataTable[0] = operation.get("Data");
             String data = operation.get("Operacje");
             String[] elements = data.split(":");
@@ -58,43 +59,34 @@ public class DailyReport {
                 switch (elements[0]) {
                     case "Wpłata":
                         dataTable[3] = elements[2];
-                        dataTable[4] = "";
-                        dataTable[5] = "";
-                        dataTable[6] = "";
                         dataTable[7] = dataTable[3];
                         break;
                     case "Wypłata":
                         dataTable[3] = "-" + elements[2];
-                        dataTable[4] = "";
-                        dataTable[5] = "";
-                        dataTable[6] = "";
                         dataTable[7] = dataTable[3];
                         break;
                     default:
-                        dataTable[3] = "";
-                        dataTable[4] = "";
                         dataTable[5] = elements[2];
-                        dataTable[6] = "";
                         dataTable[7] = dataTable[5];
                         break;
                 }
 
                 if (elements.length == 4) {
-                    dataTable[3] = "";
-                    dataTable[4] = "";
                     dataTable[5] = elements[3];
                     double commission = Double.parseDouble(elements[2]) - Double.parseDouble(elements[3]);
                     dataTable[6] = Double.toString(commission);
                     dataTable[7] = elements[2];
                 }
                 model.addRow(dataTable);
-            } else if (elements[0].equals("Sprzedano")) {
-                dataTable[1] = "Sprzedano";
+            } else if (elements[0].equals("Sprzedano za")) {
                 dataTable[1] = elements[0];
+                dataTable[5] = elements[1];
+                float value = Float.parseFloat(elements[1]);
                 config.readFile();
                 float vat = config.getVat();
-                
-            }
+                dataTable[6] = Float.toString(value*vat);
+                model.addRow(dataTable);
+            } 
 
         }
 
