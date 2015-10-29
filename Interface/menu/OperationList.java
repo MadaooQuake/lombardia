@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package lombardia2014.Interface.menu;
 
 import com.itextpdf.text.DocumentException;
@@ -111,7 +106,7 @@ public class OperationList extends MenuElementsList {
         c.insets = new Insets(10, 10, 10, 10);
         c.gridx = 0;
         c.gridy = 0;
-        c.ipadx = 200;
+        c.ipadx = 80;
         mainPanel.add(buttonPanels[0], c);
 
         createTable();
@@ -188,14 +183,14 @@ public class OperationList extends MenuElementsList {
         scrollPane = new JScrollPane(litsOperations);
         litsOperations.setFillsViewportHeight(true);
 
-        scrollPane.setPreferredSize(new Dimension(500, 200));
+        scrollPane.setPreferredSize(new Dimension(300, 200));
 
         cTab[1].fill = GridBagConstraints.HORIZONTAL;
         cTab[1].insets = new Insets(10, 10, 10, 10);
         cTab[1].gridx = 0;
         cTab[1].gridy = 1;
-        cTab[1].ipadx = 450;
-        cTab[1].ipady = 350;
+        cTab[1].ipadx = 100;
+        cTab[1].ipady = 320;
         mainPanel.add(scrollPane, cTab[1]);
 
     }
