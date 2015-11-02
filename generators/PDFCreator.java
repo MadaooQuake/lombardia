@@ -93,18 +93,21 @@ public class PDFCreator {
         table.setWidths(headers_widths);
 
         //generate headers
-        for (int i = 0; i < headers.length; i++) {
-            PdfPCell cell = new PdfPCell(new Phrase(headers[i], myFont));
+        for (String header : headers) {
+            PdfPCell cell = new PdfPCell(new Phrase(header, myFont));
             table.addCell(cell);
         }
         //generate content
-        for (int row = 0; row < inputData.length; row++) {
+
+        for (String[] inputData1 : inputData) {
             //hack to not present empty rows on the last page
-            if (inputData[row][0] == null) {
-                break;
+            if (inputData1.length > 0) {
+                if (inputData1[0] == null) {
+                    break;
+                }
             }
-            for (int col = 0; col < inputData[row].length; col++) {
-                PdfPCell cell = new PdfPCell(new Phrase(inputData[row][col], myFont));
+            for (String inputData11 : inputData1) {
+                PdfPCell cell = new PdfPCell(new Phrase(inputData11, myFont));
                 table.addCell(cell);
             }
         }

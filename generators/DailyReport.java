@@ -1,9 +1,14 @@
 package lombardia2014.generators;
 
+import com.itextpdf.text.DocumentException;
+import java.awt.Desktop;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 import lombardia2014.core.ConfigRead;
 import lombardia2014.dataBaseInterface.MainDBQuierues;
@@ -27,7 +32,7 @@ public class DailyReport {
     int rowsPerPage = 40;
     DefaultTableModel model = new DefaultTableModel();
     ConfigRead config = new ConfigRead();
-    
+
     List<HashMap<String, String>> operations = new ArrayList<>();
     List<HashMap<String, String>> agrrements = new ArrayList<>();
 
@@ -36,6 +41,7 @@ public class DailyReport {
         operations = operationList.getDailyOperations();
         prepareAgrrements();
         prepareOperations();
+        generateDocument();
     }
 
     //check agreements
@@ -49,7 +55,7 @@ public class DailyReport {
     // check operations
     public void prepareOperations() {
         for (HashMap<String, String> operation : operations) {
-            String[] dataTable = {"","","","","","","",""};
+            String[] dataTable = {"", "", "", "", "", "", "", ""};
             dataTable[0] = operation.get("Data");
             String data = operation.get("Operacje");
             String[] elements = data.split(":");
@@ -84,11 +90,45 @@ public class DailyReport {
                 float value = Float.parseFloat(elements[1]);
                 config.readFile();
                 float vat = config.getVat();
-                dataTable[6] = Float.toString(value*vat);
+                dataTable[6] = Float.toString(value * vat);
                 model.addRow(dataTable);
-            } 
+            }
 
         }
 
+    }
+
+    public void generateDocument() {
+        try {
+            pdf = new PDFCreator(outputFileName, formname);
+            pdf.SetLandscapeView();
+            pdf.SetRowsPerPage(rowsPerPage);
+            pdf.CreatePDF(model, headers, headersWidth);
+
+            JOptionPane.showMessageDialog(null, "Operacje PDF został wygenerowany.",
+                    "Generowanie PDF", JOptionPane.INFORMATION_MESSAGE);
+        } catch (IOException | DocumentException ex) {
+            LombardiaLogger startLogging = new LombardiaLogger();
+            String text = startLogging.preparePattern("Error", ex.getMessage()
+                    + "\n" + Arrays.toString(ex.getStackTrace()));
+            startLogging.logToFile(text);
+            JOptionPane.showMessageDialog(null, "Błąd podczas generowania operacji.",
+                    "Generowanie PDF", JOptionPane.ERROR_MESSAGE);
+        }
+
+        try {
+            String dir = System.getProperty("user.dir");
+
+            File dirAgre = new File(dir);
+
+            if (Desktop.isDesktopSupported()) {
+                Desktop.getDesktop().open(dirAgre);
+            }
+        } catch (Exception ex) {
+            LombardiaLogger startLogging = new LombardiaLogger();
+            String text = startLogging.preparePattern("Error", ex.getMessage()
+                    + "\n" + Arrays.toString(ex.getStackTrace()));
+            startLogging.logToFile(text);
+        }
     }
 }
