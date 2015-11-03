@@ -62,7 +62,7 @@ public class PDFCreator {
                     BaseFont.EMBEDDED);
             com.itextpdf.text.Font myFont = new com.itextpdf.text.Font(bf, 12);
             com.itextpdf.text.Font smallFont = new com.itextpdf.text.Font(bf, 6);
-
+            
             Paragraph p = new Paragraph(title + " strona " + (row + 1), myFont);
 
             document.add(p);

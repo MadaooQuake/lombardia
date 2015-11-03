@@ -39,6 +39,14 @@ public class DailyReport {
     public DailyReport() {
         agrrements = getQuery.getDailyAgreements();
         operations = operationList.getDailyOperations();
+        model.addColumn("Data");
+        model.addColumn("Operacja");
+        model.addColumn("Identyfikator");
+        model.addColumn("Z/DO kasy");
+        model.addColumn("Na pożyczki");
+        model.addColumn("Na pożyczki");
+        model.addColumn("Prowizja");
+        model.addColumn("Razzem");
         prepareAgrrements();
         prepareOperations();
         generateDocument();
