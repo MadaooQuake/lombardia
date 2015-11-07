@@ -17,8 +17,10 @@ import javax.swing.JTree;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
+import lombardia2014.generators.help.ConfigurationHelp;
 import lombardia2014.generators.help.FileHelp;
 import lombardia2014.generators.help.HelpContext;
+import lombardia2014.generators.help.SettlementHelp;
 
 /**
  *
@@ -80,8 +82,6 @@ public class Help extends MenuElementsList {
         page = new DefaultMutableTreeNode("Konfiguracja");
         book.add(page);
         page = new DefaultMutableTreeNode("Rozliczenia");
-        book.add(page);
-        page = new DefaultMutableTreeNode("Pomoc");
         book.add(page);
 
         book = new DefaultMutableTreeNode("Menu główne");
@@ -151,12 +151,21 @@ public class Help extends MenuElementsList {
 
         @Override
         public void valueChanged(TreeSelectionEvent e) {
+            HelpContext ctx = new HelpContext();
             DefaultMutableTreeNode node = (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
             String menuElement = node.getUserObject().toString(); 
+            // in fee time i change this switc case to map :)
             switch (menuElement) {
                 case "Plik":
-                    HelpContext ctx = new HelpContext();
                     ctx.setHelpStrategy(new FileHelp());
+                    ctx.getText(title, text);
+                    break;
+                case "Konfiguracja":
+                    ctx.setHelpStrategy(new ConfigurationHelp());
+                    ctx.getText(title, text);
+                    break;
+                case "Rozliczenia":
+                    ctx.setHelpStrategy(new SettlementHelp());
                     ctx.getText(title, text);
                     break;
             }
