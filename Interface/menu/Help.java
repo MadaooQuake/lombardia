@@ -17,6 +17,8 @@ import javax.swing.JTree;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
+import lombardia2014.generators.help.FileHelp;
+import lombardia2014.generators.help.HelpContext;
 
 /**
  *
@@ -54,15 +56,15 @@ public class Help extends MenuElementsList {
         c.gridx = 0;
         c.gridy = 0;
         mainPanel.add(tree, c);
-        
+
         // create jpanel for text 
         information = new JPanel();
         information.setPreferredSize(new Dimension(300, 560));
         mainInformation();
         c.gridx = 1;
         c.gridy = 0;
-        mainPanel.add(information,c);
-        
+        mainPanel.add(information, c);
+
     }
 
     private DefaultMutableTreeNode generateMenu() {
@@ -124,37 +126,43 @@ public class Help extends MenuElementsList {
         book.add(page);
         page = new DefaultMutableTreeNode("Lista");
         book.add(page);
-        
+
         return top;
     }
-    
-   public void mainInformation() {
-       title = new JLabel("Lombardia - instrukcja obsługi");
-       title.setFont(new Font("Dialog", Font.BOLD, 18));
-       title.setSize(new Dimension(150, 40));
-       information.add(title, TOP_ALIGNMENT);
-       
-       text = new JLabel("\n Instrukcja zawiera podstawowe informacje");
-       text.setFont(new Font("Dialog", Font.BOLD, 12));
-       text.setSize(new Dimension(200, 40));
-       information.add(text, CENTER_ALIGNMENT);
-       
-       text = new JLabel("na temat poszczególnych funkcjonalności.");
-       text.setFont(new Font("Dialog", Font.BOLD, 12));
-       text.setSize(new Dimension(200, 40));
-       information.add(text, CENTER_ALIGNMENT);
-   } 
-   
-   private class SelectMEnu implements TreeSelectionListener {
+
+    public void mainInformation() {
+        title = new JLabel("Lombardia - instrukcja obsługi");
+        title.setFont(new Font("Dialog", Font.BOLD, 18));
+        title.setSize(new Dimension(150, 40));
+        information.add(title, TOP_ALIGNMENT);
+
+        text = new JLabel("\n Instrukcja zawiera podstawowe informacje");
+        text.setFont(new Font("Dialog", Font.BOLD, 12));
+        text.setSize(new Dimension(200, 40));
+        information.add(text, CENTER_ALIGNMENT);
+
+        text = new JLabel("na temat poszczególnych funkcjonalności.");
+        text.setFont(new Font("Dialog", Font.BOLD, 12));
+        text.setSize(new Dimension(200, 40));
+        information.add(text, CENTER_ALIGNMENT);
+    }
+
+    private class SelectMEnu implements TreeSelectionListener {
 
         @Override
         public void valueChanged(TreeSelectionEvent e) {
             DefaultMutableTreeNode node = (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
-            
-            
+            String menuElement = node.getUserObject().toString(); 
+            switch (menuElement) {
+                case "Plik":
+                    HelpContext ctx = new HelpContext();
+                    ctx.setHelpStrategy(new FileHelp());
+                    ctx.getText(title, text);
+                    break;
+            }
 
         }
-       
-   }
+
+    }
 
 }
