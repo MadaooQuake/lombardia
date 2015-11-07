@@ -14,6 +14,8 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTree;
+import javax.swing.event.TreeSelectionEvent;
+import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 
 /**
@@ -48,6 +50,7 @@ public class Help extends MenuElementsList {
         c.fill = GridBagConstraints.HORIZONTAL;
         tree = new JTree(generateMenu());
         tree.setPreferredSize(new Dimension(180, 560));
+        tree.addTreeSelectionListener(new SelectMEnu());
         c.gridx = 0;
         c.gridy = 0;
         mainPanel.add(tree, c);
@@ -121,7 +124,7 @@ public class Help extends MenuElementsList {
         book.add(page);
         page = new DefaultMutableTreeNode("Lista");
         book.add(page);
-
+        
         return top;
     }
     
@@ -141,5 +144,17 @@ public class Help extends MenuElementsList {
        text.setSize(new Dimension(200, 40));
        information.add(text, CENTER_ALIGNMENT);
    } 
+   
+   private class SelectMEnu implements TreeSelectionListener {
+
+        @Override
+        public void valueChanged(TreeSelectionEvent e) {
+            DefaultMutableTreeNode node = (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
+            
+            
+
+        }
+       
+   }
 
 }
