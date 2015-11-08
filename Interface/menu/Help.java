@@ -62,12 +62,11 @@ public class Help extends MenuElementsList {
         mainPanel.add(tree, c);
 
         // create jpanel for text 
-        information = new JPanel();
-        information.setPreferredSize(new Dimension(340, 500));
+        information = new JPanel(new GridBagLayout());
         scrollPane = new JScrollPane(information);
-        scrollPane.setPreferredSize(new Dimension(340, 1400));
-        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        scrollPane.setPreferredSize(new Dimension(300, 560));
+        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
         mainInformation();
         c.gridx = 1;
         c.gridy = 0;
@@ -137,10 +136,13 @@ public class Help extends MenuElementsList {
     }
 
     public void mainInformation() {
-        title = new JLabel("<html><b>Lombardia - instrukcja obsługi</b></html>");
+        GridBagConstraints c = new GridBagConstraints();
+        title = new JLabel("<html><b>Lombardia - instrukcja obsługi</b><br /></html>");
         title.setFont(new Font("Dialog", Font.BOLD, 18));
         title.setSize(new Dimension(150, 40));
-        information.add(title, TOP_ALIGNMENT);
+        c.gridx = 0;
+        c.gridy = 0;
+        information.add(title, c);
 
         text = new JLabel("<html>"
                 + "Instrukcja zawiera podstawowe informacje <br/>"
@@ -148,7 +150,9 @@ public class Help extends MenuElementsList {
                 + "</html>");
         text.setFont(new Font("Dialog", Font.BOLD, 12));
         text.setSize(new Dimension(200, 40));
-        information.add(text, CENTER_ALIGNMENT);
+        c.gridx = 0;
+        c.gridy = 1;
+        information.add(text, c);
     }
 
     private class SelectMEnu implements TreeSelectionListener {
