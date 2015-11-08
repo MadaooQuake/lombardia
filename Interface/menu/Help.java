@@ -10,6 +10,8 @@ import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.util.HashMap;
+import java.util.Map;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -21,6 +23,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import lombardia2014.generators.help.ConfigurationHelp;
 import lombardia2014.generators.help.FileHelp;
 import lombardia2014.generators.help.HelpContext;
+import lombardia2014.generators.help.HelpStrategy;
 import lombardia2014.generators.help.SettlementHelp;
 
 /**
@@ -34,6 +37,7 @@ public class Help extends MenuElementsList {
     private JLabel title = null;
     private JLabel text = null;
     private JScrollPane scrollPane = null;
+    private Map<String, Object> helpList = new HashMap<>();
 
     @Override
     public void generateGui() {
@@ -52,6 +56,7 @@ public class Help extends MenuElementsList {
 
     @Override
     public void generatePanels(GridBagConstraints c) {
+        createListInMap();
         c.insets = new Insets(0, 0, 0, 0);
         c.fill = GridBagConstraints.HORIZONTAL;
         tree = new JTree(generateMenu());
@@ -133,6 +138,12 @@ public class Help extends MenuElementsList {
 
         return top;
     }
+    
+    public void createListInMap() {
+        helpList.put("Plik", new FileHelp());
+        helpList.put("Konfiguracja", new ConfigurationHelp());
+        helpList.put("Rozliczenia", new SettlementHelp());
+    }
 
     public void mainInformation() {
         GridBagConstraints c = new GridBagConstraints();
@@ -161,22 +172,9 @@ public class Help extends MenuElementsList {
             HelpContext ctx = new HelpContext();
             DefaultMutableTreeNode node = (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
             String menuElement = node.getUserObject().toString();
-            // in fee time i change this switc case to map :)
-            switch (menuElement) {
-                case "Plik":
-                    ctx.setHelpStrategy(new FileHelp());
-                    ctx.getText(title, text);
-                    break;
-                case "Konfiguracja":
-                    ctx.setHelpStrategy(new ConfigurationHelp());
-                    ctx.getText(title, text);
-                    break;
-                case "Rozliczenia":
-                    ctx.setHelpStrategy(new SettlementHelp());
-                    ctx.getText(title, text);
-                    break;
-            }
 
+            ctx.setHelpStrategy((HelpStrategy) helpList.get(menuElement));
+            ctx.getText(title, text);
         }
 
     }
