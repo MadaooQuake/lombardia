@@ -13,6 +13,7 @@ import java.awt.Insets;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTree;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
@@ -32,10 +33,11 @@ public class Help extends MenuElementsList {
     private JPanel information = null;
     private JLabel title = null;
     private JLabel text = null;
+    private JScrollPane scrollPane = null;
 
     @Override
     public void generateGui() {
-        formFrame.setSize(new Dimension(500, 600));
+        formFrame.setSize(new Dimension(540, 600));
         formFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         formFrame.setResizable(false);
         formFrame.setTitle("Instrukcja obsługi");
@@ -61,11 +63,15 @@ public class Help extends MenuElementsList {
 
         // create jpanel for text 
         information = new JPanel();
-        information.setPreferredSize(new Dimension(300, 560));
+        information.setPreferredSize(new Dimension(340, 500));
+        scrollPane = new JScrollPane(information);
+        scrollPane.setPreferredSize(new Dimension(340, 1400));
+        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
         mainInformation();
         c.gridx = 1;
         c.gridy = 0;
-        mainPanel.add(information, c);
+        mainPanel.add(scrollPane, c);
 
     }
 
@@ -151,7 +157,7 @@ public class Help extends MenuElementsList {
         public void valueChanged(TreeSelectionEvent e) {
             HelpContext ctx = new HelpContext();
             DefaultMutableTreeNode node = (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
-            String menuElement = node.getUserObject().toString(); 
+            String menuElement = node.getUserObject().toString();
             // in fee time i change this switc case to map :)
             switch (menuElement) {
                 case "Plik":
