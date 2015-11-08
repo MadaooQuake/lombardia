@@ -131,17 +131,15 @@ public class Help extends MenuElementsList {
     }
 
     public void mainInformation() {
-        title = new JLabel("Lombardia - instrukcja obsługi");
+        title = new JLabel("<html><b>Lombardia - instrukcja obsługi</b></html>");
         title.setFont(new Font("Dialog", Font.BOLD, 18));
         title.setSize(new Dimension(150, 40));
         information.add(title, TOP_ALIGNMENT);
 
-        text = new JLabel("\n Instrukcja zawiera podstawowe informacje");
-        text.setFont(new Font("Dialog", Font.BOLD, 12));
-        text.setSize(new Dimension(200, 40));
-        information.add(text, CENTER_ALIGNMENT);
-
-        text = new JLabel("na temat poszczególnych funkcjonalności.");
+        text = new JLabel("<html>"
+                + "Instrukcja zawiera podstawowe informacje <br/>"
+                + "na temat poszczególnych funkcjonalności."
+                + "</html>");
         text.setFont(new Font("Dialog", Font.BOLD, 12));
         text.setSize(new Dimension(200, 40));
         information.add(text, CENTER_ALIGNMENT);
