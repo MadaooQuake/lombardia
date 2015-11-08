@@ -66,7 +66,6 @@ public class Help extends MenuElementsList {
         scrollPane = new JScrollPane(information);
         scrollPane.setPreferredSize(new Dimension(300, 560));
         scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
         mainInformation();
         c.gridx = 1;
         c.gridy = 0;
