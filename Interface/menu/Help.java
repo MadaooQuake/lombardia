@@ -97,9 +97,7 @@ public class Help extends MenuElementsList {
         top.add(book);
         page = new DefaultMutableTreeNode("Kasa");
         book.add(page);
-        page2 = new DefaultMutableTreeNode("Wpłata");
-        page.add(page2);
-        page2 = new DefaultMutableTreeNode("Wypłata");
+        page2 = new DefaultMutableTreeNode("Wpłata/Wypłata");
         page.add(page2);
         page = new DefaultMutableTreeNode("Pożyczka");
         book.add(page);
@@ -130,6 +128,20 @@ public class Help extends MenuElementsList {
         book.add(page);
 
         book = new DefaultMutableTreeNode("Lista depozytów");
+        top.add(book);
+        page = new DefaultMutableTreeNode("Wyszukiwarka");
+        book.add(page);
+        page = new DefaultMutableTreeNode("Lista");
+        book.add(page);
+        
+        book = new DefaultMutableTreeNode("Lista przedmiotów na sprzedaż");
+        top.add(book);
+        page = new DefaultMutableTreeNode("Wyszukiwarka");
+        book.add(page);
+        page = new DefaultMutableTreeNode("Lista");
+        book.add(page);
+        
+        book = new DefaultMutableTreeNode("Umowy");
         top.add(book);
         page = new DefaultMutableTreeNode("Wyszukiwarka");
         book.add(page);
