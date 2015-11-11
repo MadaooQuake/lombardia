@@ -20,10 +20,13 @@ import javax.swing.JTree;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
+
+import lombardia2014.generators.help.BuyItemHelp;
 import lombardia2014.generators.help.ConfigurationHelp;
 import lombardia2014.generators.help.FileHelp;
 import lombardia2014.generators.help.HelpContext;
 import lombardia2014.generators.help.HelpStrategy;
+import lombardia2014.generators.help.LastAgreementHelp;
 import lombardia2014.generators.help.SettlementHelp;
 
 /**
@@ -155,6 +158,8 @@ public class Help extends MenuElementsList {
         helpList.put("Plik", new FileHelp());
         helpList.put("Konfiguracja", new ConfigurationHelp());
         helpList.put("Rozliczenia", new SettlementHelp());
+        helpList.put("Ostatnia", new LastAgreementHelp());
+        helpList.put("Skup", new BuyItemHelp());
     }
 
     public void mainInformation() {

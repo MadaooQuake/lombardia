@@ -8,9 +8,18 @@ import javax.swing.JLabel;
  */
 public class LastAgreementHelp implements HelpStrategy {
 
+    String textT = "<html>"
+            + "<p>"
+            + "Formularz wyświetla ostatnio dodaną "
+            + "pożyczkę.<br/>"
+            + "</p>"
+            + "</html>";
+    String titleT = "<html>Ostatnia umowa<br /></html>";
+
     @Override
     public void getText(JLabel title, JLabel text) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        title.setText(titleT);
+        text.setText(textT);
     }
-    
+
 }
