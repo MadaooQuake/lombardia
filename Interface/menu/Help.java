@@ -27,6 +27,7 @@ import lombardia2014.generators.help.FileHelp;
 import lombardia2014.generators.help.HelpContext;
 import lombardia2014.generators.help.HelpStrategy;
 import lombardia2014.generators.help.LastAgreementHelp;
+import lombardia2014.generators.help.NewCreditHelp;
 import lombardia2014.generators.help.SettlementHelp;
 
 /**
@@ -160,6 +161,7 @@ public class Help extends MenuElementsList {
         helpList.put("Rozliczenia", new SettlementHelp());
         helpList.put("Ostatnia", new LastAgreementHelp());
         helpList.put("Skup", new BuyItemHelp());
+        helpList.put("Nowa", new NewCreditHelp());
     }
 
     public void mainInformation() {
