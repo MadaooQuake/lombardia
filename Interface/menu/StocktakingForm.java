@@ -215,7 +215,7 @@ public class StocktakingForm extends MenuElementsList {
         //build data
         for (HashMap<String, String> dbrow : data) {
             Object[] row = new Object[headers.length];
-            for (int i=0; i < headers.length; i++) {
+            for (int i = 0; i < headers.length; i++) {
                 String dbdata = dbrow.get(headers[i]);
                 if (translateDateColumn.contains(i)) {
                     try {
@@ -229,12 +229,15 @@ public class StocktakingForm extends MenuElementsList {
                     }
                 }
                 row[i] = dbdata;
+                if (dbdata == null) {
+                    dbdata = "0";
+                }
                 if (sumMe.contains(i)) {
                     if (sumarize[i] == null) {
                         sumarize[i] = dbdata;
                     } else {
                         Float addMe = Float.parseFloat(sumarize[i])+Float.parseFloat(dbdata);
-                        sumarize[i]=addMe.toString();
+                        sumarize[i] = addMe.toString();
                     }
                 }
             }
