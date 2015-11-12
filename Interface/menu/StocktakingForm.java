@@ -73,6 +73,7 @@ public class StocktakingForm extends MenuElementsList {
     String output_file_name = "_be_changed.pdf";
     String[]  headers = {"L.p.", "Opis towaru", "Identyfikator", "Cena netto", "Wartość netto", "Data zakupu"};
     float[] headers_width = {0.9f, 5.0f, 3.0f, 3.0f, 3.0f, 2.6f};
+    List<Integer> sumMe = new ArrayList();
     MainDBQuierues DB = new MainDBQuierues();
     String from,to;
 
@@ -82,7 +83,11 @@ public class StocktakingForm extends MenuElementsList {
     public StocktakingForm(String dateRange_) {
         formDate = new DateTools(new Date());
         output_file_name = formname+formDate.GetDateAsString()+".pdf";
-        listSettlement = new JTable(new DefaultTableModel());        
+        listSettlement = new JTable(new DefaultTableModel());    
+        
+        //Configure which column need to be summarize
+        sumMe.add(3); //Cena netto
+        sumMe.add(4); //Wartość netto
     }
     
     @Override
@@ -200,15 +205,25 @@ public class StocktakingForm extends MenuElementsList {
             result.addColumn(header);
         }
                 
+        String[] sumarize = new String[headers.length];
         //build data
         for (HashMap<String, String> dbrow : data) {
             Object[] row = new Object[headers.length];
             for (int i=0; i < headers.length; i++) {
-                row[i] = dbrow.get(headers[i]);
+                String dbdata = dbrow.get(headers[i]);
+                row[i] = dbdata;
+                if (sumMe.contains(i)) {
+                    if (sumarize[i] == null) {
+                        sumarize[i] = dbdata;
+                    } else {
+                        Float addMe = Float.parseFloat(sumarize[i])+Float.parseFloat(dbdata);
+                        sumarize[i]=addMe.toString();
+                    }
+                }
             }
             result.addRow(row);
         }
-        
+        result.addRow(sumarize);
         return result;
     }
 

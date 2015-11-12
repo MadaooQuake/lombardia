@@ -23,6 +23,7 @@ import java.awt.Insets;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.util.Arrays;
+import java.util.ArrayList;
 import lombardia2014.dataBaseInterface.MainDBQuierues;
 
 import lombardia2014.generators.LombardiaLogger;
@@ -59,6 +60,7 @@ public class SettlementForm extends MenuElementsList {
     int rows_per_page = 20;
     String output_file_name = "_be_changed.pdf";
     String[] headers = {"L.p.", "Imię", "Nazwisko", "Adres", "Data pożyczki", "Kwota pożyczki", "Opis zastawu", "Wartość zastawu", "Termin zwrotu", "Odsetki"};
+    List<Integer> sumMe = new ArrayList();
     float[] headers_width = {0.9f, 3.0f, 5.0f, 5.0f, 2.6f, 2.6f, 5.0f, 2.6f, 2.6f, 1.8f};
     MainDBQuierues DB = new MainDBQuierues();
     String from,to;
@@ -77,6 +79,10 @@ public class SettlementForm extends MenuElementsList {
         }
         output_file_name = formname + "_" + range + ".pdf";
         listSettlement = new JTable(new DefaultTableModel());
+        //Configure which column need to be summarize
+        sumMe.add(5); //Kwota pożyczki
+        sumMe.add(7); //Wartość zastawu
+        sumMe.add(9); //odsetki
     }
 
     private void refresh() {
@@ -190,15 +196,26 @@ public class SettlementForm extends MenuElementsList {
         for (String header : headers) {
             result.addColumn(header);
         }
-                
+        
+        String[] sumarize = new String[headers.length];
         //build data
         for (HashMap<String, String> dbrow : data) {
             Object[] row = new Object[headers.length];
             for (int i=0; i < headers.length; i++) {
-                row[i] = dbrow.get(headers[i]);
+                String dbdata = dbrow.get(headers[i]);
+                row[i] = dbdata;
+                if (sumMe.contains(i)) {
+                    if (sumarize[i] == null) {
+                        sumarize[i] = dbdata;
+                    } else {
+                        Float addMe = Float.parseFloat(sumarize[i])+Float.parseFloat(dbdata);
+                        sumarize[i]=addMe.toString();
+                    }
+                }
             }
             result.addRow(row);
         }
+        result.addRow(sumarize);
         
         return result;
     }
