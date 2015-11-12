@@ -74,9 +74,12 @@ public class StocktakingForm extends MenuElementsList {
     String[]  headers = {"L.p.", "Opis towaru", "Identyfikator", "Cena netto", "Wartość netto", "Data zakupu"};
     float[] headers_width = {0.9f, 5.0f, 3.0f, 3.0f, 3.0f, 2.6f};
     List<Integer> sumMe = new ArrayList();
+    List<Integer> translateDateColumn = new ArrayList();
+    String summaryText = "Podsumowanie";
+    int summaryColumnIndex = 1;
     MainDBQuierues DB = new MainDBQuierues();
     String from,to;
-
+    
     
     JDatePickerImpl datePicker = null;
     
@@ -88,6 +91,9 @@ public class StocktakingForm extends MenuElementsList {
         //Configure which column need to be summarize
         sumMe.add(3); //Cena netto
         sumMe.add(4); //Wartość netto
+        
+        //Configure column to date translate
+        translateDateColumn.add(5); //Data zakupu
     }
     
     @Override
@@ -211,6 +217,17 @@ public class StocktakingForm extends MenuElementsList {
             Object[] row = new Object[headers.length];
             for (int i=0; i < headers.length; i++) {
                 String dbdata = dbrow.get(headers[i]);
+                if (translateDateColumn.contains(i)) {
+                    try {
+                        DateTools dateobj = new DateTools(dbdata);
+                        dbdata = dateobj.GetDateAsString();
+                    } catch (Exception ex) {
+                        LombardiaLogger startLogging = new LombardiaLogger();
+                        String text = startLogging.preparePattern("Error", ex.getMessage()
+                            + "\n" + Arrays.toString(ex.getStackTrace()));
+                        startLogging.logToFile(text);                        
+                    }
+                }
                 row[i] = dbdata;
                 if (sumMe.contains(i)) {
                     if (sumarize[i] == null) {
@@ -223,6 +240,7 @@ public class StocktakingForm extends MenuElementsList {
             }
             result.addRow(row);
         }
+        sumarize[summaryColumnIndex] = summaryText;
         result.addRow(sumarize);
         return result;
     }

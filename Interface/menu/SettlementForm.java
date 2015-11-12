@@ -28,6 +28,7 @@ import lombardia2014.dataBaseInterface.MainDBQuierues;
 
 import lombardia2014.generators.LombardiaLogger;
 import lombardia2014.generators.PDFCreator;
+import lombardia2014.generators.DateTools;
 
 //to Generate PDF iText
 import com.itextpdf.text.DocumentException;
@@ -61,7 +62,10 @@ public class SettlementForm extends MenuElementsList {
     String output_file_name = "_be_changed.pdf";
     String[] headers = {"L.p.", "Imię", "Nazwisko", "Adres", "Data pożyczki", "Kwota pożyczki", "Opis zastawu", "Wartość zastawu", "Termin zwrotu", "Odsetki"};
     List<Integer> sumMe = new ArrayList();
+    List<Integer> translateDateColumn = new ArrayList();
     float[] headers_width = {0.9f, 3.0f, 5.0f, 5.0f, 2.6f, 2.6f, 5.0f, 2.6f, 2.6f, 1.8f};
+    String summaryText = "Podsumowanie";
+    int summaryColumnIndex = 2;
     MainDBQuierues DB = new MainDBQuierues();
     String from,to;
 
@@ -83,6 +87,10 @@ public class SettlementForm extends MenuElementsList {
         sumMe.add(5); //Kwota pożyczki
         sumMe.add(7); //Wartość zastawu
         sumMe.add(9); //odsetki
+        
+        //Configure column to date translate
+        translateDateColumn.add(4); //Data pożyczki
+        translateDateColumn.add(8); //Termin zwrotu
     }
 
     private void refresh() {
@@ -203,6 +211,17 @@ public class SettlementForm extends MenuElementsList {
             Object[] row = new Object[headers.length];
             for (int i=0; i < headers.length; i++) {
                 String dbdata = dbrow.get(headers[i]);
+                if (translateDateColumn.contains(i)) {
+                    try {
+                        DateTools dateobj = new DateTools(dbdata);
+                        dbdata = dateobj.GetDateAsString();
+                    } catch (Exception ex) {
+                        LombardiaLogger startLogging = new LombardiaLogger();
+                        String text = startLogging.preparePattern("Error", ex.getMessage()
+                            + "\n" + Arrays.toString(ex.getStackTrace()));
+                        startLogging.logToFile(text);                        
+                    }
+                }
                 row[i] = dbdata;
                 if (sumMe.contains(i)) {
                     if (sumarize[i] == null) {
@@ -215,6 +234,7 @@ public class SettlementForm extends MenuElementsList {
             }
             result.addRow(row);
         }
+        sumarize[summaryColumnIndex] = summaryText;
         result.addRow(sumarize);
         
         return result;
