@@ -30,6 +30,7 @@ import lombardia2014.generators.help.LastAgreementHelp;
 import lombardia2014.generators.help.NewCreditHelp;
 import lombardia2014.generators.help.PeymentHelp;
 import lombardia2014.generators.help.PrologationHelp;
+import lombardia2014.generators.help.ReturnCreditHelp;
 import lombardia2014.generators.help.SettlementHelp;
 
 /**
@@ -166,6 +167,7 @@ public class Help extends MenuElementsList {
         helpList.put("Nowa", new NewCreditHelp());
         helpList.put("Wpłata/Wypłata", new PeymentHelp());
         helpList.put("Przedłużenie", new PrologationHelp());
+        helpList.put("Zwrot", new ReturnCreditHelp());
     }
 
     public void mainInformation() {
