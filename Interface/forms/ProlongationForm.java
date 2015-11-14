@@ -176,6 +176,56 @@ public class ProlongationForm extends Forms {
         mainPanel.add(buttonPanel, c);
     }
 
+    protected void createAgreement() {
+        ID = (String) listAgreements.getModel().getValueAt(
+                listAgreements.convertRowIndexToView(selectRow), 2);
+
+        Map<String, Integer> Ids = new HashMap<>();
+        Ids.putAll(prolongAgreement());
+        if (Ids.get("CustID") != null) {
+            getUserInfo(Ids.get("CustID"));
+            getItemsFromAgreement(Ids.get("AgrID"));
+            // save money
+            SelfCalc actualCalc = new SelfCalc();
+            actualCalc.chackValue(formFrame);
+            actualCalc.addToSelf(Float.parseFloat(
+                    paymentPorperies.get("Łączna wartosc")));
+            adRemValue = Double.parseDouble(
+                    paymentPorperies.get("Łączna wartosc"));
+            money.setText(actualCalc.getValue() + " zł");
+            // next i create new payment with constructor :)
+            newCredit = new CreditForm(itemsList, paymentPorperies, userInfo, false);
+            //deleteAgreement(ID);
+            worker = new SwingWorker<Void, Void>() {
+
+                @Override
+                protected Void doInBackground() {
+                    try {
+                        while (true) {
+                            if (newCredit.isClose() == true) {
+                                sniffOperations.saveOperations("Wystawiono umowe kredytu:"
+                                        + newCredit.getAddRemoValue());
+                                deleteAgreement(ID);
+                                break;
+                            }
+                            Thread.sleep(100);
+                        }
+                    } catch (Exception ex) {
+                        LombardiaLogger startLogging = new LombardiaLogger();
+                        String text = startLogging.preparePattern("Error", ex.getMessage()
+                                + "\n" + Arrays.toString(ex.getStackTrace()));
+                        startLogging.logToFile(text);
+                    }
+                    return null;
+                }
+
+            };
+            worker.execute();
+            iClose = 1;
+            formFrame.dispose();
+        }
+    }
+
     public boolean isClose() {
         return iClose == 1;
     }
@@ -184,7 +234,7 @@ public class ProlongationForm extends Forms {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-
+            createAgreement();
         }
     }
 
@@ -250,58 +300,10 @@ public class ProlongationForm extends Forms {
         @Override
         public void mouseClicked(MouseEvent e) {
             JTable table = (JTable) e.getSource();
+            selectRow = table.getSelectedRow();
 
             if (e.getClickCount() == 2) {
-                selectRow = table.getSelectedRow();
-
-                ID = (String) listAgreements.getModel().getValueAt(
-                        listAgreements.convertRowIndexToView(selectRow), 2);
-
-                Map<String, Integer> Ids = new HashMap<>();
-                Ids.putAll(prolongAgreement());
-                if (Ids.get("CustID") != null) {
-                    getUserInfo(Ids.get("CustID"));
-                    getItemsFromAgreement(Ids.get("AgrID"));
-                    // save money
-                    SelfCalc actualCalc = new SelfCalc();
-                    actualCalc.chackValue(formFrame);
-                    actualCalc.addToSelf(Float.parseFloat(
-                            paymentPorperies.get("Łączna wartosc")));
-                    adRemValue = Double.parseDouble(
-                            paymentPorperies.get("Łączna wartosc"));
-                    money.setText(actualCalc.getValue() + " zł");
-                    // next i create new payment with constructor :)
-                    newCredit = new CreditForm(itemsList, paymentPorperies, userInfo, false);
-                    //deleteAgreement(ID);
-                    worker = new SwingWorker<Void, Void>() {
-
-                        @Override
-                        protected Void doInBackground() {
-                            try {
-                                while (true) {
-                                    if (newCredit.isClose() == true) {
-                                        sniffOperations.saveOperations("Wystawiono umowe kredytu:"
-                                                + newCredit.getAddRemoValue());
-                                        deleteAgreement(ID);
-                                        break;
-                                    }
-                                    Thread.sleep(100);
-                                }
-                            } catch (Exception ex) {
-                                LombardiaLogger startLogging = new LombardiaLogger();
-                                String text = startLogging.preparePattern("Error", ex.getMessage()
-                                        + "\n" + Arrays.toString(ex.getStackTrace()));
-                                startLogging.logToFile(text);
-                            }
-                            return null;
-                        }
-
-                    };
-                    worker.execute();
-                    iClose = 1;
-                    formFrame.dispose();
-                }
-
+                createAgreement();
             }
         }
 
