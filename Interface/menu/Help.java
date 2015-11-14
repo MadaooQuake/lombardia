@@ -28,6 +28,7 @@ import lombardia2014.generators.help.HelpContext;
 import lombardia2014.generators.help.HelpStrategy;
 import lombardia2014.generators.help.LastAgreementHelp;
 import lombardia2014.generators.help.NewCreditHelp;
+import lombardia2014.generators.help.PeymentHelp;
 import lombardia2014.generators.help.SettlementHelp;
 
 /**
@@ -162,6 +163,7 @@ public class Help extends MenuElementsList {
         helpList.put("Ostatnia", new LastAgreementHelp());
         helpList.put("Skup", new BuyItemHelp());
         helpList.put("Nowa", new NewCreditHelp());
+        helpList.put("Wpłata/Wypłata", new PeymentHelp());
     }
 
     public void mainInformation() {
