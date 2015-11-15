@@ -10,7 +10,7 @@ public class ObjectListHelp implements HelpStrategy {
 
     String textT = "<html>"
             + "<p>"
-            + "Pokazuje lilstę z przedmiotami, kttóre są podpięte<br/>"
+            + "Pokazuje lilstę z przedmiotami, które są podpięte<br/>"
             + "umowy, lub tez nie. Każdy depozyt możemy <br/>"
             + "edytować lub sprzedać, klikając dwukrotnie na <br />"
             + "wybrany przedmiot, wtedy pojawia się <br />"

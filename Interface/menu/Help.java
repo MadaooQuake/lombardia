@@ -28,6 +28,7 @@ import lombardia2014.generators.help.LastAgreementHelp;
 import lombardia2014.generators.help.LateClientHelp;
 import lombardia2014.generators.help.NewCreditHelp;
 import lombardia2014.generators.help.NoticesHelp;
+import lombardia2014.generators.help.ObjectForSellListHelp;
 import lombardia2014.generators.help.ObjectListHelp;
 import lombardia2014.generators.help.PeymentHelp;
 import lombardia2014.generators.help.PhoneReportHelp;
@@ -154,6 +155,7 @@ public class Help extends MenuElementsList {
         helpList.put("Zgłoszenia tel.", new PhoneReportHelp());
         helpList.put("Uwagi", new NoticesHelp());
         helpList.put("Lista depozytów", new ObjectListHelp());
+        helpList.put("Lista przedmiotów na sprzedaż", new ObjectForSellListHelp());
     }
 
     public void mainInformation() {
