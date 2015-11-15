@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package lombardia2014.Interface.menu;
 
 import java.awt.Dimension;
@@ -10,13 +5,16 @@ import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+
 import java.util.HashMap;
 import java.util.Map;
+
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTree;
+
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -30,6 +28,7 @@ import lombardia2014.generators.help.LastAgreementHelp;
 import lombardia2014.generators.help.LateClientHelp;
 import lombardia2014.generators.help.NewCreditHelp;
 import lombardia2014.generators.help.PeymentHelp;
+import lombardia2014.generators.help.PhoneReportHelp;
 import lombardia2014.generators.help.PrologationHelp;
 import lombardia2014.generators.help.ReturnCreditHelp;
 import lombardia2014.generators.help.SettlementHelp;
@@ -170,6 +169,7 @@ public class Help extends MenuElementsList {
         helpList.put("Przedłużenie", new PrologationHelp());
         helpList.put("Zwrot", new ReturnCreditHelp());
         helpList.put("Spóźnieni", new LateClientHelp());
+        helpList.put("Zgłoszenia tel.", new PhoneReportHelp());
     }
 
     public void mainInformation() {
