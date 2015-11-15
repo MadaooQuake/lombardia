@@ -28,6 +28,7 @@ import lombardia2014.generators.help.LastAgreementHelp;
 import lombardia2014.generators.help.LateClientHelp;
 import lombardia2014.generators.help.NewCreditHelp;
 import lombardia2014.generators.help.NoticesHelp;
+import lombardia2014.generators.help.ObjectListHelp;
 import lombardia2014.generators.help.PeymentHelp;
 import lombardia2014.generators.help.PhoneReportHelp;
 import lombardia2014.generators.help.PrologationHelp;
@@ -128,34 +129,14 @@ public class Help extends MenuElementsList {
         page2 = new DefaultMutableTreeNode("Uwagi");
         page.add(page2);
 
-        book = new DefaultMutableTreeNode("Lista klientów");
-        top.add(book);
-        page = new DefaultMutableTreeNode("Wyszukiwarka");
-        book.add(page);
-        page = new DefaultMutableTreeNode("Lista");
-        book.add(page);
-
-        book = new DefaultMutableTreeNode("Lista depozytów");
-        top.add(book);
-        page = new DefaultMutableTreeNode("Wyszukiwarka");
-        book.add(page);
-        page = new DefaultMutableTreeNode("Lista");
-        book.add(page);
-        
-        book = new DefaultMutableTreeNode("Lista przedmiotów na sprzedaż");
-        top.add(book);
-        page = new DefaultMutableTreeNode("Wyszukiwarka");
-        book.add(page);
-        page = new DefaultMutableTreeNode("Lista");
-        book.add(page);
-        
-        book = new DefaultMutableTreeNode("Umowy");
-        top.add(book);
-        page = new DefaultMutableTreeNode("Wyszukiwarka");
-        book.add(page);
-        page = new DefaultMutableTreeNode("Lista");
-        book.add(page);
-
+        page = new DefaultMutableTreeNode("Lista klientów");
+        top.add(page);
+        page = new DefaultMutableTreeNode("Lista depozytów");
+        top.add(page);
+        page = new DefaultMutableTreeNode("Lista przedmiotów na sprzedaż");
+        top.add(page);
+        page = new DefaultMutableTreeNode("Umowy");
+        top.add(page);
         return top;
     }
     
@@ -172,6 +153,7 @@ public class Help extends MenuElementsList {
         helpList.put("Spóźnieni", new LateClientHelp());
         helpList.put("Zgłoszenia tel.", new PhoneReportHelp());
         helpList.put("Uwagi", new NoticesHelp());
+        helpList.put("Lista depozytów", new ObjectListHelp());
     }
 
     public void mainInformation() {
