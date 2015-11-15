@@ -27,6 +27,7 @@ import lombardia2014.generators.help.HelpStrategy;
 import lombardia2014.generators.help.LastAgreementHelp;
 import lombardia2014.generators.help.LateClientHelp;
 import lombardia2014.generators.help.NewCreditHelp;
+import lombardia2014.generators.help.NoticesHelp;
 import lombardia2014.generators.help.PeymentHelp;
 import lombardia2014.generators.help.PhoneReportHelp;
 import lombardia2014.generators.help.PrologationHelp;
@@ -170,6 +171,7 @@ public class Help extends MenuElementsList {
         helpList.put("Zwrot", new ReturnCreditHelp());
         helpList.put("Spóźnieni", new LateClientHelp());
         helpList.put("Zgłoszenia tel.", new PhoneReportHelp());
+        helpList.put("Uwagi", new NoticesHelp());
     }
 
     public void mainInformation() {
