@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package lombardia2014.Interface.forms;
 
 import lombardia2014.dataBaseInterface.QueryDB;
@@ -222,7 +217,7 @@ public class CreditForm extends Forms {
         c.gridx = 0;
         c.gridy = 1;
         c.ipadx = 40;
-        c.ipady = 40;
+        c.ipady = 0;
         mainPanel.add(actionPanels[2], c);
 
         //new panel he show list of items
@@ -238,7 +233,7 @@ public class CreditForm extends Forms {
         c.gridx = 1;
         c.gridy = 1;
         c.ipadx = 10;
-        c.ipady = 60;
+        c.ipady = 0;
         mainPanel.add(actionPanels[4], c);
 
         //panel without the borer :D
@@ -450,7 +445,7 @@ public class CreditForm extends Forms {
 
         newItemPanel = new JPanel(new GridBagLayout());
         scrollPane = new JScrollPane(newItemPanel);
-        scrollPane.setPreferredSize(new Dimension(330, 118));
+        scrollPane.setPreferredSize(new Dimension(330, 200));
         scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
 
@@ -461,7 +456,7 @@ public class CreditForm extends Forms {
         cTab[1].gridx = 0;
         cTab[1].gridy = 2;
         cTab[1].ipadx = 330;
-        cTab[1].ipady = 118;
+        cTab[1].ipady = 200;
         actionPanels[1].add(scrollPane, cTab[1]);
         // 6, 8
 
