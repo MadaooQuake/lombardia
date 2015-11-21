@@ -96,6 +96,7 @@ public class CreditForm extends Forms {
     JCheckBox[] jewelleryItem = null;
     JTextField[] jewelleryField = null;
     JTextField[] gameFields = null;
+    JTextField notices = null;
     CreditAgreement newDoc = null;
     ValueCalc precentCalc = null;
     ConfigRead readParam = null;
@@ -149,13 +150,13 @@ public class CreditForm extends Forms {
     public void generateGui() {
         readParam = new ConfigRead();
         readParam.readFile();
-        formFrame.setSize(1000, 750);
+        formFrame.setSize(1000, 760);
         formFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         formFrame.setResizable(false);
         formFrame.setTitle("Nowa pożyczka");
         formFrame.setUndecorated(true);
         mainPanel = new JPanel(new GridBagLayout());
-        mainPanel.setPreferredSize(new Dimension(1000, 750));
+        mainPanel.setPreferredSize(new Dimension(1000, 760));
         titleBorder = BorderFactory.createTitledBorder(blackline, "Nowa pożyczka");
         titleBorder.setTitleJustification(TitledBorder.RIGHT);
         titleBorder.setBorder(blackline);
@@ -173,7 +174,7 @@ public class CreditForm extends Forms {
      */
     @Override
     public void generatePanels(GridBagConstraints c) {
-        namedField = new JLabel[27];
+        namedField = new JLabel[28];
         fields = new JTextField[25];
         actionPanels = new JPanel[5];
         // select customer
@@ -213,7 +214,7 @@ public class CreditForm extends Forms {
         actionPanels[2].setBorder(titleBorder);
 
         creditForm();
-
+        c.gridheight = 2;
         c.gridx = 0;
         c.gridy = 1;
         c.ipadx = 40;
@@ -230,6 +231,7 @@ public class CreditForm extends Forms {
         // elements in panels
         depositForm();
         //position
+        c.gridheight = 1;
         c.gridx = 1;
         c.gridy = 1;
         c.ipadx = 10;
@@ -240,8 +242,8 @@ public class CreditForm extends Forms {
         actionPanels[3] = new JPanel(new GridBagLayout());
         c.insets = new Insets(5, 0, 0, 5);
         actionForm();
-        c.gridwidth = 2;
-        c.gridx = 0;
+        c.gridheight = 1;
+        c.gridx = 1;
         c.gridy = 2;
         c.ipady = 0;
         c.ipady = 2;
@@ -638,6 +640,20 @@ public class CreditForm extends Forms {
         c.gridx = 1;
         c.gridy = 10;
         actionPanels[2].add(fields[16], c);
+        
+        namedField[26] = new JLabel();        
+        namedField[26].setText("Uwagi:");
+        namedField[26].setFont(new Font("Dialog", Font.BOLD, fontSize));
+        c.gridx = 0;
+        c.gridy = 11;
+        actionPanels[2].add(namedField[26], c);
+        
+        notices = new JTextField();
+        notices.setPreferredSize(new Dimension(150, heightTextL));
+        notices.setFont(new Font("Dialog", Font.BOLD, fontSize));
+        c.gridx = 1;
+        c.gridy = 11;
+        actionPanels[2].add(notices, c);
     }
 
     private void depositForm() {
