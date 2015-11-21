@@ -1007,6 +1007,8 @@ public class BuyItem extends Forms implements ItemFormGenerator {
                     }
                 } else {
                     signet = 1;
+                    addItemtoList(signet, "sygnet", "", "", "", "", "", "",
+                            "Wyroby Jubilerskie");
                 }
             }
 

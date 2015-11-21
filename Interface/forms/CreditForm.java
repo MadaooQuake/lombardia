@@ -640,14 +640,14 @@ public class CreditForm extends Forms {
         c.gridx = 1;
         c.gridy = 10;
         actionPanels[2].add(fields[16], c);
-        
-        namedField[26] = new JLabel();        
+
+        namedField[26] = new JLabel();
         namedField[26].setText("Uwagi:");
         namedField[26].setFont(new Font("Dialog", Font.BOLD, fontSize));
         c.gridx = 0;
         c.gridy = 11;
         actionPanels[2].add(namedField[26], c);
-        
+
         notices = new JTextField();
         notices.setPreferredSize(new Dimension(150, heightTextL));
         notices.setFont(new Font("Dialog", Font.BOLD, fontSize));
@@ -681,7 +681,6 @@ public class CreditForm extends Forms {
         itemPanel = new JPanel(itemPanelLayout);
         itemPanel.setPreferredSize(new Dimension(200, 220));
         scrollPane = new JScrollPane(itemPanel);
-        //scrollPane.setLayout(itemPanelLayout);
         scrollPane.setPreferredSize(new Dimension(200, 220));
         scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
@@ -1052,6 +1051,8 @@ public class CreditForm extends Forms {
                     }
                 } else {
                     signet = 1;
+                    addItemtoList(coin, "sygnet", "", "", "", "", "", "",
+                            "Wyroby Jubilerskie");
                 }
             }
 
@@ -1079,13 +1080,15 @@ public class CreditForm extends Forms {
                     checkElement = checkItem.checkJaweryElements(jewelleryField[7].getText());
                     if (checkElement == true) {
                         earring = Integer.parseInt(jewelleryField[7].getText());
-                        addItemtoList(earring, "moneta", "", "", "", "", "", "",
+                        addItemtoList(earring, "kolczyk", "", "", "", "", "", "",
                                 "Wyroby Jubilerskie");
                     } else {
                         errorMessage("kolczyki");
                     }
                 } else {
                     earring = 1;
+                    addItemtoList(watch, "kolczyk", "", "", "", "", "", "",
+                            "Wyroby Jubilerskie");
                 }
             }
 
@@ -1095,14 +1098,14 @@ public class CreditForm extends Forms {
                     checkElement = checkItem.checkJaweryElements(jewelleryField[8].getText());
                     if (checkElement == true) {
                         watch = Integer.parseInt(jewelleryField[8].getText());
-                        addItemtoList(watch, "moneta", "", "", "", "", "", "",
+                        addItemtoList(watch, "zagarek", "", "", "", "", "", "",
                                 "Wyroby Jubilerskie");
                     } else {
                         errorMessage("zagarków");
                     }
                 } else {
                     watch = 1;
-                    addItemtoList(watch, "moneta", "", "", "", "", "", "",
+                    addItemtoList(watch, "zagarek", "", "", "", "", "", "",
                             "Wyroby Jubilerskie");
                 }
             }
@@ -1392,6 +1395,7 @@ public class CreditForm extends Forms {
             tmpAgreement.put("Łączna wartosc", fields[16].getText().replaceAll(",", "."));
             tmpAgreement.put("Dzienny Profit", Double.toString(
                     precentCalc.dailyEarn(Float.parseFloat(fields[4].getText()))));
+            tmpAgreement.put("Uwagi", !notices.getText().isEmpty() ? notices.getText() : "");
             return (HashMap) tmpAgreement;
         }
 
@@ -1421,7 +1425,7 @@ public class CreditForm extends Forms {
 
             getQuery.saveAgreements(createIndex(), curretDate, selectedDate, fields[4].getText(),
                     fields[19].getText(), fields[16].getText(), fields[15].getText(),
-                    fields[22].getText(), fields[14].getText(), customer);
+                    fields[22].getText(), fields[14].getText(), customer, notices.getText());
 
             // i must know id last agreement
             // finnaly i save items in loop :(

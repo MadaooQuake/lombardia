@@ -770,7 +770,7 @@ public class MainDBQuierues {
 
     public void saveAgreements(String idAgreements, Date startDate, Date stopDate,
             String value, String commision, String itemValue, String itemWeigth, String valueRest,
-            String saveprice, int custoerID) {
+            String saveprice, int custoerID, String notices) {
         try {
             setQuerry = new QueryDB();
             conDB = setQuerry.getConnDB();
@@ -788,7 +788,8 @@ public class MainDBQuierues {
                     + itemWeigth.replaceAll(",", ".") + ","
                     + valueRest.replaceAll(",", ".") + ","
                     + saveprice.replaceAll(",", ".") + ","
-                    + custoerID + "," + 0 + ");");
+                    + custoerID + "," + 0 + ",'" 
+                    + notices + "');");
 
             setQuerry.closeDB();
         } catch (SQLException ex) {
