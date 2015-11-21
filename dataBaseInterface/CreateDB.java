@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package lombardia2014.dataBaseInterface;
 
 import java.sql.*;
@@ -85,6 +80,7 @@ public class CreateDB {
                     + "VALUE_REST REAL NOT NULL,"
                     + "SAVEPRICE REAL NOT NULL,"
                     + "SELL INTEGER NOT NULL,"
+                    + "NOTICE TEXT NULL,"
                     + "ID_CUSTOMER INTEGER(4) NOT NULL,"
                     + "FOREIGN KEY(ID_CUSTOMER) REFERENCES Customers(ID)"
                     + ")";
