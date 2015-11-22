@@ -1043,6 +1043,8 @@ public class BuyItem extends Forms implements ItemFormGenerator {
                     }
                 } else {
                     earring = 1;
+                    addItemtoList(earring, "moneta", "", "", "", "", "", "",
+                            "Wyroby Jubilerskie");
                 }
             }
 

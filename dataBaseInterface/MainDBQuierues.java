@@ -778,7 +778,7 @@ public class MainDBQuierues {
 
             queryResult = setQuerry.dbSetQuery("INSERT INTO Agreements (ID_AGREEMENTS,"
                     + " START_DATE, STOP_DATE, VALUE, COMMISSION, ITEM_VALUE, ITEM_WEIGHT,"
-                    + " VALUE_REST, SAVEPRICE, ID_CUSTOMER, SELL)"
+                    + " VALUE_REST, SAVEPRICE, ID_CUSTOMER, SELL, NOTICE)"
                     + " VALUES ('"
                     + idAgreements + "','" + new DateTools(startDate).GetDateForDB() + "','"
                     + new DateTools(stopDate).GetDateForDB() + "','"

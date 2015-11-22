@@ -1051,7 +1051,7 @@ public class CreditForm extends Forms {
                     }
                 } else {
                     signet = 1;
-                    addItemtoList(coin, "sygnet", "", "", "", "", "", "",
+                    addItemtoList(signet, "sygnet", "", "", "", "", "", "",
                             "Wyroby Jubilerskie");
                 }
             }
@@ -1087,7 +1087,7 @@ public class CreditForm extends Forms {
                     }
                 } else {
                     earring = 1;
-                    addItemtoList(watch, "kolczyk", "", "", "", "", "", "",
+                    addItemtoList(earring, "kolczyk", "", "", "", "", "", "",
                             "Wyroby Jubilerskie");
                 }
             }
