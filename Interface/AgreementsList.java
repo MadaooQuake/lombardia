@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package lombardia2014.Interface;
 
 import java.awt.Color;
@@ -136,6 +131,7 @@ public class AgreementsList extends javax.swing.JPanel {
         model.addColumn("Data zwrotu");
         model.addColumn("Imie");
         model.addColumn("Nazwisko");
+        model.addColumn("Uwagi");
 
         itemsTable();
 
@@ -161,14 +157,15 @@ public class AgreementsList extends javax.swing.JPanel {
                 agrrement.get("NR Umowy"),
                 agrrement.get("Data zwrotu"),
                 agrrement.get("Imie"),
-                agrrement.get("Nazwisko")
+                agrrement.get("Nazwisko"),
+                agrrement.get("Uwagi")
             };
             model.addRow(data);
 
         }
     }
 
-    public void updateItemTable() {
+    public void updateAgreementTable() {
         // clear model 
         model.setRowCount(0);
         itemsTable();
@@ -183,7 +180,7 @@ public class AgreementsList extends javax.swing.JPanel {
                 // method
                 searchAgrrement();
             } else {
-                updateItemTable();
+                updateAgreementTable();
             }
         }
 
@@ -197,7 +194,8 @@ public class AgreementsList extends javax.swing.JPanel {
                     agrrement.get("NR Umowy"),
                     agrrement.get("Data zwrotu"),
                     agrrement.get("Imie"),
-                    agrrement.get("Nazwisko")
+                    agrrement.get("Nazwisko"),
+                    agrrement.get("Uwagi")
                 };
                 model.addRow(data);
 

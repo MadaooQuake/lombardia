@@ -49,6 +49,7 @@ public final class MainMMenu extends javax.swing.JPanel {
     SelfCalc checkValue = null;
     JFrame mainFrame = null;
     UserOperations sniffOperations = new UserOperations();
+    AgreementsList listOfAgrr = null;
 
     /**
      * @see construtrop create main panel on this tab
@@ -357,11 +358,12 @@ public final class MainMMenu extends javax.swing.JPanel {
      * @param mfr
      * @see method wo get information about customers list and items list
      */
-    public void putObjects(CustomersList customers_, ObjectForSellList objectToSell_ , ObjectList objects_, JFrame mfr) {
+    public void putObjects(CustomersList customers_, ObjectForSellList objectToSell_ , ObjectList objects_, AgreementsList listOfAgrr, JFrame mfr) {
         mainFrame = mfr;
         customers = customers_;
         objects = objects_;
         objectToSell = objectToSell_;
+        this.listOfAgrr = listOfAgrr;
     }
 
     // time for actions:D
@@ -493,6 +495,7 @@ public final class MainMMenu extends javax.swing.JPanel {
                                 money.setText(checkValue.getValue() + " zł");
                                 sniffOperations.saveOperations("Wystawiono umowe kredytu na:"
                                         + newCredit.getAddRemoValue());
+                                listOfAgrr.updateAgreementTable();
                                 break;
                             }
                             Thread.sleep(100);

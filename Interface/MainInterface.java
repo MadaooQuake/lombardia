@@ -340,7 +340,7 @@ public class MainInterface {
         tabbedPane.addTab("Przedmioty na sprzedaż", objectToSell);
         tabbedPane.addTab("Umowy", listOfAgrr);
 
-        mainPanel.putObjects(customers, objectToSell, objects, mainFrame);
+        mainPanel.putObjects(customers, objectToSell, objects, listOfAgrr, mainFrame);
 
         //tabbedPane.addTab("Ogólne", panel1);
         c.fill = GridBagConstraints.HORIZONTAL;
@@ -480,7 +480,7 @@ public class MainInterface {
                         while (true) {
                             if (delteteElements.isClose() == true) {
                                 objects.updateItemTable();
-                                listOfAgrr.updateItemTable();
+                                listOfAgrr.updateAgreementTable();
                                 break;
                             }
                             Thread.sleep(100);

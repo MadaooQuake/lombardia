@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package lombardia2014.dataBaseInterface;
 
 import java.sql.Connection;
@@ -10,7 +5,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -1102,7 +1096,7 @@ public class MainDBQuierues {
             String query = "SELECT Customers.NAME AS NAME, "
                     + "Customers.SURNAME AS SURNAME, Customers.ID AS CustomerID, "
                     + "Agreements.ID_AGREEMENTS AS AGREEMENT_ID, Agreements.ID AS ID,"
-                    + " Agreements.STOP_DATE AS END_DATE"
+                    + " Agreements.STOP_DATE AS END_DATE, Agreements.NOTICE AS NOTICE" 
                     + " FROM Customers, Agreements WHERE Customers.ID = Agreements.ID_CUSTOMER";
 
             if (!aggID.isEmpty()) {
@@ -1122,6 +1116,7 @@ public class MainDBQuierues {
                 paymentPorperies.put("Imie", queryResult.getString("NAME"));
                 paymentPorperies.put("Nazwisko", queryResult.getString("SURNAME"));
                 paymentPorperies.put("AgrID", queryResult.getString("ID"));
+                paymentPorperies.put("Uwagi", queryResult.getString("NOTICE"));
                 Settlements.add((HashMap<String, String>) paymentPorperies);
             }
             setQuerry.closeDB();
