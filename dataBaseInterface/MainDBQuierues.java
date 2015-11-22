@@ -970,6 +970,7 @@ public class MainDBQuierues {
                 paymentPorperies.put("Łączna wartosc", queryResult.getString("ITEM_VALUE"));
                 paymentPorperies.put("CustID", queryResult.getString("ID_CUSTOMER"));
                 paymentPorperies.put("AgrID", queryResult.getString("ID"));
+                paymentPorperies.put("Uwagi", queryResult.getString("NOTICE"));
             }
             setQuerry.closeDB();
         } catch (SQLException | ParseException ex) {

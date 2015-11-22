@@ -793,6 +793,7 @@ public class CreditForm extends Forms {
         fields[4].setText(paymentPorperies.get("Kwota"));
         fields[15].setText(paymentPorperies.get("Łączna waga"));
         fields[16].setText(paymentPorperies.get("Łączna wartosc"));
+        notices.setText(paymentPorperies.get("Uwagi"));
 
         addItemToList items = new addItemToList();
         items.generateItemtoForm();
