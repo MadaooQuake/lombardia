@@ -30,6 +30,7 @@ public class DailyReport {
     int windowWidth = 860;
     int windowHeigth = 500;
     int rowsPerPage = 40;
+    Double sum = 0.0;
     DefaultTableModel model = new DefaultTableModel();
     ConfigRead config = new ConfigRead();
 
@@ -138,5 +139,11 @@ public class DailyReport {
                     + "\n" + Arrays.toString(ex.getStackTrace()));
             startLogging.logToFile(text);
         }
+    }
+    
+    public Double calculateDailyReport() {
+        
+        
+        return sum;
     }
 }
