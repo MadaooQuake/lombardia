@@ -50,6 +50,7 @@ public class DailyReport {
         model.addColumn("Razzem");
         prepareAgrrements();
         prepareOperations();
+        prepareSummary();
         generateDocument();
     }
 
@@ -150,5 +151,10 @@ public class DailyReport {
         double num = Double.parseDouble(number);
         sum += num;
         System.out.println(sum);
+    }
+    
+    public void prepareSummary() {
+        String[] dataTable = {"", "", "", "", "", "Gotówka ", "w kasie", Double.toString(sum)}; 
+        model.addRow(dataTable);
     }
 }
