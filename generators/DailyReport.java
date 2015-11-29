@@ -59,6 +59,7 @@ public class DailyReport {
         for (HashMap<String, String> agreement : agrrements) {
             String[] dataTable = {agreement.get("Data Zawarcia"), "Pożyczka", agreement.get("NR Umowy"), "", agreement.get("Wartosc"), "", "", "-" + agreement.get("Wartosc")};
             model.addRow(dataTable);
+            calculateDailyReport( "-" + agreement.get("Wartosc") );
         }
     }
 
@@ -95,7 +96,7 @@ public class DailyReport {
                     double commission = Double.parseDouble(elements[2]) - Double.parseDouble(elements[3]);
                     dataTable[6] = Double.toString(commission);
                     dataTable[7] = elements[2];
-                    calculateDailyReport(dataTable[7]);
+                    calculateDailyReport( "-" + dataTable[7] );
                 }
                 model.addRow(dataTable);
             } else if (elements[0].equals("Sprzedano za")) {
