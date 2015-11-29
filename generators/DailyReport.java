@@ -151,7 +151,6 @@ public class DailyReport {
     public void calculateDailyReport(String number) {
         double num = Double.parseDouble(number);
         sum += num;
-        System.out.println(sum);
     }
     
     public void prepareSummary() {

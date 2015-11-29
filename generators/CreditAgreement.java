@@ -140,7 +140,8 @@ public class CreditAgreement {
         String exampleDocDirectory = "example.docx";
         SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
         String date = DATE_FORMAT.format(now);
-        String docDirectory = "umowa.docx";
+        String docDirectory = "umowa" + agreementInfo.get("NR Umowy") 
+                + "_" + new DateTools(now).GetDateForDB() + ".docx";
         File file = new File(exampleDocDirectory); //give your file name here of
         FileInputStream fs = new FileInputStream(file);
         //which you want to parse text
