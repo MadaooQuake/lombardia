@@ -45,7 +45,7 @@ public class DailyReport {
         model.addColumn("Identyfikator");
         model.addColumn("Z/DO kasy");
         model.addColumn("Na pożyczki");
-        model.addColumn("Na pożyczki");
+        model.addColumn("Sprzedaż brutto");
         model.addColumn("Prowizja");
         model.addColumn("Razzem");
         prepareAgrrements();
@@ -75,14 +75,17 @@ public class DailyReport {
                     case "Wpłata":
                         dataTable[3] = elements[2];
                         dataTable[7] = dataTable[3];
+                        calculateDailyReport(dataTable[3]);
                         break;
                     case "Wypłata":
                         dataTable[3] = "-" + elements[2];
                         dataTable[7] = dataTable[3];
+                        calculateDailyReport(dataTable[3]);
                         break;
                     default:
                         dataTable[5] = elements[2];
                         dataTable[7] = dataTable[5];
+                        calculateDailyReport( "-" + dataTable[5] );
                         break;
                 }
 
@@ -91,11 +94,13 @@ public class DailyReport {
                     double commission = Double.parseDouble(elements[2]) - Double.parseDouble(elements[3]);
                     dataTable[6] = Double.toString(commission);
                     dataTable[7] = elements[2];
+                    calculateDailyReport(dataTable[7]);
                 }
                 model.addRow(dataTable);
             } else if (elements[0].equals("Sprzedano za")) {
                 dataTable[1] = elements[0];
                 dataTable[5] = elements[1];
+                calculateDailyReport(dataTable[5]);
                 float value = Float.parseFloat(elements[1]);
                 config.readFile();
                 float vat = config.getVat();
@@ -141,9 +146,9 @@ public class DailyReport {
         }
     }
     
-    public Double calculateDailyReport() {
-        
-        
-        return sum;
+    public void calculateDailyReport(String number) {
+        double num = Double.parseDouble(number);
+        sum += num;
+        System.out.println(sum);
     }
 }
