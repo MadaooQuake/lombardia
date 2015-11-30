@@ -10,6 +10,7 @@ import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.swing.JOptionPane;
+import static lombardia2014.Interface.MainInterface.authID;
 
 /**
  *
@@ -238,8 +239,8 @@ public class FormValidator {
                     currentDate.substring(6, currentDate.length()));
             int stop = Integer.parseInt(
                     lastDate.substring(6, lastDate.length()));
-
-            if (stop >= start) {
+            //hack because clients want :(
+            if (stop >= start || authID == 1) {
                 // check month
                 start = Integer.parseInt(currentDate.substring(3, 5));
                 stop = Integer.parseInt(lastDate.substring(3, 5));

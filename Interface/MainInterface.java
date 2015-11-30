@@ -58,7 +58,8 @@ public class MainInterface {
     JPanel panel = null;
     GridBagConstraints c = new GridBagConstraints();
     JFileChooser chooser;
-    int authID = 0, userID = 0;
+    public static int authID = 0;
+    int userID = 0;
     public static String userName, userSurename;
     UserOperations sniffOperations = null;
     UserDB queryUser = new UserDB();
