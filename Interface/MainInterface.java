@@ -23,6 +23,7 @@ import javax.swing.SwingWorker;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import lombardia2014.Interface.menu.AppInfo;
+import lombardia2014.Interface.menu.FinancialResults;
 import lombardia2014.Interface.menu.GroupDelete;
 import lombardia2014.Interface.menu.Help;
 import lombardia2014.Interface.menu.StatisticsForm;
@@ -293,6 +294,12 @@ public class MainInterface {
         menuItem.getAccessibleContext().setAccessibleDescription(
                 "Tworzy wykres statystyk w ciagu miesiaca");
         menuItem.addActionListener(new ActionDailyRaport());
+        menu.add(menuItem);
+        
+        menuItem = new JMenuItem("Wynik Finansowy");
+        menuItem.getAccessibleContext().setAccessibleDescription(
+                "Tworzy wykres statystyk w ciagu miesiaca");
+        menuItem.addActionListener(new FinancialResultsAction());
         menu.add(menuItem);
     }
 
@@ -601,6 +608,16 @@ public class MainInterface {
             generateReport = new DailyReport();
         }
 
+    }
+    
+    public class FinancialResultsAction implements ActionListener {
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            FinancialResults finReport = new FinancialResults();
+            finReport.generateGui();
+        }
+        
     }
 
     // help menu

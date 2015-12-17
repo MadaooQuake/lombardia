@@ -1,16 +1,19 @@
 package lombardia2014.Interface.menu;
 
+import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import javax.swing.BorderFactory;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.border.TitledBorder;
 
 import lombardia2014.dataBaseInterface.MainDBQuierues;
 
@@ -19,6 +22,7 @@ import lombardia2014.dataBaseInterface.MainDBQuierues;
  * @author Domek
  */
 public class FinancialResults extends MenuElementsList {
+
     Calendar now = Calendar.getInstance();
     String formname = "Wyniki finanoswe";
     JTable listSettlement = null;
@@ -35,11 +39,11 @@ public class FinancialResults extends MenuElementsList {
 
     @Override
     public void generateGui() {
-       formFrame.setSize(windowWidth, windowHeigth);
+        formFrame.setSize(windowWidth, windowHeigth);
         formFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         formFrame.setResizable(false);
-        mainPanel = new JPanel(new GridBagLayout()); 
-        
+        mainPanel = new JPanel(new GridBagLayout());
+
         generatePanels(new GridBagConstraints());
 
         formFrame.add(mainPanel);
@@ -48,7 +52,24 @@ public class FinancialResults extends MenuElementsList {
 
     @Override
     public void generatePanels(GridBagConstraints c) {
+        generateTable(new GridBagConstraints());
+        generateButtons(new GridBagConstraints());
+    }
+    
+    private void generateButtons(GridBagConstraints ct) {
+        JPanel buttonPanel = new JPanel(new GridBagLayout());
+        
+        TitledBorder title = BorderFactory.createTitledBorder(blackline, "Polecenia");
+        title.setTitleJustification(TitledBorder.RIGHT);
+        title.setBorder(blackline);
+        buttonPanel.setBorder(title);
+        buttonPanel.setPreferredSize(new Dimension(windowWidth - 100, 100));
+        
         
     }
     
+    private void generateTable(GridBagConstraints ct) {
+        
+    }
+
 }
