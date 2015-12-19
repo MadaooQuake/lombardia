@@ -153,5 +153,9 @@ public class FinancialResults extends MenuElementsList {
         ct.gridy = 1;
         mainPanel.add(scrollPane, ct);
     }
+    
+    private void loadData() {
+        
+    }
 
 }
