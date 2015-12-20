@@ -181,5 +181,35 @@ public class UserOperations {
 
         return operations;
     }
+    
+        public List<HashMap<String, String>> getOperationsByDay(String day) {
+        List<HashMap<String, String>> operations = new ArrayList<>();
+
+        try {
+            curretDate = new Date();
+            setQuerry = new QueryDB();
+            conDB = setQuerry.getConnDB();
+            stmt = conDB.createStatement();
+
+            queryResult = setQuerry.dbSetQuery("SELECT DATE, OPERATIONS FROM OPerations"
+                    + " WHERE DATE LIKE '" + day + "%';");
+            
+            while (queryResult.next()) {
+                Map<String, String> operation = new HashMap<>();
+                operation.put("Data", queryResult.getString("DATE"));
+                operation.put("Operacje", queryResult.getString("OPERATIONS"));
+                operations.add((HashMap<String, String>) operation);
+            }
+
+            setQuerry.closeDB();
+        } catch (SQLException ex) {
+            LombardiaLogger startLogging = new LombardiaLogger();
+            String text = startLogging.preparePattern("Error", ex.getMessage()
+                    + "\n" + Arrays.toString(ex.getStackTrace()));
+            startLogging.logToFile(text);
+        }
+
+        return operations;
+    }
 
 }
