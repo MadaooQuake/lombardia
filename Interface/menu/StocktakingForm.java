@@ -9,7 +9,7 @@ import java.awt.GridBagConstraints;
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JButton;
-import javax.swing.border.TitledBorder;        
+import javax.swing.border.TitledBorder;
 import java.util.Date;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -37,7 +37,6 @@ import lombardia2014.generators.PDFCreator;
 import lombardia2014.generators.LombardiaLogger;
 import lombardia2014.generators.DateTools;
 
-
 //set initial date
 import net.sourceforge.jdatepicker.impl.UtilDateModel;
 
@@ -54,10 +53,12 @@ import java.util.List;
 import java.util.Arrays;
 import java.util.HashMap;
 import lombardia2014.dataBaseInterface.MainDBQuierues;
-        
+
 public class StocktakingForm extends MenuElementsList {
+
     DateTools formDate;
-    String formname = "Inwentaryzacja na dzień ";;
+    String formname = "Inwentaryzacja na dzień ";
+    ;
     DefaultTableModel model;
     JTable listSettlement = null;
     JScrollPane scrollPane = null;
@@ -66,34 +67,33 @@ public class StocktakingForm extends MenuElementsList {
     int window_heigth = 500;
     int rows_per_page = 50;
     String output_file_name = "_be_changed.pdf";
-    String[]  headers = {"L.p.", "Opis towaru", "Identyfikator", "Cena netto", "Wartość netto", "Data zakupu"};
+    String[] headers = {"L.p.", "Opis towaru", "Identyfikator", "Cena netto", "Wartość netto", "Data zakupu"};
     float[] headers_width = {0.9f, 5.0f, 3.0f, 3.0f, 3.0f, 2.6f};
     List<Integer> sumMe = new ArrayList();
     List<Integer> translateDateColumn = new ArrayList();
     String summaryText = "Podsumowanie";
     int summaryColumnIndex = 1;
     MainDBQuierues DB = new MainDBQuierues();
-    String from,to;
-    
-    
+    String from, to;
+
     JDatePickerImpl datePicker = null;
-    
+
     public StocktakingForm(String dateRange_) {
         formDate = new DateTools(new Date());
-        output_file_name = formname+formDate.GetDateAsString()+".pdf";
-        listSettlement = new JTable(new DefaultTableModel());    
-        
+        output_file_name = formname + formDate.GetDateAsString() + ".pdf";
+        listSettlement = new JTable(new DefaultTableModel());
+
         //Configure which column need to be summarize
         sumMe.add(3); //Cena netto
         sumMe.add(4); //Wartość netto
-        
+
         //Configure column to date translate
         translateDateColumn.add(5); //Data zakupu
     }
-    
+
     @Override
     public void generateGui() {
-        
+
         formFrame.setSize(window_width, window_heigth);
         formFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         formFrame.setResizable(false);
@@ -104,14 +104,15 @@ public class StocktakingForm extends MenuElementsList {
         formFrame.add(mainPanel);
         formFrame.setVisible(true);
     }
-    
+
     @Override
     public void generatePanels(GridBagConstraints ct) {
         generateTable(new GridBagConstraints());
         generateButtons(new GridBagConstraints());
     }
-        protected void generateTable(GridBagConstraints ct) {
-        
+
+    protected void generateTable(GridBagConstraints ct) {
+
         refresh();
         scrollPane = new JScrollPane(listSettlement);
         listSettlement.setFillsViewportHeight(true);
@@ -126,8 +127,8 @@ public class StocktakingForm extends MenuElementsList {
         ct.ipady = 8;
         mainPanel.add(scrollPane, ct);
     }
-    
-    private void generateButtons(GridBagConstraints ct) {    
+
+    private void generateButtons(GridBagConstraints ct) {
         JPanel buttonPanel = new JPanel(new GridBagLayout());
 
         TitledBorder title = BorderFactory.createTitledBorder(blackline, "Polecenia");
@@ -135,32 +136,31 @@ public class StocktakingForm extends MenuElementsList {
         title.setBorder(blackline);
         buttonPanel.setBorder(title);
         buttonPanel.setPreferredSize(new Dimension(window_width - 100, 100));
-        
+
         JButton printList = new JButton();
         printList.setText("Drukuj listę");
         printList.setPreferredSize(new Dimension(150, 26));
         printList.setFont(new Font("Dialog", Font.BOLD, 12));
         printList.addActionListener(new PrintList());
-              
-        GridBagConstraints[] actionPanel = new GridBagConstraints[] {
+
+        GridBagConstraints[] actionPanel = new GridBagConstraints[]{
             new GridBagConstraints(),
             new GridBagConstraints(),
-            new GridBagConstraints(),
-        };
+            new GridBagConstraints(),};
         actionPanel[0].insets = new Insets(0, 0, 0, 10);
         actionPanel[0].gridx = 2;
         actionPanel[0].gridy = 0;
-        
+
         buttonPanel.add(printList, actionPanel[0]);
-        
+
         JLabel label = new JLabel("Wybierz dzień:");
-        label.setFont(new Font("Dialog",Font.BOLD,12));
+        label.setFont(new Font("Dialog", Font.BOLD, 12));
         actionPanel[2].insets = new Insets(0, 0, 0, 10);
         actionPanel[2].gridx = 0;
         actionPanel[2].gridy = 0;
-                
+
         buttonPanel.add(label, actionPanel[2]);
-        
+
         UtilDateModel initDate = new UtilDateModel();
         initDate.setDate(formDate.GetYear(), formDate.GetMonth() - 1, formDate.GetDay());
         initDate.setSelected(true);
@@ -170,23 +170,23 @@ public class StocktakingForm extends MenuElementsList {
         datePicker.setPreferredSize(new Dimension(150, 27));
         datePicker.setFont(new Font("Dialog", Font.BOLD, 12));
         datePicker.addActionListener(new changeDate());
-        
+
         actionPanel[1].insets = new Insets(0, 0, 0, 10);
         actionPanel[1].gridx = 1;
         actionPanel[1].gridy = 0;
-                
+
         buttonPanel.add(datePicker, actionPanel[1]);
-        
+
         ct.fill = GridBagConstraints.HORIZONTAL;
         ct.insets = new Insets(10, 10, 10, 10);
         ct.gridx = 0;
         ct.gridy = 0;
         ct.ipadx = 0;
         ct.ipady = 0;
-        
-        mainPanel.add(buttonPanel,ct);        
+
+        mainPanel.add(buttonPanel, ct);
     }
-    
+
     private DefaultTableModel getStocktaking() {
         DefaultTableModel result = new DefaultTableModel() {
             @Override
@@ -194,18 +194,17 @@ public class StocktakingForm extends MenuElementsList {
                 return false;//This causes all cells to be not editable
             }
         };
-        
+
         List<HashMap<String, String>> data = DB.getStockTakingsFromDateRange(formDate.GetDateForDB());
-        
+
 //        if (data.size() > 0) {
 //            headers.addAll( data.get(0).keySet() );
 //        }
-        
         //build headers
         for (String header : headers) {
             result.addColumn(header);
         }
-                
+
         String[] sumarize = new String[headers.length];
         //build data
         for (HashMap<String, String> dbrow : data) {
@@ -219,8 +218,8 @@ public class StocktakingForm extends MenuElementsList {
                     } catch (Exception ex) {
                         LombardiaLogger startLogging = new LombardiaLogger();
                         String text = startLogging.preparePattern("Error", ex.getMessage()
-                            + "\n" + Arrays.toString(ex.getStackTrace()));
-                        startLogging.logToFile(text);                        
+                                + "\n" + Arrays.toString(ex.getStackTrace()));
+                        startLogging.logToFile(text);
                     }
                 }
                 row[i] = dbdata;
@@ -231,7 +230,7 @@ public class StocktakingForm extends MenuElementsList {
                     if (sumarize[i] == null) {
                         sumarize[i] = dbdata;
                     } else {
-                        Float addMe = Float.parseFloat(sumarize[i])+Float.parseFloat(dbdata);
+                        Float addMe = Float.parseFloat(sumarize[i]) + Float.parseFloat(dbdata);
                         sumarize[i] = addMe.toString();
                     }
                 }
@@ -244,33 +243,32 @@ public class StocktakingForm extends MenuElementsList {
     }
 
     private void refresh() {
-        
-            //get new Data (refresh data)
-            model = getStocktaking();
-            model.fireTableDataChanged();
-            
-            //set title of window
-            formFrame.setTitle(formname + formDate.GetDateAsString());
-            
-            //set label on frame
-            titleBorder = BorderFactory.createTitledBorder(blackline, formname + formDate.GetDateAsString());
-            titleBorder.setTitleJustification(TitledBorder.RIGHT);
-            mainPanel.setBorder(titleBorder);
-            
-            //fill table
-            listSettlement.setModel(model);
-                    
-            //set width of form columns
-            listSettlement.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-            for (int i=0; i < headers_width.length; i++) {
-                int int_val = Math.round(headers_width[i] * 40);
-                listSettlement.getColumnModel().getColumn(i).setPreferredWidth(int_val);
-            }
 
-            listSettlement.setAutoCreateRowSorter(true);
+        //get new Data (refresh data)
+        model = getStocktaking();
+        model.fireTableDataChanged();
+
+        //set title of window
+        formFrame.setTitle(formname + formDate.GetDateAsString());
+
+        //set label on frame
+        titleBorder = BorderFactory.createTitledBorder(blackline, formname + formDate.GetDateAsString());
+        titleBorder.setTitleJustification(TitledBorder.RIGHT);
+        mainPanel.setBorder(titleBorder);
+
+        //fill table
+        listSettlement.setModel(model);
+
+        //set width of form columns
+        listSettlement.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+        for (int i = 0; i < headers_width.length; i++) {
+            int int_val = Math.round(headers_width[i] * 40);
+            listSettlement.getColumnModel().getColumn(i).setPreferredWidth(int_val);
+        }
+
+        listSettlement.setAutoCreateRowSorter(true);
     }
-    
-    
+
     // Buttons actions
     private class PrintList implements ActionListener {
 
@@ -285,15 +283,15 @@ public class StocktakingForm extends MenuElementsList {
             } catch (IOException | DocumentException ex) {
                 LombardiaLogger startLogging = new LombardiaLogger();
                 String text = startLogging.preparePattern("Error", ex.getMessage()
-                    + "\n" + Arrays.toString(ex.getStackTrace()));
+                        + "\n" + Arrays.toString(ex.getStackTrace()));
                 startLogging.logToFile(text);
-                JOptionPane.showMessageDialog(null, "Błąd podczas generowania raportu.", 
+                JOptionPane.showMessageDialog(null, "Błąd podczas generowania raportu.",
                         "Generowanie PDF", JOptionPane.ERROR_MESSAGE);
             }
-            
+
             try {
                 String dir = System.getProperty("user.dir");
-                
+
                 File dirAgre = new File(dir);
 
                 if (Desktop.isDesktopSupported()) {
@@ -302,25 +300,24 @@ public class StocktakingForm extends MenuElementsList {
             } catch (Exception ex) {
                 LombardiaLogger startLogging = new LombardiaLogger();
                 String text = startLogging.preparePattern("Error", ex.getMessage()
-                    + "\n" + Arrays.toString(ex.getStackTrace()));
+                        + "\n" + Arrays.toString(ex.getStackTrace()));
                 startLogging.logToFile(text);
-           }
+            }
         }
     }
-    
+
     private class changeDate implements ActionListener {
 
         @Override
         public void actionPerformed(ActionEvent e) {
             Date selectedDate = (Date) datePicker.getModel().getValue();
-            DateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy");
             formDate.SetNewDate(selectedDate);
             Calendar newDate = Calendar.getInstance();
             newDate.setTime(selectedDate);
-            output_file_name = formname+"_"+formDate.GetDateAsString()+".pdf";
-            
+            output_file_name = formname + "_" + formDate.GetDateAsString() + ".pdf";
+
             refresh();
         }
-    }    
-    
+    }
+
 }

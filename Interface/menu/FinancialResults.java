@@ -10,18 +10,18 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
 
-import lombardia2014.dataBaseInterface.MainDBQuierues;
+import lombardia2014.dataBaseInterface.UserOperations;
 import lombardia2014.generators.DateTools;
 import net.sourceforge.jdatepicker.impl.JDatePanelImpl;
 import net.sourceforge.jdatepicker.impl.JDatePickerImpl;
@@ -38,7 +38,7 @@ public class FinancialResults extends MenuElementsList {
     JDatePickerImpl datePicker = null, datePicker2 = null;
     Calendar now = Calendar.getInstance();
     String formname = "Wyniki finanoswe";
-    JTable listSettlement = null;
+    JTable listFinacial = null;
     JScrollPane scrollPane = null;
     int selectRow = -1, windowWidth = 860, windowHeigth = 600, rowsPerPage = 20;
     String outputFileName = "_be_changed.pdf";
@@ -48,7 +48,17 @@ public class FinancialResults extends MenuElementsList {
     List<Integer> translateDateColumn = new ArrayList();
     String summaryText = "Podsumowanie";
     int summaryColumnIndex = 2;
-    MainDBQuierues DB = new MainDBQuierues();
+    UserOperations operationList = new UserOperations();
+    String firstDate = null, lastDate = null;
+
+    DefaultTableModel model = new DefaultTableModel() {
+
+        @Override
+        public boolean isCellEditable(int row, int column) {
+            return false;
+        }
+
+    };
 
     @Override
     public void generateGui() {
@@ -138,13 +148,18 @@ public class FinancialResults extends MenuElementsList {
         buttonPanel.add(printList, ct);
 
         return buttonPanel;
-
     }
 
     private void generateTable(GridBagConstraints ct) {
-        listSettlement = new JTable(new DefaultTableModel()); 
-        scrollPane = new JScrollPane(listSettlement);
-        listSettlement.setFillsViewportHeight(true);
+        model.addColumn("Data");
+        model.addColumn("Dane");
+        model.addColumn("Sprzedaż");
+        model.addColumn("Zwrot pożyczki");
+        model.addColumn("Suma Końcowa");
+        
+        listFinacial = new JTable(model);
+        scrollPane = new JScrollPane(listFinacial);
+        listFinacial.setFillsViewportHeight(true);
 
         scrollPane.setPreferredSize(new Dimension(windowWidth - 100, windowHeigth - 200));
 
@@ -152,9 +167,25 @@ public class FinancialResults extends MenuElementsList {
         ct.gridx = 0;
         ct.gridy = 1;
         mainPanel.add(scrollPane, ct);
+        
+        loadData();
+    }
+
+    private void loadData() {
+        // get days
+        Date fDate = (Date) datePicker.getModel().getValue();
+        firstDate = new DateTools(fDate).GetDateAsString();
+                
+        fDate = (Date) datePicker2.getModel().getValue();
+        lastDate = new DateTools(fDate).GetDateAsString();
+        
+        System.out.println(firstDate + ":" + lastDate);
+        
+        // calculate
+        // load table
     }
     
-    private void loadData() {
+    private void addData() {
         
     }
 
