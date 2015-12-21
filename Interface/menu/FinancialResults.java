@@ -156,7 +156,7 @@ public class FinancialResults extends MenuElementsList {
         model.addColumn("Sprzedaż");
         model.addColumn("Zwrot pożyczki");
         model.addColumn("Suma Końcowa");
-        
+
         listFinacial = new JTable(model);
         scrollPane = new JScrollPane(listFinacial);
         listFinacial.setFillsViewportHeight(true);
@@ -167,7 +167,7 @@ public class FinancialResults extends MenuElementsList {
         ct.gridx = 0;
         ct.gridy = 1;
         mainPanel.add(scrollPane, ct);
-        
+
         loadData();
     }
 
@@ -175,18 +175,29 @@ public class FinancialResults extends MenuElementsList {
         // get days
         Date fDate = (Date) datePicker.getModel().getValue();
         firstDate = new DateTools(fDate).GetDateAsString();
-                
+
         fDate = (Date) datePicker2.getModel().getValue();
         lastDate = new DateTools(fDate).GetDateAsString();
-        
-        System.out.println(firstDate + ":" + lastDate);
-        
+
+        addData((Date) datePicker.getModel().getValue());
         // calculate
         // load table
     }
-    
-    private void addData() {
-        
+
+    private void addData(Date date) {
+        now.setTime(date);
+        Date changeDate = now.getTime();
+        String selectedDay = null;
+        while(selectedDay == null || !selectedDay.equals(lastDate) ) {
+            //operation
+            selectedDay = new DateTools(changeDate).GetDateAsString();
+            System.out.println(selectedDay);
+            //change day
+            now.add(Calendar.DATE, 1);
+            changeDate = now.getTime();
+     
+        }   
+
     }
 
 }
