@@ -47,7 +47,7 @@ public class UserQuieries {
                 ID = queryResult.getInt("ID");
             }
 
-            result = !user.isEmpty() && passwordInDB.equals(password);
+            result = (user != null) && (passwordInDB.equals(password));
 
             setQuerry.closeDB();
         } catch (SQLException ex) {
