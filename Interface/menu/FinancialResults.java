@@ -5,10 +5,13 @@ import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 
 import javax.swing.BorderFactory;
@@ -136,6 +139,16 @@ public class FinancialResults extends MenuElementsList {
         ct.gridx = 3;
         ct.gridy = 0;
         buttonPanel.add(datePicker2, ct);
+        
+        JButton changeDataRange = new JButton("Ustaw");
+        changeDataRange.setPreferredSize(new Dimension(150, 26));
+        changeDataRange.setFont(new Font("Dialog", Font.BOLD, 12));
+        changeDataRange.addActionListener(new UpdateDataRange());
+        
+        ct.insets = new Insets(0, 0, 0, 0);
+        ct.gridx = 4;
+        ct.gridy = 0;
+        buttonPanel.add(changeDataRange, ct);
 
         JButton printList = new JButton();
         printList.setText("Drukuj listę");
@@ -143,7 +156,7 @@ public class FinancialResults extends MenuElementsList {
         printList.setFont(new Font("Dialog", Font.BOLD, 12));
 
         ct.insets = new Insets(0, 20, 0, 0);
-        ct.gridx = 4;
+        ct.gridx = 5;
         ct.gridy = 0;
         buttonPanel.add(printList, ct);
 
@@ -191,13 +204,32 @@ public class FinancialResults extends MenuElementsList {
         while(selectedDay == null || !selectedDay.equals(lastDate) ) {
             //operation
             selectedDay = new DateTools(changeDate).GetDateAsString();
-            System.out.println(selectedDay);
+            // calculate day 
+            addRow(operationList.getOperationsByDay(selectedDay));
+            
             //change day
             now.add(Calendar.DATE, 1);
             changeDate = now.getTime();
      
         }   
 
+    }
+    
+    private Object[] addRow(List<HashMap<String, String>> operations) {
+        Object[] data = {""};
+        
+        
+        
+        return data;
+    }
+    
+    private class UpdateDataRange implements ActionListener {
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+           
+        }
+    
     }
 
 }
