@@ -13,6 +13,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -24,6 +25,7 @@ import javax.swing.JTable;
 import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
 
+import lombardia2014.core.ConfigRead;
 import lombardia2014.dataBaseInterface.UserOperations;
 import lombardia2014.generators.DateTools;
 import net.sourceforge.jdatepicker.impl.JDatePanelImpl;
@@ -53,6 +55,7 @@ public class FinancialResults extends MenuElementsList {
     int summaryColumnIndex = 2;
     UserOperations operationList = new UserOperations();
     String firstDate = null, lastDate = null;
+    ConfigRead config = new ConfigRead();
 
     DefaultTableModel model = new DefaultTableModel() {
 
@@ -78,6 +81,7 @@ public class FinancialResults extends MenuElementsList {
 
     @Override
     public void generatePanels(GridBagConstraints c) {
+        config.readFile();
         c.fill = GridBagConstraints.HORIZONTAL;
         c.insets = new Insets(10, 10, 10, 10);
         c.gridx = 0;
@@ -139,12 +143,12 @@ public class FinancialResults extends MenuElementsList {
         ct.gridx = 3;
         ct.gridy = 0;
         buttonPanel.add(datePicker2, ct);
-        
+
         JButton changeDataRange = new JButton("Ustaw");
         changeDataRange.setPreferredSize(new Dimension(150, 26));
         changeDataRange.setFont(new Font("Dialog", Font.BOLD, 12));
         changeDataRange.addActionListener(new UpdateDataRange());
-        
+
         ct.insets = new Insets(0, 0, 0, 0);
         ct.gridx = 4;
         ct.gridy = 0;
@@ -201,35 +205,75 @@ public class FinancialResults extends MenuElementsList {
         now.setTime(date);
         Date changeDate = now.getTime();
         String selectedDay = null;
-        while(selectedDay == null || !selectedDay.equals(lastDate) ) {
+        while (selectedDay == null || !selectedDay.equals(lastDate)) {
             //operation
             selectedDay = new DateTools(changeDate).GetDateAsString();
             // calculate day 
             addRow(operationList.getOperationsByDay(selectedDay));
-            
+
             //change day
             now.add(Calendar.DATE, 1);
             changeDate = now.getTime();
-     
-        }   
+
+        }
 
     }
-    
+
     private Object[] addRow(List<HashMap<String, String>> operations) {
         Object[] data = {""};
-        
-        
-        
+        Map<String, String> operationData = new HashMap<>();
+        float commissionBrutto = 0, commissionNetto = 0, sellBrutto = 0, sellNetto = 0,
+                profitNetto = 0, ProfitBrutto = 0, commissionBrutto2 = 0, commissionNetto2 = 0,
+                loans = 0, vat = 0;
+        //calculate one day
+        for (HashMap<String, String> operation : operations) {
+
+            String[] dataTable = {"", "", "", "", "", "", "", ""};
+            dataTable[0] = operation.get("Data");
+            String op = operation.get("Operacje");
+            String[] elements = op.split(":");
+            switch (elements[0]) {
+                case "Sprzedano za":
+                    System.out.println("Sprzedano");
+
+                    break;
+                case "Zwrot pożyczki":
+                    float vatTMP = ((Float.parseFloat(elements[2]) - Float.parseFloat(elements[3])) * config.getVat());
+                    loans += Float.parseFloat(elements[2]);
+                    commissionBrutto2 += (Float.parseFloat(elements[2]) - Float.parseFloat(elements[3]));
+                    commissionNetto2 += (Float.parseFloat(elements[2]) - Float.parseFloat(elements[3]))
+                            - vatTMP;
+                    commissionNetto2 *= 100;
+                    commissionNetto2 = Math.round(commissionNetto2);
+                    commissionNetto2 /= 100;
+                    vat += vatTMP;
+                    vat *= 100;
+                    vat = Math.round(vat);
+                    vat /= 100;
+                    System.out.println(loans + "::" + commissionBrutto2 + "::" + commissionNetto2 + "::" + vat);
+                    break;
+                default:
+                    break;
+            }
+
+        }
         return data;
     }
-    
+
+    public void updateTable() {
+        // clear model 
+        model.setRowCount(0);
+        loadData();
+        repaint();
+    }
+
     private class UpdateDataRange implements ActionListener {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-           
+            updateTable();
         }
-    
+
     }
 
 }
