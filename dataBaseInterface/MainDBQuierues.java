@@ -699,7 +699,7 @@ public class MainDBQuierues {
             stmt = conDB.createStatement();
 
             queryResult = setQuerry.dbSetQuery("DELETE FROM Items WHERE "
-                    + "ID_AGREEMENT = (SELECT ID FROM Agreements WHERE ID_AGREEMENTS = '" + aggID + "');");
+                    + "ID_AGREEMENT = '" + aggID + "';");
 
             setQuerry.closeDB();
         } catch (SQLException ex) {
