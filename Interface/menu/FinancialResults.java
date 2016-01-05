@@ -56,6 +56,8 @@ public class FinancialResults extends MenuElementsList {
     UserOperations operationList = new UserOperations();
     String firstDate = null, lastDate = null;
     ConfigRead config = new ConfigRead();
+    float sumLoans = 0, sumSellNetto = 0, sumSellBrutto = 0, sCommissionNetto = 0, sCommissionBrutto = 0,
+            commisionVAT = 0;
 
     DefaultTableModel model = new DefaultTableModel() {
 
@@ -216,7 +218,7 @@ public class FinancialResults extends MenuElementsList {
             changeDate = now.getTime();
 
         }
-
+        createSummary();
     }
 
     private void addRow(List<HashMap<String, String>> operations) {
@@ -266,6 +268,7 @@ public class FinancialResults extends MenuElementsList {
                     break;
             }
         }
+
         // put data to table - looks horible, add to new method
         if (data != null) {
             List<String> dataToTable = new ArrayList<>();
@@ -325,6 +328,68 @@ public class FinancialResults extends MenuElementsList {
             dataToTable.add(Float.toString(sellVat + vat));
             model.addRow((Object[]) dataToTable.toArray());
         }
+
+        sumLoans += commissionBrutto2;
+        sumSellNetto += sellNetto;
+        sumSellBrutto += sellBrutto;
+        sCommissionNetto += commissionNetto;
+        sCommissionBrutto += commissionBrutto;
+        commisionVAT += sellVat;
+    }
+
+    public void createSummary() {
+        model.addRow(new Object[5]);
+        model.addRow(new Object[5]);
+        model.addRow(new Object[5]);
+        model.addRow(new Object[5]);
+        List<String> summary = new ArrayList<>();
+        summary.add("");
+        summary.add("Prowizje za zwrotów pożyczek:");
+        summary.add("");
+        summary.add(Float.toString(sumLoans));
+        summary.add("ptk. 4");
+        model.addRow((Object[]) summary.toArray());
+        model.addRow(new Object[5]);
+        model.addRow(new Object[5]);
+        model.addRow(new Object[5]);
+        model.addRow(new Object[5]);
+        model.addRow(new Object[5]);
+        summary.clear();
+        summary.add("");
+        summary.add("Sprzedaż brutto:");
+        summary.add("");
+        summary.add(Float.toString(sumSellBrutto));
+        summary.add("ptk. 6");
+        model.addRow((Object[]) summary.toArray());
+        summary.clear();
+        summary.add("");
+        summary.add("Sprzedaż netto:");
+        summary.add("");
+        summary.add(Float.toString(sumSellNetto));
+        summary.add("ptk. 7");
+        model.addRow((Object[]) summary.toArray());
+        model.addRow(new Object[5]);
+        summary.clear();
+        summary.add("");
+        summary.add("Marża brutto:");
+        summary.add("");
+        summary.add(Float.toString(sCommissionBrutto));
+        summary.add("ptk. 4");
+        model.addRow((Object[]) summary.toArray());
+        summary.clear();
+        summary.add("");
+        summary.add("Marża netto:");
+        summary.add("");
+        summary.add(Float.toString(sCommissionNetto));
+        summary.add("ptk. 4");
+        model.addRow((Object[]) summary.toArray());
+        summary.clear();
+        summary.add("");
+        summary.add("VAT( " + (config.getVat() < 0 ? config.getVat() : config.getVat() * 100)  + "%) - od marży:");
+        summary.add("");
+        summary.add(Float.toString(commisionVAT));
+        summary.add("ptk. 10");
+        model.addRow((Object[]) summary.toArray());
     }
 
     public void updateTable() {
