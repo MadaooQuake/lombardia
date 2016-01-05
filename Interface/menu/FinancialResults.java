@@ -219,23 +219,34 @@ public class FinancialResults extends MenuElementsList {
 
     }
 
-    private Object[] addRow(List<HashMap<String, String>> operations) {
-        Object[] data = {""};
-        Map<String, String> operationData = new HashMap<>();
+    private void addRow(List<HashMap<String, String>> operations) {
+        String data = null;
         float commissionBrutto = 0, commissionNetto = 0, sellBrutto = 0, sellNetto = 0,
-                profitNetto = 0, ProfitBrutto = 0, commissionBrutto2 = 0, commissionNetto2 = 0,
-                loans = 0, vat = 0;
+                profitNetto = 0, commissionBrutto2 = 0, commissionNetto2 = 0,
+                loans = 0, vat = 0, sellVat = 0;
         //calculate one day
         for (HashMap<String, String> operation : operations) {
-
-            String[] dataTable = {"", "", "", "", "", "", "", ""};
-            dataTable[0] = operation.get("Data");
+            data = operation.get("Data");
             String op = operation.get("Operacje");
             String[] elements = op.split(":");
             switch (elements[0]) {
                 case "Sprzedano za":
-                    System.out.println("Sprzedano");
-
+                    sellBrutto += Float.parseFloat(elements[1]);
+                    sellNetto += Float.parseFloat(elements[1]) - (Float.parseFloat(elements[1]) * config.getVat());
+                    commissionBrutto += (Float.parseFloat(elements[1]) * config.getVat());
+                    commissionNetto += (Float.parseFloat(elements[1]) * config.getVat())
+                            - ((Float.parseFloat(elements[1]) * config.getVat()) * config.getVat());
+                    commissionBrutto *= 100;
+                    commissionBrutto = Math.round(commissionBrutto);
+                    commissionBrutto /= 100;
+                    commissionNetto *= 100;
+                    commissionNetto = Math.round(commissionNetto);
+                    commissionNetto /= 100;
+                    sellVat = commissionBrutto - commissionNetto;
+                    profitNetto = commissionNetto;
+                    sellVat *= 100;
+                    sellVat = Math.round(sellVat);
+                    sellVat /= 100;
                     break;
                 case "Zwrot pożyczki":
                     float vatTMP = ((Float.parseFloat(elements[2]) - Float.parseFloat(elements[3])) * config.getVat());
@@ -250,14 +261,70 @@ public class FinancialResults extends MenuElementsList {
                     vat *= 100;
                     vat = Math.round(vat);
                     vat /= 100;
-                    System.out.println(loans + "::" + commissionBrutto2 + "::" + commissionNetto2 + "::" + vat);
                     break;
                 default:
                     break;
             }
-
         }
-        return data;
+        // put data to table - looks horible, add to new method
+        if (data != null) {
+            List<String> dataToTable = new ArrayList<>();
+            dataToTable.add(data);
+            dataToTable.add("3. Zwroty");
+            dataToTable.add("");
+            dataToTable.add(Float.toString(loans));
+            dataToTable.add(Float.toString(loans));
+            model.addRow((Object[]) dataToTable.toArray());
+            dataToTable.clear();
+            dataToTable.add("");
+            dataToTable.add("4. Prowizje brutto");
+            dataToTable.add(Float.toString(commissionBrutto));
+            dataToTable.add(Float.toString(commissionBrutto2));
+            dataToTable.add(Float.toString(commissionBrutto + commissionBrutto2));
+            model.addRow((Object[]) dataToTable.toArray());
+            dataToTable.clear();
+            dataToTable.add("");
+            dataToTable.add("5. Prowizje netto");
+            dataToTable.add(Float.toString(commissionNetto));
+            dataToTable.add(Float.toString(commissionNetto2));
+            dataToTable.add(Float.toString(commissionNetto + commissionNetto2));
+            model.addRow((Object[]) dataToTable.toArray());
+            dataToTable.clear();
+            dataToTable.add("");
+            dataToTable.add("6. Sprzedaż brutto");
+            dataToTable.add(Float.toString(sellBrutto));
+            dataToTable.add("");
+            dataToTable.add(Float.toString(sellBrutto));
+            model.addRow((Object[]) dataToTable.toArray());
+            dataToTable.clear();
+            dataToTable.add("");
+            dataToTable.add("7. Sprzedaż netto");
+            dataToTable.add(Float.toString(sellNetto));
+            dataToTable.add("");
+            dataToTable.add(Float.toString(sellNetto));
+            model.addRow((Object[]) dataToTable.toArray());
+            dataToTable.clear();
+            dataToTable.add("");
+            dataToTable.add("8. Przychód ze sprzedażu netto");
+            dataToTable.add(Float.toString(profitNetto));
+            dataToTable.add("");
+            dataToTable.add(Float.toString(profitNetto));
+            model.addRow((Object[]) dataToTable.toArray());
+            dataToTable.clear();
+            dataToTable.add("");
+            dataToTable.add("9. Przychody netto");
+            dataToTable.add(Float.toString(profitNetto));
+            dataToTable.add(Float.toString(commissionNetto2));
+            dataToTable.add(Float.toString(profitNetto + commissionNetto2));
+            model.addRow((Object[]) dataToTable.toArray());
+            dataToTable.clear();
+            dataToTable.add("");
+            dataToTable.add("10. VAT");
+            dataToTable.add(Float.toString(sellVat));
+            dataToTable.add(Float.toString(vat));
+            dataToTable.add(Float.toString(sellVat + vat));
+            model.addRow((Object[]) dataToTable.toArray());
+        }
     }
 
     public void updateTable() {
