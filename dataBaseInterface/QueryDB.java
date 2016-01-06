@@ -37,7 +37,7 @@ public class QueryDB {
     public ResultSet dbSetQuery(String query) {
         try {
             stmt = c.createStatement();
-            System.out.println(query);
+            //System.out.println(query); //< only for debug
             if (query.contains("SELECT") && !query.contains("INSERT")) {
                 rs = stmt.executeQuery(query);
             } else {

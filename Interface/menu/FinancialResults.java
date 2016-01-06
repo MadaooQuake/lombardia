@@ -1,5 +1,7 @@
 package lombardia2014.Interface.menu;
 
+import com.itextpdf.text.DocumentException;
+import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
@@ -7,18 +9,21 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.IOException;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -28,6 +33,8 @@ import javax.swing.table.DefaultTableModel;
 import lombardia2014.core.ConfigRead;
 import lombardia2014.dataBaseInterface.UserOperations;
 import lombardia2014.generators.DateTools;
+import lombardia2014.generators.LombardiaLogger;
+import lombardia2014.generators.PDFCreator;
 import net.sourceforge.jdatepicker.impl.JDatePanelImpl;
 import net.sourceforge.jdatepicker.impl.JDatePickerImpl;
 import net.sourceforge.jdatepicker.impl.UtilDateModel;
@@ -45,8 +52,8 @@ public class FinancialResults extends MenuElementsList {
     String formname = "Wyniki finanoswe";
     JTable listFinacial = null;
     JScrollPane scrollPane = null;
-    int selectRow = -1, windowWidth = 860, windowHeigth = 600, rowsPerPage = 20;
-    String outputFileName = "_be_changed.pdf";
+    int selectRow = -1, windowWidth = 860, windowHeigth = 600, rowsPerPage = 40;
+    String outputFileName = "WynikiFinansowe.pdf";
     String[] headers = {"Data", "Dane", "Sprzedaż", "Zwrot pożyczki", "Suma Końcowa"};
     float[] headersWidth = {1.0f, 7.0f, 3.0f, 3.0f, 3.0f};
     List<Integer> sumMe = new ArrayList();
@@ -58,6 +65,7 @@ public class FinancialResults extends MenuElementsList {
     ConfigRead config = new ConfigRead();
     float sumLoans = 0, sumSellNetto = 0, sumSellBrutto = 0, sCommissionNetto = 0, sCommissionBrutto = 0,
             commisionVAT = 0;
+    PDFCreator pdf = null;
 
     DefaultTableModel model = new DefaultTableModel() {
 
@@ -160,6 +168,7 @@ public class FinancialResults extends MenuElementsList {
         printList.setText("Drukuj listę");
         printList.setPreferredSize(new Dimension(150, 26));
         printList.setFont(new Font("Dialog", Font.BOLD, 12));
+        printList.addActionListener(new PrintFinancalResult());
 
         ct.insets = new Insets(0, 20, 0, 0);
         ct.gridx = 5;
@@ -327,14 +336,14 @@ public class FinancialResults extends MenuElementsList {
             dataToTable.add(Float.toString(vat));
             dataToTable.add(Float.toString(sellVat + vat));
             model.addRow((Object[]) dataToTable.toArray());
-        }
 
-        sumLoans += commissionBrutto2;
-        sumSellNetto += sellNetto;
-        sumSellBrutto += sellBrutto;
-        sCommissionNetto += commissionNetto;
-        sCommissionBrutto += commissionBrutto;
-        commisionVAT += sellVat;
+            sumLoans += commissionBrutto2;
+            sumSellNetto += sellNetto;
+            sumSellBrutto += sellBrutto;
+            sCommissionNetto += commissionNetto;
+            sCommissionBrutto += commissionBrutto;
+            commisionVAT += sellVat;
+        }
     }
 
     public void createSummary() {
@@ -380,12 +389,15 @@ public class FinancialResults extends MenuElementsList {
         summary.add("");
         summary.add("Marża netto:");
         summary.add("");
+        sCommissionNetto *= 100;
+        sCommissionNetto = Math.round(sCommissionNetto);
+        sCommissionNetto /= 100;
         summary.add(Float.toString(sCommissionNetto));
-        summary.add("ptk. 4");
+        summary.add("ptk. 5");
         model.addRow((Object[]) summary.toArray());
         summary.clear();
         summary.add("");
-        summary.add("VAT( " + (config.getVat() < 0 ? config.getVat() : config.getVat() * 100)  + "%) - od marży:");
+        summary.add("VAT( " + (config.getVat() < 0 ? config.getVat() : config.getVat() * 100) + "%) - od marży:");
         summary.add("");
         summary.add(Float.toString(commisionVAT));
         summary.add("ptk. 10");
@@ -394,6 +406,8 @@ public class FinancialResults extends MenuElementsList {
 
     public void updateTable() {
         // clear model 
+        sumLoans = sumSellNetto = sumSellBrutto = sCommissionNetto 
+                = sCommissionBrutto = commisionVAT = 0;
         model.setRowCount(0);
         loadData();
         repaint();
@@ -404,6 +418,45 @@ public class FinancialResults extends MenuElementsList {
         @Override
         public void actionPerformed(ActionEvent e) {
             updateTable();
+        }
+
+    }
+
+    private class PrintFinancalResult implements ActionListener {
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            try {
+                pdf = new PDFCreator(outputFileName, formname);
+                pdf.SetLandscapeView();
+                pdf.SetRowsPerPage(rowsPerPage);
+                pdf.CreatePDF(model, headers, headersWidth);
+
+                JOptionPane.showMessageDialog(null, "Operacje PDF został wygenerowany.",
+                        "Generowanie PDF", JOptionPane.INFORMATION_MESSAGE);
+            } catch (IOException | DocumentException ex) {
+                LombardiaLogger startLogging = new LombardiaLogger();
+                String text = startLogging.preparePattern("Error", ex.getMessage()
+                        + "\n" + Arrays.toString(ex.getStackTrace()));
+                startLogging.logToFile(text);
+                JOptionPane.showMessageDialog(null, "Błąd podczas generowania operacji.",
+                        "Generowanie PDF", JOptionPane.ERROR_MESSAGE);
+            }
+
+            try {
+                String dir = System.getProperty("user.dir");
+
+                File dirAgre = new File(dir);
+
+                if (Desktop.isDesktopSupported()) {
+                    Desktop.getDesktop().open(dirAgre);
+                }
+            } catch (Exception ex) {
+                LombardiaLogger startLogging = new LombardiaLogger();
+                String text = startLogging.preparePattern("Error", ex.getMessage()
+                        + "\n" + Arrays.toString(ex.getStackTrace()));
+                startLogging.logToFile(text);
+            }
         }
 
     }

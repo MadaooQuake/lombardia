@@ -95,7 +95,7 @@ public class MainInterface {
      * @see methods who create and defined frame
      */
     private void createMainFrame() {
-        mainFrame = new JFrame("Lombardia v1.0.0 Kandydat 1");
+        mainFrame = new JFrame("Lombardia v1.0.1");
         mainFrame.setSize(new Dimension(900, 700));
         panel = new JPanel(new GridBagLayout());
 
